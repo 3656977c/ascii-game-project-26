@@ -51,6 +51,6 @@ signed main() {
         }
         co++;
         gmap[ex+ey*n] = 'E';
-        cout.flush();
+        system("cls");
     }
 }
