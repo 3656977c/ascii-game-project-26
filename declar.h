@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <cstdlib>
+//#include <ncurses>
 using namespace std;
 
 //colors for cout text
