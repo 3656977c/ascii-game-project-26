@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-//#include <ncurses>
+#include <ncurses/ncurses.h> //for getch()
 using namespace std;
 
 //colors for cout text
