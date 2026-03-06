@@ -10,10 +10,11 @@ void display(const vector<char> &gmap, int n, int x, int y, int ex, int ey) {
             char cell = gmap[idx];
             if (idx == x + y * n) {
                 cell = 'P';
+                mvaddch(row + 2, col * 2, cell | COLOR_PAIR(2));
             } else if (idx == ex + ey * n) {
                 cell = 'E';
-            }
-            mvaddch(row + 2, col * 2, cell);
+                mvaddch(row + 2, col * 2, cell | COLOR_PAIR(1));
+            } else mvaddch(row + 2, col * 2, cell);
         }
     }
     refresh();
@@ -47,6 +48,13 @@ signed main() {
     keypad(stdscr, TRUE);
     nodelay(stdscr, FALSE);
     timeout(-1);
+
+    if (has_colors()) {     // Check if terminal supports colors
+        start_color();      // Enable color
+        init_pair(1, COLOR_RED, COLOR_BLACK); // Define color pair 1 (red foreground, black background)
+        init_pair(2, COLOR_GREEN, COLOR_BLACK); // Define color pair 2 (green foreground, black background)
+    }
+
     while (state) {
         display(gmap, n, x, y, ex, ey);
         gmap[x+y*n] = '-';
