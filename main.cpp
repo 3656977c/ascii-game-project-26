@@ -1,19 +1,22 @@
 #include "declar.h"
 
-//displays a n*n grid
-void display(vector<char> &gmap, int n, int x, int y, int ex, int ey) {
-    for (int i = 0; i < n*n; i++) {
-        if (i%n == 0) cout << "\n";
-        if (i == x+y*n) {
-            cout << c_green << gmap[i] << " ";
-            continue;
+// Draw the board using ncurses (not std::cout) once curses mode is active.
+void display(const vector<char> &gmap, int n, int x, int y, int ex, int ey) {
+    clear();
+    mvprintw(0, 0, "WASD to move, Q to quit");
+    for (int row = 0; row < n; row++) {
+        for (int col = 0; col < n; col++) {
+            int idx = col + row * n;
+            char cell = gmap[idx];
+            if (idx == x + y * n) {
+                cell = 'P';
+            } else if (idx == ex + ey * n) {
+                cell = 'E';
+            }
+            mvaddch(row + 2, col * 2, cell);
         }
-        if (i == ex+ey*n) {
-            cout << c_red << gmap[i] << " ";
-            continue;
-        }
-        cout << c_yellow << gmap[i] << " ";
     }
+    refresh();
 }
 
 void enemy(int x, int y, int &ex, int &ey) {
@@ -27,7 +30,8 @@ void enemy(int x, int y, int &ex, int &ey) {
 }
 
 signed main() {
-    int n; cin >> n;
+    int n;
+    cin >> n;
     vector<char> gmap(n*n, '-');
     int x=0, y=0;
     int ex = n-1, ey = n-1;
@@ -35,15 +39,23 @@ signed main() {
     gmap[n*n-1] = 'E';
     bool state = true;
     int co = 0;
+
+    initscr();
+    cbreak();
+    noecho();
+    curs_set(0);
+    keypad(stdscr, TRUE);
+    nodelay(stdscr, FALSE);
+    timeout(-1);
     while (state) {
         display(gmap, n, x, y, ex, ey);
         gmap[x+y*n] = '-';
-        char c; cin >> c;
-        if (c == 'w' && y!=0) y--;
-        else if (c == 's' && y!=n-1) y++;
-        else if (c == 'a' && x!=0) x--;
-        else if (c == 'd' && x!=n-1) x++;
-        else if (c == 'q') state=false;
+        int c = getch();
+        if (c == 'w' && y != 0) y--;
+        else if (c == 's' && y != n - 1) y++;
+        else if (c == 'a' && x != 0) x--;
+        else if (c == 'd' && x != n - 1) x++;
+        else if (c == 'q' || c == 'Q') state = false;
         gmap[x+y*n] = 'P';
         gmap[ex+ey*n] = '-';
         if (co%2 == 0) {
@@ -51,6 +63,7 @@ signed main() {
         }
         co++;
         gmap[ex+ey*n] = 'E';
-        system("cls");
     }
+
+    endwin();
 }
