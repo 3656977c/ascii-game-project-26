@@ -49,11 +49,7 @@ signed main() {
     nodelay(stdscr, FALSE);
     timeout(-1);
 
-    if (has_colors()) {     // Check if terminal supports colors
-        start_color();      // Enable color
-        init_pair(1, COLOR_RED, COLOR_BLACK); // Define color pair 1 (red foreground, black background)
-        init_pair(2, COLOR_GREEN, COLOR_BLACK); // Define color pair 2 (green foreground, black background)
-    }
+    createcolor();
 
     while (state) {
         display(gmap, n, x, y, ex, ey);
