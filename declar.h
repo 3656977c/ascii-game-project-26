@@ -9,13 +9,12 @@
 using namespace std;
 
 //colors for cout text
-#define int long long
-#define c_red "\x1b[31m"
-#define c_green "\x1b[32m"
-#define c_yellow "\x1b[33m"
-#define c_blue "\x1b[34m"
-#define c_magenta "\x1b[35m"
-#define c_cyan "\x1b[36m"
-#define c_reset "\x1b[0m"
-
+void createcolor() {
+    if (has_colors()) {//is color supported?
+        start_color();  
+        init_pair(1, COLOR_RED, COLOR_BLACK); 
+        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+    }
+}
 #endif //declar
