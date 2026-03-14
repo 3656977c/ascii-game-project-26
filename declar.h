@@ -19,6 +19,11 @@ inline void colorscale() {
     }
 }
 
+//initialize randomness
+#include <random>
+#include <chrono>
+
+
 //Defined funcitons
 #define x first
 #define y second

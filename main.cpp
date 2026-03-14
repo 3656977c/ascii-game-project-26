@@ -1,5 +1,11 @@
 #include "declar.h"
 
+//initialize randomness
+    unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
+    mt19937 engine(seed);
+    uniform_int_distribution<int> dist(0,99);
+    #define rand dist(engine) 
+
 void initialize() {
     initscr(); //initialize ncurses
     cbreak(); //take in any input immediately without needing to press enter
@@ -65,23 +71,21 @@ void display( map<string, pair<int, int>> e, int n, char c) {
 
 signed main() {
     //initialize size of map
-    int n; cin >> n;
+    int n = rand/10 + 5;
     
     initialize();
     colorscale();
 
     //vector<char> gmap(n*n, '-'); not using this for now
     map<string, pair<int, int>> e; //entity list
-    e["player"] = {0,0};
-    e["enemy"] = {n-1, n-1};
+    e["player"] = {0+rand/20,0+rand/20};
+    e["enemy"] = {n-1-rand/20, n-1-rand/20};
     string state = "run";
-    int tn = 0; //turn number
 
     while (state == "run") {
-        tn++;
         display(e,n,'-');
         pinput(e["player"], n, state);
-        if (tn%2 == 1) enemy(e["player"], e["enemy"]);
+        if (rand%2 == 1) enemy(e["player"], e["enemy"]);
     }
     end();
 }
