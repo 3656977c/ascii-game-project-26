@@ -21,7 +21,8 @@ class entity {
         int x;  //col
         int y;  //row
         string type; //type of object (defines behaviour)
-        char c; //symbol
+        char s; //symbol
+        int c; //color
         int ax; //horizontal velocity
         int ay; //vertical velocity
         int t; //timer
@@ -34,6 +35,7 @@ inline void colorscale() {
         init_pair(1, COLOR_GREEN, COLOR_BLACK);
         init_pair(2, COLOR_RED, COLOR_BLACK);
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
+        init_pair(4, COLOR_WHITE, COLOR_BLACK);
     }
 }
 

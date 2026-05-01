@@ -1,6 +1,7 @@
 #include "declar.h"
 int n = 6;
 int m = 10;
+int open = 0;
 
 //initialize randomness
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
@@ -21,16 +22,26 @@ void initialize() {
 void display(int n, int m, vector<entity> e, entity p) {
     char c = '.';
     erase();
-    mvprintw(0, 0, "WASD to move, Q to quit");
+    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
+    else mvprintw(0, 0, "You Beat This Level!");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            mvaddch(2+i, 2*j, c | COLOR_PAIR(3));
+            mvaddch(2+i, 2*j, c | COLOR_PAIR(4));
         }
     }
-    mvaddch(2+p.x, 2*p.y, p.c | COLOR_PAIR(1));
+
     for (auto i: e) {
-         mvaddch(2+i.x, 2*i.y, i.c | COLOR_PAIR(2));
+        if (i.type != "gate" && i.type != "coin") continue;
+        if (i.c == -1) continue;
+        mvaddch(2+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
     }
+
+    for (auto i: e) {
+        if (i.type == "gate" || i.type == "coin") continue;
+        if (i.c == -1) continue;
+        mvaddch(2+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
+    }
+    mvaddch(2+p.x, 2*p.y, p.s | COLOR_PAIR(1));
     refresh();
 }
 
@@ -67,10 +78,27 @@ void bFollow(entity &e, entity p) {
     } else e.t++;
 }
 
+void bGate(entity &e, entity p) {
+    if (e.x == p.x && e.y == p.y && e.t == -1) {
+        open++;
+        e.t = 0;
+        e.c = 1;
+    }
+}
+
+void bCoin(entity &e, entity p) {
+    if (e.x == p.x && e.y == p.y && e.c > -1) {
+        e.t = 0;
+        e.c = -1;
+    }
+}
+
 void updateentities(vector<entity> &e, entity p) {
     for (auto &i: e) {
         if (i.type == "bouncer") bBouncer(i);
         if (i.type == "follow") bFollow(i, p);
+        if (i.type == "gate") bGate(i, p);
+        if (i.type == "coin") bCoin(i, p);
     }
 }
 
@@ -93,17 +121,29 @@ signed main() {
     string state = "run";
 
     vector<entity> elist;
-    entity player{0,0,"player", '@', -1,-1,-1};
+    entity player{0,0,"player", '@', -1, -1,-1,-1};
 
-    entity bounce{2, 6, "follow", '!', 1, 1, -1};
-    entity fol{1, 2, "bouncer", 'O', 1, 1, 0};
+    entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
+    entity fol{1, 2, "bouncer", 'O', 2, 1, 1, 0};
     elist.push_back(bounce);
     elist.push_back(fol);
+
+    entity gate1{5, 9, "gate", 'H', 3, -1, -1, -1};
+    elist.push_back(gate1);
+    entity gate2{5, 1, "gate", 'H', 3, -1, -1, -1};
+    elist.push_back(gate2);
+    entity gate3{0, 8, "gate", 'H', 3, -1, -1, -1};
+    elist.push_back(gate3);
+
+    entity coin1{3, 4, "coin", 'c', 3, -1, -1, -1};
+    elist.push_back(coin1);
+    entity coin2{3, 6, "coin", 'c', 3, -1, -1, -1};
+    elist.push_back(coin2);
+
     while (state == "run") {
         display(n, m, elist, player);
         updateplayer(player);
         updateentities(elist, player);
-
     }
     endwin();
 }
