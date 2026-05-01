@@ -1,4 +1,6 @@
 #include "declar.h"
+int n = 6;
+int m = 10;
 
 //initialize randomness
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
@@ -16,76 +18,92 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void end() {
-    endwin(); //stop ncurses
-}
-
-void pinput(pair<int, int> &p, int n, string &state) {
-    int c = getch();
-    switch (c) {
-        case 'w':
-            if (p.y > 0) p.y--;
-            break;
-        case 'a':
-            if (p.x > 0) p.x--;
-            break;
-        case 's':
-            if (p.y < n-1) p.y++;
-            break;
-        case 'd':
-            if (p.x < n-1) p.x++;
-            break;
-        default:
-            state="stop";
-    }
-}
-
-void enemy(pair<int, int> p, pair<int, int> &e) {
-    if (abs(e.x - p.x) > abs(e.y - p.y)) {
-        if (p.x > e.x) e.x++;
-        else e.x--;
-    } else {
-        if (p.y > e.y) e.y++;
-        else e.y--;
-    }
-}
-
-void display( map<string, pair<int, int>> e, int n, char c) {
-    clear();
+void display(int n, int m, vector<entity> e, entity p) {
+    char c = '.';
+    erase();
     mvprintw(0, 0, "WASD to move, Q to quit");
-    for (int i = 0; i < n*n; i++) {
-        mvaddch(2 + (i / n), 2 * (i % n), c | COLOR_PAIR(3));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            mvaddch(2+i, 2*j, c | COLOR_PAIR(3));
+        }
     }
-    
+    mvaddch(2+p.x, 2*p.y, p.c | COLOR_PAIR(1));
     for (auto i: e) {
-        if (i.first == "player") {
-            mvaddch(2 + i.second.y, 2 * i.second.x, 'P' | COLOR_PAIR(1));
-        }
-        if (i.first == "enemy") {
-            mvaddch(2 + i.second.y, 2 * i.second.x, 'E' | COLOR_PAIR(2));
-        }
+         mvaddch(2+i.x, 2*i.y, i.c | COLOR_PAIR(2));
     }
     refresh();
 }
 
+//!!!!!! Enemy Behaviour (to move to enemies.cpp abnd enemies.h)
+void bBouncer(entity &e) {
+    if (e.x == 0) e.ax = 1;
+    else if (e.x == n - 1) e.ax = -1;
+    if (e.y == 0) e.ay = 1;
+    else if (e.y == m - 1) e.ay = -1;
+    e.x += e.ax;
+    e.y += e.ay;
+}
+
+void bFollow(entity &e, entity p) {
+    if (e.t == 1) {
+        if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
+            if (rand/50 == 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        } else {
+            if (abs(e.x - p.x) > 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else if (abs(e.y - p.y) > 0) {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        }
+        e.t = 0;
+    } else e.t++;
+}
+
+void updateentities(vector<entity> &e, entity p) {
+    for (auto &i: e) {
+        if (i.type == "bouncer") bBouncer(i);
+        if (i.type == "follow") bFollow(i, p);
+    }
+}
+
+void updateplayer(entity &p) {
+    int c = getch();
+    switch (c) {
+        case 'w': if (p.x > 0) p.x--; break;
+        case 'a': if (p.y > 0) p.y--; break;
+        case 's': if (p.x < n-1) p.x++; break;
+        case 'd': if (p.y < m-1) p.y++; break;
+        case 'q': endwin();
+    }
+}
 
 signed main() {
     //initialize size of map
-    int n = rand/10 + 5;
-    
+
     initialize();
     colorscale();
-
-    //vector<char> gmap(n*n, '-'); not using this for now
-    map<string, pair<int, int>> e; //entity list
-    e["player"] = {0+rand/20,0+rand/20};
-    e["enemy"] = {n-1-rand/20, n-1-rand/20};
     string state = "run";
 
+    vector<entity> elist;
+    entity player{0,0,"player", '@', -1,-1,-1};
+
+    entity bounce{2, 6, "follow", '!', 1, 1, -1};
+    entity fol{1, 2, "bouncer", 'O', 1, 1, 0};
+    elist.push_back(bounce);
+    elist.push_back(fol);
     while (state == "run") {
-        display(e,n,'-');
-        pinput(e["player"], n, state);
-        if (rand%2 == 1) enemy(e["player"], e["enemy"]);
+        display(n, m, elist, player);
+        updateplayer(player);
+        updateentities(elist, player);
+
     }
-    end();
+    endwin();
 }
