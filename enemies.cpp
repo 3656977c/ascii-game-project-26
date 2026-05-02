@@ -691,7 +691,8 @@ void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, Upgr
       bGhost(e[i], p);
     }
     else if (e[i].type == "leaper") {
-    bLeaper(e[i], p, w);
+      bLeaper(e[i], p, w);
+    }
     else if (e[i].type == "spawner") {
       bSpawner(e[i]);
     }
