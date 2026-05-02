@@ -1,5 +1,6 @@
 #include "declar.h"
 #include "upgrades.h"
+#include "director.h"
 int n = 15;
 int m = 27;
 int open = 0;
@@ -115,21 +116,8 @@ entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int
     return item;
 }
 
-void setupLevel(vector<entity> &elist, player &p) {
-    elist.clear();
-    open = 0;
-    p.x = 0;
-    p.y = 0;
-
-    elist.push_back(makeEntity(2, 6, "follow", '!', 2, 1, 1, -1));
-    elist.push_back(makeEntity(1, 2, "bouncer", 'O', 2, 1, 1, 0));
-
-    elist.push_back(makeEntity(5, 9, "gate", 'H', 3, -1, -1, -1));
-    elist.push_back(makeEntity(5, 1, "gate", 'H', 3, -1, -1, -1));
-    elist.push_back(makeEntity(0, 8, "gate", 'H', 3, -1, -1, -1));
-
-    elist.push_back(makeEntity(3, 4, "coin", 'c', 3, -1, -1, -1));
-    elist.push_back(makeEntity(3, 6, "coin", 'c', 3, -1, -1, -1));
+void setupLevel(vector<entity> &elist, player &p, int level) {
+    buildLevel(elist, p, n, m, level);
 }
 
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
@@ -336,7 +324,7 @@ signed main() {
 
     vector<entity> elist;
     player player{0,0};
-    setupLevel(elist, player);
+    setupLevel(elist, player, level);
 
     while (state == "run") {
         display(n, m, elist, player, health, maxHealth, level);
@@ -381,7 +369,7 @@ signed main() {
 
             int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
             level++;
-            setupLevel(elist, player);
+            setupLevel(elist, player, level);
             addCarriedUpgradePickups(upgrades, elist);
             applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
         }
