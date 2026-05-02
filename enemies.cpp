@@ -55,7 +55,7 @@ void bFollow(entity &e, player p) {
     }
 
 }
-/ GHOST
+//GHOST
 // Similar to follower, but should be treated as ignoring walls.
 void bGhost(entity &e, player p) {
     if (e.t == 1) {
@@ -72,4 +72,24 @@ void bGhost(entity &e, player p) {
         e.t++;
     }
 
+}
+// CHARGER
+// Moves up to 2 tiles toward the player in a straight direction.
+void bCharger(entity &e, player p) {
+    if (e.t < 1) {
+        e.t++;
+        return;
+    }
+
+    for (int step = 0; step < 2; step++) {
+        if (abs(e.x - p.x) > abs(e.y - p.y)) {
+            if (p.x > e.x && e.x < n - 1) e.x++;
+            else if (p.x < e.x && e.x > 0) e.x--;
+        } else {
+            if (p.y > e.y && e.y < m - 1) e.y++;
+            else if (p.y < e.y && e.y > 0) e.y--;
+        }
+    }
+
+    e.t = 0;
 }
