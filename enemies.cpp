@@ -128,3 +128,79 @@ void bKnight(entity &e, vector<pair<int,int>> &w) {
 
     e.t = 0;
 }
+
+// TURRET
+// Stationary enemy that shoots projectiles in 8 directions every few turns.
+void bTurret(entity &e, vector<entity> &elist) {
+    e.t++;
+
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirs[8][2] = {
+        {-1, 0}, {1, 0},
+        {0, -1}, {0, 1},
+        {-1, -1}, {-1, 1},
+        {1, -1}, {1, 1}
+    };
+
+    for (int i = 0; i < 8; i++) {
+        entity projectile{
+            e.x,
+            e.y,
+            "projectile",
+            '*',
+            2,
+            dirs[i][0],
+            dirs[i][1],
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+
+}
+
+// PROJECTILE
+// Moves in its stored direction.
+// Disappears when it leaves the map.
+void bProjectile(entity &e) {
+    e.x += e.ax;
+    e.y += e.ay;
+
+    if (e.x < 0 || e.x >= n || e.y < 0 || e.y >= m) {
+        e.c = -1;
+    }
+}
+
+// GATE
+void bGate(entity &e, player p) {
+    if (e.x == p.x && e.y == p.y && e.t == -1) {
+        open++;
+        e.t = 0;
+        e.c = 1;
+    }
+}
+
+// COIN
+void bCoin(entity &e, player p) {
+    if (e.x == p.x && e.y == p.y && e.c > -1) {
+        e.t = 0;
+        e.c = -1;
+    }
+}
+bool bMushroom(entity mushroom, player p) {
+if (mushroom.c == -1 || mushroom.type != "mushroom") {
+return false;
+}
+
+int dx = mushroom.x - p.x;
+int dy = mushroom.y - p.y;
+
+// Radius 2 circle:
+// dx² + dy² <= 2²
+return dx * dx + dy * dy <= 4;
+}
