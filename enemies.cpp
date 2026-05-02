@@ -233,7 +233,7 @@ bool bMushroom(entity mushroom, player p) {
 // TURRET
 // Shoots projectiles in 8 directions every 3 turns.
 // It spawns all valid adjacent projectiles at the same time.
-void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
+void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades) {
     e.t++;
 
     if (e.t < 3) {
@@ -261,6 +261,10 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
         // not moving diagonally from a previous tile yet.
         if (isBlocked(w, spawnX, spawnY)) {
             continue;
+        }
+
+        if (!canSpawnProjectile(upgrades, elist)) {
+            return;
         }
 
         entity projectile{
@@ -337,7 +341,8 @@ void bShooter(
     player p,
     vector<entity> &elist,
     vector<pair<int,int>> &w,
-    int selfIndex
+    int selfIndex,
+    UpgradeState &upgrades
 ) {
     // Cooldown after shooting.
     // During cooldown, the shooter does not move or charge.
@@ -404,6 +409,10 @@ void bShooter(
 
             if (!canSpawnProjectile(w, spawnX, spawnY, ax, ay)) {
                 continue;
+            }
+
+            if (!canSpawnProjectile(upgrades, elist)) {
+                return;
             }
 
             entity projectile{
@@ -510,7 +519,7 @@ void bCoin(entity &e, player p) {
 }
 
 // Updates all active entities.
-void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
+void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
   int originalSize = e.size();
 
   for (int i = 0; i < originalSize; i++) {
@@ -532,13 +541,15 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
       bKnight(e[i], w);
     }
     else if (e[i].type == "turret") {
-      bTurret(e[i], e, w);
+      bTurret(e[i], e, w, upgrades);
     }
     else if (e[i].type == "shooter") {
-      bShooter(e[i], p, e, w, i);
+      bShooter(e[i], p, e, w, i, upgrades);
     }
     else if (e[i].type == "projectile") {
-      bProjectile(e[i], w);
+      if (shouldProjectileMove(upgrades)) {
+        bProjectile(e[i], w);
+      }
     }
     else if (e[i].type == "gate") {
       bGate(e[i], p);

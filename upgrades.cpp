@@ -35,12 +35,16 @@ void healPlayer(int &health, int maxHealth, int amount) {
     }
 }
 
-// Only projectiles that are still visible count.
+bool isProjectileEntity(entity item) {
+    return item.type == "projectile" && item.c != -1;
+}
+
+// Only enemy projectile entities that are still active count.
 int countProjectiles(vector<entity> &elist) {
     int total = 0;
 
     for (int i = 0; i < (int)elist.size(); i++) {
-        if (elist[i].type == "projectile" && elist[i].c != -1) {
+        if (isProjectileEntity(elist[i])) {
             total++;
         }
     }
@@ -257,6 +261,13 @@ bool isPlayerImmune(UpgradeState &upgrades) {
 void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
     if (isPlayerImmune(upgrades) == true) {
         return;
+    }
+
+    if (enemyIndex >= 0 && enemyIndex < (int)elist.size()) {
+        if (isProjectileEntity(elist[enemyIndex]) && tryBlockProjectile(upgrades)) {
+            elist[enemyIndex].c = -1;
+            return;
+        }
     }
 
     health--;

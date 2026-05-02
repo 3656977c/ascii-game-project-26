@@ -353,7 +353,7 @@ signed main() {
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
-            updateentities(elist, player, wlist);
+            updateentities(elist, player, wlist, upgrades);
         }
         removeInactiveEntities(elist);
 
