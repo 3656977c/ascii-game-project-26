@@ -82,11 +82,22 @@ void spawnRandomEnemies(vector,entity> &elist, player p, int n,int m, int enemyP
 }
 
 // Initial enemies at he start of the level
-void spawnStartingEnemies(vector<entity> &elist, player p, int n, int m, int level, int enemyPoolSize) {
+void spawnStartingEnemies(vector<entity> &elist, player p, int n, int m, int level, int enemyPoolSize){
   int enemyCount= 2+level;
   for(int i = 0; i< enemyCount; i++) {
       spawnRandomEnemy(elist,p, n,m, enemyPoolSize);
   }
+}
+
+// spawns extra enemies as turns pass, This creates a time pressure
+void directorTurnUpdate(vector<entity> &elist, player p,int n, int m, int level, int turnNumber, int enemyPoolSize){
+      int spawnRate = 12 - level;
+      if (spawnRate<4) {
+          spawnRate = 4;
+      
+      }if (turnNumber >0 && turnNumber % spawnRate == 0) {
+          spawnRandomEnemy(elist,p, n, m, enemyPoolSize);
+      }
 }
 
 
