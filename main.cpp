@@ -147,7 +147,7 @@ vector<int> getUpgradeChoices(vector<int> pickedUpgrades) {
     vector<int> choices;
 
     while ((int)choices.size() < 3) {
-        int upgradeNumber = rand % 15 + 1;
+        int upgradeNumber = rand % 14 + 1;
         bool alreadyChosen = false;
 
         for (int choice: choices) {

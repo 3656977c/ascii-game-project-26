@@ -29,6 +29,8 @@ bool isBlocked(vector<pair<int,int>> &w, int x, int y) {
     return isWall(w, x, y);
 }
 
+int signNum(int value);
+
 // BOUNCER
 // Moves diagonally.
 // Bounces off borders, walls, and wall corners.
@@ -138,81 +140,37 @@ void bGhost(entity &e, player p) {
     } else e.t++;
 }
 
-// CHARGER
-// Moves 2 tiles toward the player.
-// Cannot land inside a wall.
-void bCharger(entity &e, player p, vector<pair<int,int>> &w) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
-
-  int dx = 0;
-  int dy = 0;
-
-  if (abs(e.x - p.x) > abs(e.y - p.y)) {
-    if (p.x > e.x) dx = 1;
-    else if (p.x < e.x) dx = -1;
-  } else {
-    if (p.y > e.y) dy = 1;
-    else if (p.y < e.y) dy = -1;
-  }
-
-  for (int step = 0; step < 2; step++) {
-    int nextX = e.x + dx;
-    int nextY = e.y + dy;
-
-    if (
-      nextX >= 0 && nextX < n &&
-      nextY >= 0 && nextY < m &&
-      !isWall(w, nextX, nextY)
-    ) {
-      e.x = nextX;
-      e.y = nextY;
+// // LEAPER
+// Merges charger + knight.
+// It jumps exactly 2 tiles toward the player.
+// It skips the middle tile and only checks the landing tile.
+void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
+    if (e.t == 0) {
+        e.t++;
+        return;
     }
-  }
 
-  e.t = 0;
-}
+    int dx = 0;
+    int dy = 0;
 
-// KNIGHT
-// Jumps exactly 2 tiles in one cardinal direction.
-// It skips the middle tile.
-// It cannot land on a wall.
-void bKnight(entity &e, vector<pair<int,int>> &w) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
+    int diffX = p.x - e.x;
+    int diffY = p.y - e.y;
 
-  int directions[4][2] = {
-    {-1, 0},
-    {1, 0},
-    {0, -1},
-    {0, 1}
-  };
-
-  for (int tries = 0; tries < 8; tries++) {
-    int choice = std::rand() % 4;
-
-    int dx = directions[choice][0];
-    int dy = directions[choice][1];
+    if (abs(diffX) > abs(diffY)) {
+        dx = signNum(diffX);
+    } else {
+        dy = signNum(diffY);
+    }
 
     int landX = e.x + 2 * dx;
     int landY = e.y + 2 * dy;
 
-    if (
-      landX >= 0 && landX < n &&
-      landY >= 0 && landY < m &&
-      !isWall(w, landX, landY)
-    ) {
-      e.x = landX;
-      e.y = landY;
-      break;
+    if (!isBlocked(w, landX, landY)) {
+        e.x = landX;
+        e.y = landY;
     }
-  }
 
-  e.t = 0;
+    e.t = 0;
 }
 
 // MUSHROOM
@@ -262,7 +220,7 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrade
             continue;
         }
 
-        if (!canSpawnProjectile(upgrades, elist)) {
+        if (!canSpawnMoreProjectiles(upgrades, elist)) {
             return;
         }
 
@@ -410,7 +368,7 @@ void bShooter(
                 continue;
             }
 
-            if (!canSpawnProjectile(upgrades, elist)) {
+            if (!canSpawnMoreProjectiles(upgrades, elist)) {
                 return;
             }
 
@@ -537,9 +495,187 @@ void bCoin(entity &e, player p) {
     e.c = -1;
   }
 }
+// GRAPPLER
+// If the player is in the same row or column, pulls the player one tile toward it.
+// It also moves slowly every 3 turns.
+void bGrappler(entity &e, player &p, vector<pair<int,int>> &w) {
+    // Pull player if aligned.
+    if (p.x == e.x) {
+        int pullY = p.y + signNum(e.y - p.y);
 
+        if (!isBlocked(w, p.x, pullY)) {
+            p.y = pullY;
+        }
+    }
+    else if (p.y == e.y) {
+        int pullX = p.x + signNum(e.x - p.x);
+
+        if (!isBlocked(w, pullX, p.y)) {
+            p.x = pullX;
+        }
+    }
+
+    // Move only once every 3 turns.
+    e.t++;
+
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirs[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    for (int tries = 0; tries < 6; tries++) {
+        int choice = rando % 4;
+
+        int nextX = e.x + dirs[choice][0];
+        int nextY = e.y + dirs[choice][1];
+
+        if (!isBlocked(w, nextX, nextY)) {
+            e.x = nextX;
+            e.y = nextY;
+            break;
+        }
+    }
+}
+// +TUR
+// Moving turret that shoots cardinal projectiles.
+void bPlusTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades) {
+    e.t++;
+
+    // Random movement every turn.
+    int dirsMove[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    int choice = rando % 4;
+    int nextX = e.x + dirsMove[choice][0];
+    int nextY = e.y + dirsMove[choice][1];
+
+    if (!isBlocked(w, nextX, nextY)) {
+        e.x = nextX;
+        e.y = nextY;
+    }
+
+    // Shoot every 3 turns.
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirsShoot[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int dx = dirsShoot[i][0];
+        int dy = dirsShoot[i][1];
+
+        int spawnX = e.x + dx;
+        int spawnY = e.y + dy;
+
+        if (isBlocked(w, spawnX, spawnY)) {
+            continue;
+        }
+
+        if (!canSpawnMoreProjectiles(upgrades, elist)) {
+            return;
+        }
+
+        entity projectile{
+            spawnX,
+            spawnY,
+            "projectile",
+            '*',
+            2,
+            dx,
+            dy,
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+}
+// XTUR
+// Moving turret that shoots diagonal projectiles.
+void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades) {
+    e.t++;
+
+    // Random movement every turn.
+    int dirsMove[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    int choice = rando % 4;
+    int nextX = e.x + dirsMove[choice][0];
+    int nextY = e.y + dirsMove[choice][1];
+
+    if (!isBlocked(w, nextX, nextY)) {
+        e.x = nextX;
+        e.y = nextY;
+    }
+
+    // Shoot every 3 turns.
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirsShoot[4][2] = {
+        {-1, -1},
+        {-1, 1},
+        {1, -1},
+        {1, 1}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int dx = dirsShoot[i][0];
+        int dy = dirsShoot[i][1];
+
+        int spawnX = e.x + dx;
+        int spawnY = e.y + dy;
+
+        if (isBlocked(w, spawnX, spawnY)) {
+            continue;
+        }
+
+        if (!canSpawnMoreProjectiles(upgrades, elist)) {
+            return;
+        }
+
+        entity projectile{
+            spawnX,
+            spawnY,
+            "projectile",
+            '*',
+            2,
+            dx,
+            dy,
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+}
 // Updates all active entities.
-void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
+void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
   int originalSize = e.size();
 
   for (int i = 0; i < originalSize; i++) {
@@ -554,6 +690,8 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     else if (e[i].type == "ghost") {
       bGhost(e[i], p);
     }
+    else if (e[i].type == "leaper") {
+    bLeaper(e[i], p, w);
     else if (e[i].type == "spawner") {
       bSpawner(e[i]);
     }
@@ -580,6 +718,15 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     else if (e[i].type == "coin") {
       bCoin(e[i], p);
     }
+    else if (e[i].type == "grappler") {
+    bGrappler(e[i], p, w);
+    }
+    else if (e[i].type == "+tur") {
+    bPlusTurret(e[i], e, w, upgrades);
+    }
+    else if (e[i].type == "xtur") {
+    bXTurret(e[i], e, w, upgrades);
+    }
   }
 }
 
@@ -588,9 +735,11 @@ bool isDamagingEnemy(entity e) {
         e.type == "bouncer" ||
         e.type == "follow" ||
         e.type == "ghost" ||
-        e.type == "charger" ||
-        e.type == "knight" ||
+        e.type == "leaper" ||
         e.type == "shooter" ||
+        e.type == "grappler" ||
+        e.type == "+tur" ||
+        e.type == "xtur" ||
         e.type == "projectile"
     );
 }

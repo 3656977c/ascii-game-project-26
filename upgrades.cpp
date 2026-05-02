@@ -10,7 +10,6 @@ UpgradeState::UpgradeState() {
     healEveryTwoPickups = false;
     loopAroundMap = false;
     fifthTurnImmune = false;
-    swapStationaryEnemy = false;
     blockOneProjectile = false;
     limitProjectiles = false;
     slowProjectiles = false;
@@ -56,11 +55,13 @@ bool isEnemyType(string type) {
     return type == "bouncer" ||
            type == "follow" ||
            type == "ghost" ||
-           type == "charger" ||
-           type == "knight" ||
+           type == "leaper" ||
            type == "mushroom" ||
            type == "turret" ||
-           type == "shooter";
+           type == "shooter" ||
+           type == "grappler" ||
+           type == "+tur" ||
+           type == "xtur";
 }
 
 // Remove the first enemy still active on the board.
@@ -91,6 +92,20 @@ bool isPickupSpotFree(vector<entity> &elist, vector<pair<int, int>> &wlist, int 
     return true;
 }
 
+void addPickup(vector<entity> &elist, int x, int y, string pickupType, char symbol) {
+    entity pickup;
+    pickup.x = x;
+    pickup.y = y;
+    pickup.type = pickupType;
+    pickup.s = symbol;
+    pickup.c = 3;
+    pickup.ax = -1;
+    pickup.ay = -1;
+    pickup.t = -1;
+
+    elist.push_back(pickup);
+}
+
 // Put one pickup on a free random tile.
 void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol) {
     int x = 0;
@@ -109,17 +124,7 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
         for (x = 0; x < n; x++) {
             for (y = 0; y < m; y++) {
                 if (isPickupSpotFree(elist, wlist, x, y)) {
-                    entity pickup;
-                    pickup.x = x;
-                    pickup.y = y;
-                    pickup.type = pickupType;
-                    pickup.s = symbol;
-                    pickup.c = 3;
-                    pickup.ax = -1;
-                    pickup.ay = -1;
-                    pickup.t = -1;
-
-                    elist.push_back(pickup);
+                    addPickup(elist, x, y, pickupType, symbol);
                     return;
                 }
             }
@@ -128,17 +133,7 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
         return;
     }
 
-    entity pickup;
-    pickup.x = x;
-    pickup.y = y;
-    pickup.type = pickupType;
-    pickup.s = symbol;
-    pickup.c = 3;
-    pickup.ax = -1;
-    pickup.ay = -1;
-    pickup.t = -1;
-
-    elist.push_back(pickup);
+    addPickup(elist, x, y, pickupType, symbol);
 }
 
 // Turn on the chosen upgrade, and spawn anything it gives immediately.
@@ -196,20 +191,16 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &m
         upgrades.fifthTurnImmune = true;
     }
     else if (upgradeNumber == 12) {
-        // Reserved for stationary-enemy swap behavior.
-        upgrades.swapStationaryEnemy = true;
-    }
-    else if (upgradeNumber == 13) {
         // One projectile block per stage.
         upgrades.blockOneProjectile = true;
         upgrades.projectileBlocks = 1;
     }
-    else if (upgradeNumber == 14) {
+    else if (upgradeNumber == 13) {
         // Keep the projectile count capped.
         upgrades.limitProjectiles = true;
         upgrades.projectileLimit = 5;
     }
-    else if (upgradeNumber == 15) {
+    else if (upgradeNumber == 14) {
         // Make projectile movement skip every other turn.
         upgrades.slowProjectiles = true;
     }
@@ -279,37 +270,6 @@ void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int
     }
 }
 
-// Older loop-around helper kept for code that uses entity as the player.
-void checkLoopAroundMap(UpgradeState &upgrades, entity &player, int n, int m) {
-    if (upgrades.loopAroundMap == false || upgrades.loopCharges <= 0) {
-        return;
-    }
-
-    bool used = false;
-
-    if (player.x < 0) {
-        player.x = n - 1;
-        used = true;
-    }
-    else if (player.x >= n) {
-        player.x = 0;
-        used = true;
-    }
-
-    if (player.y < 0) {
-        player.y = m - 1;
-        used = true;
-    }
-    else if (player.y >= m) {
-        player.y = 0;
-        used = true;
-    }
-
-    if (used == true) {
-        upgrades.loopCharges--;
-    }
-}
-
 // Spend a projectile block if one is available.
 bool tryBlockProjectile(UpgradeState &upgrades) {
     if (upgrades.blockOneProjectile == true && upgrades.projectileBlocks > 0) {
@@ -321,7 +281,7 @@ bool tryBlockProjectile(UpgradeState &upgrades) {
 }
 
 // Projectile spawn cap.
-bool canSpawnProjectile(UpgradeState &upgrades, vector<entity> &elist) {
+bool canSpawnMoreProjectiles(UpgradeState &upgrades, vector<entity> &elist) {
     if (upgrades.limitProjectiles == false) {
         return true;
     }
@@ -364,10 +324,9 @@ string getUpgradeName(int upgradeNumber) {
     if (upgradeNumber == 9) return "Gain 1 HP every 2 pickups";
     if (upgradeNumber == 10) return "Loop around the map once";
     if (upgradeNumber == 11) return "Immune every fifth turn";
-    if (upgradeNumber == 12) return "Swap with stationary enemies";
-    if (upgradeNumber == 13) return "Block one projectile per floor";
-    if (upgradeNumber == 14) return "Limit projectiles to 5";
-    if (upgradeNumber == 15) return "Slow projectiles";
+    if (upgradeNumber == 12) return "Block one projectile per floor";
+    if (upgradeNumber == 13) return "Limit projectiles to 5";
+    if (upgradeNumber == 14) return "Slow projectiles";
 
     return "Unknown upgrade";
 }
