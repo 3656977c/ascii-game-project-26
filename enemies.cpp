@@ -394,6 +394,9 @@ void bShooter(
             offsets[1][0] = 0;   offsets[1][1] = 0;
             offsets[2][0] = ax;  offsets[2][1] = -ay;
         }
+        
+        // Wait 3 turns after shooting.
+        e.t = -3;
 
         for (int i = 0; i < 3; i++) {
             int spawnX = e.x + ax + offsets[i][0];
@@ -417,8 +420,6 @@ void bShooter(
             elist.push_back(projectile);
         }
 
-        // Wait 3 turns after shooting.
-        e.t = -3;
         return;
     }
 
