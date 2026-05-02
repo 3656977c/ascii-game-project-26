@@ -322,33 +322,20 @@ signed main() {
 
         collectPickups(upgrades, health, maxHealth, elist, player);
 
-        bool hitThisTurn = false;
-        int enemyIndex = getPlayerHitIndex(elist, player);
-
-        if (enemyIndex != -1) {
-            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
-                state = "dead";
-                break;
-            }
-            hitThisTurn = true;
-        }
-
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
             updateentities(elist, player, wlist);
         }
 
-
         collectPickups(upgrades, health, maxHealth, elist, player);
 
-        enemyIndex = getPlayerHitIndex(elist, player);
-        if (!hitThisTurn && enemyIndex != -1) {
+        int enemyIndex = getPlayerHitIndex(elist, player);
+        if (enemyIndex != -1) {
             if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
                 state = "dead";
             }
         }
-
         if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
 
