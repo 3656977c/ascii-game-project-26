@@ -515,6 +515,9 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
     else if (e[i].type == "turret") {
       bTurret(e[i], e, w);
     }
+    else if (e[i].type== "shooter") {
+      bShooter(e[i], p, e, w);
+    }
     else if (e[i].type == "projectile") {
       bProjectile(e[i], w);
     }
@@ -534,6 +537,7 @@ bool isDamagingEnemy(entity e) {
     e.type == "ghost" ||
     e.type == "charger" ||
     e.type == "knight" ||
+    e.type == "shooter" ||
     e.type == "projectile"
   );
 }
