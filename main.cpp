@@ -115,20 +115,20 @@ void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p,
     director(elist, wlist, p, level - 1, epool);
 }
 
-void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
+void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vector<pair<int, int>> &wlist) {
     if (upgrades.spawnTimeStopPickups) {
-        spawnPickup(elist, n, m, "time_stop", 'T');
-        spawnPickup(elist, n, m, "time_stop", 'T');
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
     }
 
     if (upgrades.spawnKillPickups) {
-        spawnPickup(elist, n, m, "kill_pickup", 'K');
-        spawnPickup(elist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
     }
 
     if (upgrades.spawnSwapPickups) {
-        spawnPickup(elist, n, m, "swap_pickup", 'S');
-        spawnPickup(elist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
     }
 }
 
@@ -367,8 +367,8 @@ signed main() {
             pickedUpgrades.push_back(selectedUpgrade);
             level++;
             setupLevel(elist, wlist, player, level, epool);
-            addCarriedUpgradePickups(upgrades, elist);
-            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
+            addCarriedUpgradePickups(upgrades, elist, wlist);
+            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, wlist, n, m);
         }
 
         nextUpgradeTurn(upgrades);

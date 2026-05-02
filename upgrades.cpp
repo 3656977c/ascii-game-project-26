@@ -71,10 +71,58 @@ void killFirstEnemy(vector<entity> &elist) {
     }
 }
 
-// Put one pickup somewhere random on the map.
-void spawnPickup(vector<entity> &elist, int n, int m, string pickupType, char symbol) {
-    int x = rand() % n;
-    int y = rand() % m;
+bool isPickupSpotFree(vector<entity> &elist, vector<pair<int, int>> &wlist, int x, int y) {
+    for (auto wall: wlist) {
+        if (wall.first == x && wall.second == y) {
+            return false;
+        }
+    }
+
+    for (auto item: elist) {
+        if (item.c != -1 && item.x == x && item.y == y) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+// Put one pickup on a free random tile.
+void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol) {
+    int x = 0;
+    int y = 0;
+
+    for (int tries = 0; tries < 100; tries++) {
+        x = rand() % n;
+        y = rand() % m;
+
+        if (isPickupSpotFree(elist, wlist, x, y)) {
+            break;
+        }
+    }
+
+    if (!isPickupSpotFree(elist, wlist, x, y)) {
+        for (x = 0; x < n; x++) {
+            for (y = 0; y < m; y++) {
+                if (isPickupSpotFree(elist, wlist, x, y)) {
+                    entity pickup;
+                    pickup.x = x;
+                    pickup.y = y;
+                    pickup.type = pickupType;
+                    pickup.s = symbol;
+                    pickup.c = 3;
+                    pickup.ax = -1;
+                    pickup.ay = -1;
+                    pickup.t = -1;
+
+                    elist.push_back(pickup);
+                    return;
+                }
+            }
+        }
+
+        return;
+    }
 
     entity pickup;
     pickup.x = x;
@@ -90,7 +138,7 @@ void spawnPickup(vector<entity> &elist, int n, int m, string pickupType, char sy
 }
 
 // Turn on the chosen upgrade, and spawn anything it gives immediately.
-void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, int n, int m) {
+void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m) {
     if (upgradeNumber == 1) {
         // More max hp, with a full heal.
         maxHealth += 1;
@@ -111,20 +159,20 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &m
     else if (upgradeNumber == 5) {
         // Add time-stop pickups to this and later stages.
         upgrades.spawnTimeStopPickups = true;
-        spawnPickup(elist, n, m, "time_stop", 'T');
-        spawnPickup(elist, n, m, "time_stop", 'T');
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
     }
     else if (upgradeNumber == 6) {
         // Add kill pickups to this and later stages.
         upgrades.spawnKillPickups = true;
-        spawnPickup(elist, n, m, "kill_pickup", 'K');
-        spawnPickup(elist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
     }
     else if (upgradeNumber == 7) {
         // Add swap pickups to this and later stages.
         upgrades.spawnSwapPickups = true;
-        spawnPickup(elist, n, m, "swap_pickup", 'S');
-        spawnPickup(elist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
     }
     else if (upgradeNumber == 8) {
         // Every two pickups also removes an enemy.

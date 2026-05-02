@@ -34,8 +34,8 @@ class UpgradeState {
 void healPlayer(int &health, int maxHealth, int amount);
 int countProjectiles(vector<entity> &elist);
 void killFirstEnemy(vector<entity> &elist);
-void spawnPickup(vector<entity> &elist, int n, int m, string pickupType, char symbol);
-void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, int n, int m);
+void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol);
+void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m);
 void onStageClear(UpgradeState &upgrades, int &health, int maxHealth);
 void onPickupCollected(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist);
 bool isPlayerImmune(UpgradeState &upgrades);
