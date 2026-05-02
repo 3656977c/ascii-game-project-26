@@ -330,7 +330,7 @@ signed main() {
     entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
     entity ghst = {0, 0, "ghost", '%', 2, -1, -1, -1};
     entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
-    vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {4, shtr}}; //enemy pool
+    vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}}; //enemy pool
     player player{0,0};
 
     setupLevel(elist, wlist, player, level, epool);
