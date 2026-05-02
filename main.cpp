@@ -100,14 +100,14 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
     refresh();
 }
 
-void setupLevel(vector<entity> &elist, player &p, int level, vector<pair<int, string>> epool) {
+void setupLevel(vector<entity> &elist, player &p, int level, vector<pair<int, entity>> epool) {
     vector<pair<int, int>> ignoredWalls;
     elist.clear();
     open = 0;
     director(elist, ignoredWalls, p, level - 1, epool);
 }
 
-void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level, vector<pair<int, string>> epool) {
+void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level, vector<pair<int, entity>> epool) {
     elist.clear();
     wlist.clear();
     open = 0;
@@ -311,7 +311,12 @@ signed main() {
 
     vector<entity> elist;
     vector<pair<int, int>> wlist;
-    vector<pair<int, string>> epool = {{2, "bouncer"}, {3, "ghost"}}; //enemy pool
+
+    //enemies with defaul start vals
+    entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
+    entity ghst = {0, 0, "ghost", '%', 2, -1, -1, -1};
+    entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
+    vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {4, shtr}}; //enemy pool
     player player{0,0};
 
     setupLevel(elist, wlist, player, level, epool);

@@ -149,19 +149,26 @@ bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>
     return true;
 }
 
-vector<string> listgen(int pts, vector<pair<int, string>> epool) {
+vector<entity> listgen(int pts, vector<pair<int, entity>> epool) {
+    if (epool.size() == 0) return {};
     int temp = rand%(epool.size());
-    vector<string> list;
+    vector<entity> list;
 
-    while (pts - epool[temp].first > 0)
-    return {};
+    while (pts - epool[temp].first > 0) {
+        pts -= epool[temp].first;
+        list.push_back(epool[temp].second);
+        temp = rand%(epool.size());
+
+        if (epool[temp].second.t > 0) list.back().t = rand%3;
+    }
+    return list;
 }
 
-void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, string>> epool) {
+void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, entity>> epool) {
     //elist is the list of all entities, p is player, level is the danger value
-    vector<int> difficulty = {50, 60, 70, 80, 90};
+    vector<int> difficulty = {30, 40, 50, 60, 70};
     int pts = difficulty[level];
-    vector<string> enemylineup = listgen(pts, epool);
+    vector<entity> enemylineup = listgen(pts, epool);
 
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int temp = rand%9;
@@ -226,7 +233,21 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
             entity gate = {x, y, "gate", 'G', 3, -1, -1, -1};
             elist.push_back(gate);
         //spawn enemy
-//ADDDDHERE   
+        int spawn = (enemylineup.size() + (i-1))/i;
+        for (int i = 0; i < spawn; i++) {
+            int x = 0, y = 0;
+            for (int i = 0; i < 100; i++) {
+                x = rand%5 + bgx; y = rand%9 + bgy;
+                if (occupied(x, y, p, elist, wall)) {
+                    elist.push_back({x, y, enemylineup.back().type, 
+                        enemylineup.back().s, enemylineup.back().c, 
+                        enemylineup.back().ax, enemylineup.back().ay, 
+                        enemylineup.back().t});
+                    enemylineup.pop_back();
+                    break;
+                }
+            }
+        }
     }
 
     //COIN SECTION
@@ -253,7 +274,21 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         entity coin = {x, y, "coin", 'c', 3, -1, -1, -1};
         elist.push_back(coin);
     //spawn enemy
-//ADDDDHERE   
+        int spawn = (enemylineup.size() + (i-1))/i;
+        for (int i = 0; i < spawn; i++) {
+            int x = 0, y = 0;
+            for (int i = 0; i < 100; i++) {
+                x = rand%5 + bgx; y = rand%9 + bgy;
+                if (occupied(x, y, p, elist, wall)) {
+                    elist.push_back({x, y, enemylineup.back().type, 
+                        enemylineup.back().s, enemylineup.back().c, 
+                        enemylineup.back().ax, enemylineup.back().ay, 
+                        enemylineup.back().t});
+                    enemylineup.pop_back();
+                    break;
+                }
+            }
+        }
     }
 
     //ENEMY SECTION
@@ -271,6 +306,20 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
             wall.emplace_back(bgx + i.first, bgy + i.second);
         }
     //spawn enemy
-//ADDDDHERE   
+        int spawn = (enemylineup.size() + (i-1))/i;
+        for (int i = 0; i < spawn; i++) {
+            int x = 0, y = 0;
+            for (int i = 0; i < 100; i++) {
+                x = rand%5 + bgx; y = rand%9 + bgy;
+                if (occupied(x, y, p, elist, wall)) {
+                    elist.push_back({x, y, enemylineup.back().type, 
+                        enemylineup.back().s, enemylineup.back().c, 
+                        enemylineup.back().ax, enemylineup.back().ay, 
+                        enemylineup.back().t});
+                    enemylineup.pop_back();
+                    break;
+                }
+            }
+        }
     }
 }
