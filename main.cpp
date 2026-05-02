@@ -1,7 +1,6 @@
 #include "declar.h"
 #include "upgrades.h"
 #include "director.h"
-#include "director.h"
 int n = 15;
 int m = 27;
 int open = 0;
@@ -22,13 +21,13 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, int health, int maxHealth) {
+void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, int health, int maxHealth, int level) {
     char c = '.';
     int a = 2, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit %d, %d", p.x, p.y);
     else mvprintw(0, 0, "You Beat This Level!");
-    mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+    mvprintw(1, 0, "Level: %d/5  Health: %d/%d", level, health, maxHealth);
 
     for (int i = 0; i < n+2; i++) {
         mvaddch(3+i+a-1, 2*(-1)+b-1, '|' | COLOR_PAIR(10));
@@ -66,34 +65,66 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
 }
 
 //!!!!!! Enemy Behaviour (to move to enemies.cpp abnd enemies.h)
-void bBouncer(entity &e) {
+bool isWall(vector<pair<int,int>> &w, int x, int y) {
+    for (auto i: w) {
+        if (i.first == x && i.second == y) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void bBouncer(entity &e, vector<pair<int,int>> &w) {
     if (e.x == 0) e.ax = 1;
     else if (e.x == n - 1) e.ax = -1;
     if (e.y == 0) e.ay = 1;
     else if (e.y == m - 1) e.ay = -1;
-    e.x += e.ax;
-    e.y += e.ay;
+
+    int nextX = e.x + e.ax;
+    int nextY = e.y + e.ay;
+
+    if (isWall(w, nextX, nextY)) {
+        e.ax *= -1;
+        e.ay *= -1;
+        nextX = e.x + e.ax;
+        nextY = e.y + e.ay;
+    }
+
+    if (!isWall(w, nextX, nextY)) {
+        e.x = nextX;
+        e.y = nextY;
+    }
 }
 
-void bFollow(entity &e, player p) {
+void bFollow(entity &e, player p, vector<pair<int,int>> &w) {
     if (e.t == 1) {
+        int nextX = e.x;
+        int nextY = e.y;
+
         if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
             if (rand/50 == 0) {
-                if (p.x > e.x) e.x++;
-                else e.x--;
+                if (p.x > e.x) nextX++;
+                else nextX--;
             } else {
-                if (p.y > e.y) e.y++;
-                else e.y--;
+                if (p.y > e.y) nextY++;
+                else nextY--;
             }
         } else {
             if (abs(e.x - p.x) > 0) {
-                if (p.x > e.x) e.x++;
-                else e.x--;
+                if (p.x > e.x) nextX++;
+                else nextX--;
             } else if (abs(e.y - p.y) > 0) {
-                if (p.y > e.y) e.y++;
-                else e.y--;
+                if (p.y > e.y) nextY++;
+                else nextY--;
             }
         }
+
+        if (!isWall(w, nextX, nextY)) {
+            e.x = nextX;
+            e.y = nextY;
+        }
+
         e.t = 0;
     } else e.t++;
 }
@@ -113,10 +144,10 @@ void bCoin(entity &e, player p) {
     }
 }
 
-void updateentities(vector<entity> &e, player p) {
+void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
     for (auto &i: e) {
-        if (i.type == "bouncer") bBouncer(i);
-        if (i.type == "follow") bFollow(i, p);
+        if (i.type == "bouncer") bBouncer(i, w);
+        if (i.type == "follow") bFollow(i, p, w);
         if (i.type == "gate") bGate(i, p);
         if (i.type == "coin") bCoin(i, p);
     }
@@ -128,7 +159,17 @@ entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int
 }
 
 void setupLevel(vector<entity> &elist, player &p, int level) {
-    buildLevel(elist, p, n, m, level);
+    vector<pair<int, int>> ignoredWalls;
+    elist.clear();
+    open = 0;
+    director(elist, ignoredWalls, p, level - 1);
+}
+
+void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level) {
+    elist.clear();
+    wlist.clear();
+    open = 0;
+    director(elist, wlist, p, level - 1);
 }
 
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
@@ -287,9 +328,11 @@ void showDeathScreen() {
     getch();
 }
 
-void updateplayer(player &p, string &state, UpgradeState &upgrades) {
+void updateplayer(player &p, string &state, UpgradeState &upgrades, vector<pair<int,int>> &w) {
     int c = getch();
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
+    int oldX = p.x;
+    int oldY = p.y;
 
     switch (c) {
         case 'w': if (p.x > 0 || canLoop) p.x--; break;
@@ -320,6 +363,11 @@ void updateplayer(player &p, string &state, UpgradeState &upgrades) {
 
         if (used) upgrades.loopCharges--;
     }
+
+    if (isWall(w, p.x, p.y)) {
+        p.x = oldX;
+        p.y = oldY;
+    }
 }
 
 signed main() {
@@ -337,27 +385,10 @@ signed main() {
     vector<pair<int, int>> wlist;
     player player{0,0};
 
-    entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
-    entity fol{1, 2, "bouncer", 'O', 2, 1, 1, 0};
-    elist.push_back(bounce);
-    elist.push_back(fol);
-
-    entity gate1{5, 9, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate1);
-    entity gate2{5, 1, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate2);
-    entity gate3{0, 8, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate3);
-
-    entity coin1{3, 4, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin1);
-    entity coin2{3, 6, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin2);
-
-    director(elist, wlist, player, 0);
+    setupLevel(elist, wlist, player, level);
     while (state == "run") {
-        display(n, m, elist, wlist, player, health, maxHealth);
-        updateplayer(player, state);
+        display(n, m, elist, wlist, player, health, maxHealth, level);
+        updateplayer(player, state, upgrades, wlist);
         if (state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, elist, player);
@@ -376,7 +407,7 @@ signed main() {
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
-            updateentities(elist, player);
+            updateentities(elist, player, wlist);
         }
 
         collectPickups(upgrades, health, maxHealth, elist, player);
@@ -398,7 +429,7 @@ signed main() {
 
             int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
             level++;
-            setupLevel(elist, player, level);
+            setupLevel(elist, wlist, player, level);
             addCarriedUpgradePickups(upgrades, elist);
             applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
         }
@@ -407,7 +438,7 @@ signed main() {
     }
 
     if (state == "dead") {
-        display(n, m, elist, wlist, player, health, maxHealth);
+        display(n, m, elist, wlist, player, health, maxHealth, level);
         showDeathScreen();
     }
 
