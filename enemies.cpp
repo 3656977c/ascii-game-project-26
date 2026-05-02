@@ -29,6 +29,8 @@ bool isBlocked(vector<pair<int,int>> &w, int x, int y) {
     return isWall(w, x, y);
 }
 
+int signNum(int value);
+
 // BOUNCER
 // Moves diagonally.
 // Bounces off borders, walls, and wall corners.
@@ -652,7 +654,7 @@ void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrad
     }
 }
 // Updates all active entities.
-void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
+void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
   int originalSize = e.size();
 
   for (int i = 0; i < originalSize; i++) {

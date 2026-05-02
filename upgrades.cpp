@@ -55,11 +55,11 @@ bool isEnemyType(string type) {
     return type == "bouncer" ||
            type == "follow" ||
            type == "ghost" ||
-           type == "charger" ||
-           type == "knight" ||
+           type == "leaper" ||
            type == "mushroom" ||
            type == "turret" ||
-           type == "shooter";
+           type == "shooter" ||
+           type == "grappler";
 }
 
 // Remove the first enemy still active on the board.
