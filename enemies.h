@@ -29,6 +29,7 @@ void bGate(entity &e, player p);
 void bCoin(entity &e, player p);
 
 void bGrappler(entity &e, player &p, vector<pair<int,int>> &w);
+void bPlusTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades);
 
 void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades);
 
