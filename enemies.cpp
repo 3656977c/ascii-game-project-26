@@ -284,6 +284,32 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
     }
 
 }
+int signNum(int value) {
+    if (value > 0) return 1;
+    if (value < 0) return -1;
+    return 0;
+}
+
+int distanceSquared(entity e, player p) {
+    int dx = e.x - p.x;
+    int dy = e.y - p.y;
+    return dx * dx + dy * dy;
+}
+
+bool canSpawnProjectile(vector<pair<int,int>> &w, int x, int y, int ax, int ay) {
+    if (isBlocked(w, x, y)) {
+        return false;
+    }
+
+    // Diagonal projectile cannot spawn by cutting through a wall corner.
+    if (ax != 0 && ay != 0) {
+        if (isBlocked(w, x - ax, y) || isBlocked(w, x, y - ay)) {
+            return false;
+        }
+    }
+
+    return true;
+}
 // PROJECTILE SHOOTER
 // Keeps roughly 5-6 tiles away from the player.
 // Every few turns, shoots a three-wide volley toward the player.
