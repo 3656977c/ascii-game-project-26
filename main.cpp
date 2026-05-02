@@ -264,12 +264,15 @@ void showWinScreen() {
 }
 
 bool isDamagingEnemy(entity e) {
-    return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "projectile");
+    return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "ghost" || e.type == "charger" || e.type === "knight" || e.type == "projectile");
 }
 
 int getPlayerHitIndex(vector<entity> e, player p) {
     for (int i = 0; i < (int)e.size(); i++) {
         if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
+            return i;
+        }
+        if (bMushroom(e[i], p) {
             return i;
         }
     }
