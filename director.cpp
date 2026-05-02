@@ -166,7 +166,7 @@ vector<entity> listgen(int pts, vector<pair<int, entity>> epool) {
 
 void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, entity>> epool) {
     //elist is the list of all entities, p is player, level is the danger value
-    vector<int> difficulty = {30, 40, 50, 60, 70};
+    vector<int> difficulty = {30, 40, 50, 60, 70, 80};
     int pts = difficulty[level];
     vector<entity> enemylineup = listgen(pts, epool);
 

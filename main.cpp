@@ -56,7 +56,7 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit %d, %d", p.x, p.y);
     else mvprintw(0, 0, "You Beat This Level!");
-    mvprintw(1, 0, "Level: %d/5  Health: %d/%d", level, health, maxHealth);
+    mvprintw(1, 0, "Level: %d/6  Health: %d/%d", level, health, maxHealth);
 
     for (int i = 0; i < n+2; i++) {
         mvaddch(3+i+a-1, 2*(-1)+b-1, '|' | COLOR_PAIR(10));
@@ -187,7 +187,7 @@ int chooseUpgrade(int level, int health, int maxHealth, vector<int> pickedUpgrad
 
 void showWinScreen() {
     erase();
-    mvprintw(0, 0, "You beat all 5 levels!");
+    mvprintw(0, 0, "You beat all 6 levels!");
     mvprintw(1, 0, "Press any key to exit.");
     refresh();
     nodelay(stdscr, FALSE);
@@ -370,7 +370,7 @@ signed main() {
         if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
 
-            if (level >= 5) {
+            if (level >= 6) {
                 state = "win";
                 break;
             }
