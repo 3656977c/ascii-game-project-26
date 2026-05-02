@@ -10,7 +10,6 @@ UpgradeState::UpgradeState() {
     healEveryTwoPickups = false;
     loopAroundMap = false;
     fifthTurnImmune = false;
-    swapStationaryEnemy = false;
     blockOneProjectile = false;
     limitProjectiles = false;
     slowProjectiles = false;
@@ -190,20 +189,16 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &m
         upgrades.fifthTurnImmune = true;
     }
     else if (upgradeNumber == 12) {
-        // Reserved for stationary-enemy swap behavior.
-        upgrades.swapStationaryEnemy = true;
-    }
-    else if (upgradeNumber == 13) {
         // One projectile block per stage.
         upgrades.blockOneProjectile = true;
         upgrades.projectileBlocks = 1;
     }
-    else if (upgradeNumber == 14) {
+    else if (upgradeNumber == 13) {
         // Keep the projectile count capped.
         upgrades.limitProjectiles = true;
         upgrades.projectileLimit = 5;
     }
-    else if (upgradeNumber == 15) {
+    else if (upgradeNumber == 14) {
         // Make projectile movement skip every other turn.
         upgrades.slowProjectiles = true;
     }
@@ -327,10 +322,9 @@ string getUpgradeName(int upgradeNumber) {
     if (upgradeNumber == 9) return "Gain 1 HP every 2 pickups";
     if (upgradeNumber == 10) return "Loop around the map once";
     if (upgradeNumber == 11) return "Immune every fifth turn";
-    if (upgradeNumber == 12) return "Swap with stationary enemies";
-    if (upgradeNumber == 13) return "Block one projectile per floor";
-    if (upgradeNumber == 14) return "Limit projectiles to 5";
-    if (upgradeNumber == 15) return "Slow projectiles";
+    if (upgradeNumber == 12) return "Block one projectile per floor";
+    if (upgradeNumber == 13) return "Limit projectiles to 5";
+    if (upgradeNumber == 14) return "Slow projectiles";
 
     return "Unknown upgrade";
 }

@@ -12,7 +12,6 @@ class UpgradeState {
         bool healEveryTwoPickups;
         bool loopAroundMap;
         bool fifthTurnImmune;
-        bool swapStationaryEnemy;
         bool blockOneProjectile;
         bool limitProjectiles;
         bool slowProjectiles;
