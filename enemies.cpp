@@ -472,6 +472,55 @@ void bCoin(entity &e, player p) {
     e.c = -1;
   }
 }
+// GRAPPLER
+// If the player is in the same row or column, pulls the player one tile toward it.
+// It also moves slowly every 3 turns.
+void bGrappler(entity &e, player &p, vector<pair<int,int>> &w) {
+    // Pull player if aligned.
+    if (p.x == e.x) {
+        int pullY = p.y + signNum(e.y - p.y);
+
+        if (!isBlocked(w, p.x, pullY)) {
+            p.y = pullY;
+        }
+    }
+    else if (p.y == e.y) {
+        int pullX = p.x + signNum(e.x - p.x);
+
+        if (!isBlocked(w, pullX, p.y)) {
+            p.x = pullX;
+        }
+    }
+
+    // Move only once every 3 turns.
+    e.t++;
+
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirs[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    for (int tries = 0; tries < 6; tries++) {
+        int choice = rando % 4;
+
+        int nextX = e.x + dirs[choice][0];
+        int nextY = e.y + dirs[choice][1];
+
+        if (!isBlocked(w, nextX, nextY)) {
+            e.x = nextX;
+            e.y = nextY;
+            break;
+        }
+    }
+}
 
 // Updates all active entities.
 void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
@@ -509,6 +558,9 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     else if (e[i].type == "coin") {
       bCoin(e[i], p);
     }
+    else if (e[i].type == "grappler") {
+    bGrappler(e[i], p, w);
+    }
   }
 }
 
@@ -519,6 +571,7 @@ bool isDamagingEnemy(entity e) {
         e.type == "ghost" ||
         e.type == "leaper" ||
         e.type == "shooter" ||
+        e.type == "grappler" ||
         e.type == "projectile"
     );
 }
