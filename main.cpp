@@ -74,7 +74,7 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
         mvaddch(3+i.first+a, 2*i.second+b-1, 'W' | COLOR_PAIR(10));
         mvaddch(3+i.first+a, 2*i.second+b + 1, 'W' | COLOR_PAIR(10));
     }
-
+    drawMushroomAttackRadius(e,w,a,b);
   
 
     for (auto i: e) {
