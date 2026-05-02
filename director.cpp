@@ -39,7 +39,23 @@ void getFreePosition(vector<entity> &elist, player p, int n, int m, int &x, int 
           y = randomInt(0, m-1);
     } while(occupied(elist, x, y, p))
   }
-
+// gets a free tile inside a column section
+//section 0=left, section 1= middle, section 2= right
+void getFreePositionInSection(vector<entity> &elist, player p, int n, int m, int section, int &x, int &y){
+      int sectionWidth = m/3;
+      int yStart = section * sectionWidth;
+      int yEnd;
+      if (section === 2) {
+            yEnd=m-1;
+      } else {
+          yEnd= yStart + sectionWidth - 1;
+      }
+      do {
+        x=randomInt(0,n -1);
+        y=randomInt(yStart,yEnd);
+      } while (occupied(elist,x,y,p));
+}
+    
 
 
 
