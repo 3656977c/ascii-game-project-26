@@ -71,6 +71,26 @@ void spawnFollower(vector<entity> &elist, player p, int n, int m) {
   entity.push_back(enemy);
 }
 
+//Chooses an enemy from the current enemy pool
+void spawnRandomEnemies(vector,entity> &elist, player p, int n,int m, int enemyPoolSize) {
+  int enemyType= randomInt(1, enemyPoolSize);
+  if (enemyType ==1) {
+      spawnBouncer(elist, p, n, m);
+} else if (enemyType == 2) {
+      spawnFollower(elist,p, n, m);
+}
+}
+
+// Initial enemies at he start of the level
+void spawnStartingEnemies(vector<entity> &elist, player p, int n, int m, int level, int enemyPoolSize) {
+  int enemyCount= 2+level;
+  for(int i = 0; i< enemyCount; i++) {
+      spawnRandomEnemy(elist,p, n,m, enemyPoolSize);
+  }
+}
+
+
+
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
 //it is run during the start of each level
