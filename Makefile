@@ -32,9 +32,9 @@ endif
 
 clean:
 ifeq ($(UNAME_S),Darwin)
-	rm -f main main.exe main.o menu.o upgrades.o
+	rm -f main main.exe main.o menu.o upgrades.o director.o
 else
-	-del /Q main.exe main.o menu.o upgrades.o 2>nul
+	-del /Q main.exe main.o menu.o upgrades.o director.o 2>nul
 endif
 
 .PHONY: clean main

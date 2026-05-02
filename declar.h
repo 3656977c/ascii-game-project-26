@@ -39,6 +39,11 @@ class entity {
         int t; //timer
 };
 
+inline entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
+    entity item{x, y, type, symbol, color, ax, ay, timer};
+    return item;
+}
+
 //initialize colors
 inline void colorscale() {
     if (has_colors()) {
