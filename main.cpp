@@ -100,18 +100,18 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
     refresh();
 }
 
-void setupLevel(vector<entity> &elist, player &p, int level) {
+void setupLevel(vector<entity> &elist, player &p, int level, vector<pair<int, string>> epool) {
     vector<pair<int, int>> ignoredWalls;
     elist.clear();
     open = 0;
-    director(elist, ignoredWalls, p, level - 1);
+    director(elist, ignoredWalls, p, level - 1, epool);
 }
 
-void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level) {
+void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level, vector<pair<int, string>> epool) {
     elist.clear();
     wlist.clear();
     open = 0;
-    director(elist, wlist, p, level - 1);
+    director(elist, wlist, p, level - 1, epool);
 }
 
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
@@ -311,9 +311,10 @@ signed main() {
 
     vector<entity> elist;
     vector<pair<int, int>> wlist;
+    vector<pair<int, string>> epool = {{2, "bouncer"}, {3, "ghost"}}; //enemy pool
     player player{0,0};
 
-    setupLevel(elist, wlist, player, level);
+    setupLevel(elist, wlist, player, level, epool);
     while (state == "run") {
         display(n, m, elist, wlist, player, health, maxHealth, level);
         updateplayer(player, state, upgrades, wlist);
@@ -358,7 +359,7 @@ signed main() {
 
             int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
             level++;
-            setupLevel(elist, wlist, player, level);
+            setupLevel(elist, wlist, player, level, epool);
             addCarriedUpgradePickups(upgrades, elist);
             applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
         }

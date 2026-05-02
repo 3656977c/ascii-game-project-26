@@ -149,11 +149,10 @@ bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>
     return true;
 }
 
-void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int danval) {
-    //elist is the list of all entities, p is player, danval is the danger value
+void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, string>> epool) {
+    //elist is the list of all entities, p is player, level is the danger value
 
     //enemy pool
-    vector<string> epool = {"bouncer", "follow"};
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int temp = rand%9;
     //add more stuff
@@ -246,6 +245,4 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     //spawn enemy
 //ADDDDHERE   
     }
-    entity enemy = {4,4, "turret", 'E', 2, 1, 1, 1};
-    elist.push_back(enemy);
 }
