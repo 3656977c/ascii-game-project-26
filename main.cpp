@@ -1,7 +1,7 @@
 #include "declar.h"
 #include "upgrades.h"
-int n = 6;
-int m = 10;
+int n = 15;
+int m = 27;
 int open = 0;
 
 //initialize randomness
@@ -20,30 +20,36 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void display(int n, int m, vector<entity> e, entity p, int health, int maxHealth) {
+void display(int n, int m, vector<entity> e, player p, int health, int maxHealth) {
     char c = '.';
+    int a = 2, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
     else mvprintw(0, 0, "You Beat This Level!");
     mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < m; j++) {
-            mvaddch(3+i, 2*j, c | COLOR_PAIR(4));
-        }
+    for (int i = 0; i < n+2; i++) {
+        mvaddch(3+i+a-1, 2*(-1)+b, '|' | COLOR_PAIR(4));
+        mvaddch(3+i+a-1, 2*m+b, '|' | COLOR_PAIR(4));
     }
+    for (int i = -1; i < m+1; i++) {
+        mvaddch(3+a-1, 2*i+b, '-' | COLOR_PAIR(4));
+        mvaddch(3+n+a, 2*i+b, '-' | COLOR_PAIR(4));
+    }
+
+  
 
     for (auto i: e) {
         if (i.type != "gate" && i.type != "coin") continue;
         if (i.c == -1) continue;
-        mvaddch(3+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
+        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
 
     for (auto i: e) {
         if (i.type == "gate" || i.type == "coin") continue;
         if (i.c == -1) continue;
-        mvaddch(3+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
+        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
-    mvaddch(3+p.x, 2*p.y, p.s | COLOR_PAIR(1));
+    mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
     refresh();
 }
 
@@ -57,7 +63,7 @@ void bBouncer(entity &e) {
     e.y += e.ay;
 }
 
-void bFollow(entity &e, entity p) {
+void bFollow(entity &e, player p) {
     if (e.t == 1) {
         if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
             if (rand/50 == 0) {
@@ -80,7 +86,7 @@ void bFollow(entity &e, entity p) {
     } else e.t++;
 }
 
-void bGate(entity &e, entity p) {
+void bGate(entity &e, player p) {
     if (e.x == p.x && e.y == p.y && e.t == -1) {
         open++;
         e.t = 0;
@@ -88,14 +94,14 @@ void bGate(entity &e, entity p) {
     }
 }
 
-void bCoin(entity &e, entity p) {
+void bCoin(entity &e, player p) {
     if (e.x == p.x && e.y == p.y && e.c > -1) {
         e.t = 0;
         e.c = -1;
     }
 }
 
-void updateentities(vector<entity> &e, entity p) {
+void updateentities(vector<entity> &e, player p) {
     for (auto &i: e) {
         if (i.type == "bouncer") bBouncer(i);
         if (i.type == "follow") bFollow(i, p);
@@ -108,7 +114,7 @@ bool isDamagingEnemy(entity e) {
     return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "projectile");
 }
 
-int getPlayerHitIndex(vector<entity> e, entity p) {
+int getPlayerHitIndex(vector<entity> e, player p) {
     for (int i = 0; i < (int)e.size(); i++) {
         if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
             return i;
@@ -132,7 +138,7 @@ bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, 
     return health <= 0;
 }
 
-void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, entity p) {
+void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player p) {
     for (auto &i: elist) {
         if (isPickup(i) && i.x == p.x && i.y == p.y) {
             if (i.type == "kill_pickup") {
@@ -156,7 +162,7 @@ void showDeathScreen() {
     getch();
 }
 
-void updateplayer(entity &p, string &state) {
+void updateplayer(player &p, string &state) {
     int c = getch();
     switch (c) {
         case 'w': if (p.x > 0) p.x--; break;
@@ -179,7 +185,7 @@ signed main() {
     UpgradeState upgrades;
 
     vector<entity> elist;
-    entity player{0,0,"player", '@', -1, -1,-1,-1};
+    player player{0,0};
 
     entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
     entity fol{1, 2, "bouncer", 'O', 2, 1, 1, 0};

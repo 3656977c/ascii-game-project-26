@@ -8,12 +8,23 @@
 #include <vector>
 #include <map>
 #include <set>
+#ifdef __APPLE__
+#include <curses.h>
+#else
 #include <ncurses/ncurses.h>
+#endif
 
 //initialize randomness
 #include <random>
 #include <chrono>
 using namespace std;
+
+class player {
+    public:
+        int x;
+        int y;
+};
+
 
 //entity and projectile class
 class entity {
@@ -36,6 +47,7 @@ inline void colorscale() {
         init_pair(2, COLOR_RED, COLOR_BLACK);
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
         init_pair(4, COLOR_WHITE, COLOR_BLACK);
+        
     }
 }
 
