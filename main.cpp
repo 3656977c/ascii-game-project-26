@@ -1,4 +1,5 @@
 #include "declar.h"
+#include "upgrades.h"
 int n = 6;
 int m = 10;
 int open = 0;
@@ -107,21 +108,42 @@ bool isDamagingEnemy(entity e) {
     return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "projectile");
 }
 
-bool playerTouchesEnemy(vector<entity> e, entity p) {
-    for (auto i: e) {
-        if (isDamagingEnemy(i) && i.x == p.x && i.y == p.y) {
-            return true;
+int getPlayerHitIndex(vector<entity> e, entity p) {
+    for (int i = 0; i < (int)e.size(); i++) {
+        if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
+            return i;
         }
     }
 
-    return false;
+    return -1;
 }
 
-bool damagePlayer(int &health) {
-    health--;
-    if (health < 0) health = 0;
+bool isPickup(entity e) {
+    return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
+}
 
+void clampHealth(int &health) {
+    if (health < 0) health = 0;
+}
+
+bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
+    onPlayerHit(upgrades, health, elist, enemyIndex);
+    clampHealth(health);
     return health <= 0;
+}
+
+void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, entity p) {
+    for (auto &i: elist) {
+        if (isPickup(i) && i.x == p.x && i.y == p.y) {
+            if (i.type == "kill_pickup") {
+                killFirstEnemy(elist);
+            }
+
+            i.t = 0;
+            i.c = -1;
+            onPickupCollected(upgrades, health, maxHealth, elist);
+        }
+    }
 }
 
 void showDeathScreen() {
@@ -153,6 +175,8 @@ signed main() {
     string state = "run";
     int maxHealth = 3;
     int health = maxHealth;
+    bool stageClearApplied = false;
+    UpgradeState upgrades;
 
     vector<entity> elist;
     entity player{0,0,"player", '@', -1, -1,-1,-1};
@@ -179,10 +203,13 @@ signed main() {
         updateplayer(player, state);
         if (state != "run") break;
 
-        bool hitThisTurn = false;
+        collectPickups(upgrades, health, maxHealth, elist, player);
 
-        if (playerTouchesEnemy(elist, player)) {
-            if (damagePlayer(health)) {
+        bool hitThisTurn = false;
+        int enemyIndex = getPlayerHitIndex(elist, player);
+
+        if (enemyIndex != -1) {
+            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
                 state = "dead";
                 break;
             }
@@ -191,11 +218,21 @@ signed main() {
 
         updateentities(elist, player);
 
-        if (!hitThisTurn && playerTouchesEnemy(elist, player)) {
-            if (damagePlayer(health)) {
+        collectPickups(upgrades, health, maxHealth, elist, player);
+
+        enemyIndex = getPlayerHitIndex(elist, player);
+        if (!hitThisTurn && enemyIndex != -1) {
+            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
                 state = "dead";
             }
         }
+
+        if (open >= 3 && !stageClearApplied) {
+            onStageClear(upgrades, health, maxHealth);
+            stageClearApplied = true;
+        }
+
+        nextUpgradeTurn(upgrades);
     }
 
     if (state == "dead") {

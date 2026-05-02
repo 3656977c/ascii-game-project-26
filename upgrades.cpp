@@ -1,4 +1,4 @@
-#include "declar.h"
+#include "upgrades.h"
 
 // upgrades.cpp
 // This file contains the upgrade system for the game.
@@ -14,46 +14,25 @@
 //        onStageClear(upgrades, playerHealth, maxHealth);
 // 5. Every turn, increase upgrades.turnCount by 1.
 
-class UpgradeState {
-    public:
-        bool revengeKill;
-        bool healOneEndStage;
-        bool healHalfEndStage;
-        bool killEveryThreePickups;
-        bool healEveryThreePickups;
-        bool loopAroundMap;
-        bool fifthTurnImmune;
-        bool swapStationaryEnemy;
-        bool blockOneProjectile;
-        bool limitProjectiles;
-        bool slowProjectiles;
+UpgradeState::UpgradeState() {
+    revengeKill = false;
+    healOneEndStage = false;
+    healHalfEndStage = false;
+    killEveryThreePickups = false;
+    healEveryThreePickups = false;
+    loopAroundMap = false;
+    fifthTurnImmune = false;
+    swapStationaryEnemy = false;
+    blockOneProjectile = false;
+    limitProjectiles = false;
+    slowProjectiles = false;
 
-        int pickupCount;
-        int turnCount;
-        int loopCharges;
-        int projectileBlocks;
-        int projectileLimit;
-
-        UpgradeState() {
-            revengeKill = false;
-            healOneEndStage = false;
-            healHalfEndStage = false;
-            killEveryThreePickups = false;
-            healEveryThreePickups = false;
-            loopAroundMap = false;
-            fifthTurnImmune = false;
-            swapStationaryEnemy = false;
-            blockOneProjectile = false;
-            limitProjectiles = false;
-            slowProjectiles = false;
-
-            pickupCount = 0;
-            turnCount = 0;
-            loopCharges = 0;
-            projectileBlocks = 0;
-            projectileLimit = 999;
-        }
-};
+    pickupCount = 0;
+    turnCount = 0;
+    loopCharges = 0;
+    projectileBlocks = 0;
+    projectileLimit = 999;
+}
 
 // Makes sure health does not go above max health.
 void healPlayer(int &health, int maxHealth, int amount) {
@@ -80,7 +59,7 @@ int countProjectiles(vector<entity> &elist) {
 // This is used for the "kill enemy every three pickups" upgrade.
 void killFirstEnemy(vector<entity> &elist) {
     for (int i = 0; i < (int)elist.size(); i++) {
-        if (elist[i].type != "player" && elist[i].type != "gate" && elist[i].type != "coin" && elist[i].type != "projectile") {
+        if (elist[i].type == "bouncer" || elist[i].type == "follow") {
             if (elist[i].c != -1) {
                 elist[i].c = -1;
                 return;
