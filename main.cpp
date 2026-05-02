@@ -383,8 +383,8 @@ signed main() {
 
     setupLevel(elist, wlist, player, level);
     while (state == "run") {
-        display(n, m, elist, wlist, player, health, maxHealth);
-        updateplayer(player, state);
+        display(n, m, elist, wlist, player, health, maxHealth, level);
+        updateplayer(player, state, upgrades, wlist);
         if (state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, elist, player);
