@@ -20,6 +20,9 @@ upgrades.o: upgrades.cpp upgrades.h declar.h
 director.o: director.cpp director.h declar.h
 	$(CXX) $(CXXFLAGS) -c director.cpp -o director.o
 
+enemies.o: enemies.cpp enemies.h declar.h
+	$(CXX) $(CXXFLAGS) -c enemies.cpp -o enemies.o
+
 main.exe: main.o menu.o upgrades.o director.o
 	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o -o main.exe $(LDLIBS)
 
