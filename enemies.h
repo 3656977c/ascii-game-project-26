@@ -13,6 +13,7 @@ void bKnight(entity &e, vector<pair<int,int>> &w);
 bool bMushroom(entity mushroom, player p);
 
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w);
+void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> &w);
 void bProjectile(entity &e, vector<pair<int,int>> &w);
 
 void bGate(entity &e, player p);
