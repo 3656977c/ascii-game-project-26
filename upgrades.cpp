@@ -1,8 +1,7 @@
 #include "declar.h"
 
 // upgrades.cpp
-// This file contains the upgrade system for the Dodger game.
-// It is written in a simple way so it can be connected to main.cpp/director.cpp later.
+// This file contains the upgrade system for the game.
 //
 // How to use this file:
 // 1. Create one UpgradeState variable for the player.

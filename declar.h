@@ -8,7 +8,11 @@
 #include <vector>
 #include <map>
 #include <set>
+#ifdef __APPLE__
+#include <curses.h>
+#else
 #include <ncurses/ncurses.h>
+#endif
 
 //initialize randomness
 #include <random>
