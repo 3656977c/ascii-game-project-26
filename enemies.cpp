@@ -325,7 +325,7 @@ int getPlayerHitIndex(vector<entity> e, player p) {
     if (bMushroom(e[i], p)) {
       return i;
     }
-}
+  }
 
   return -1;
 }

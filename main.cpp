@@ -92,95 +92,6 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
     refresh();
 }
 
-//!!!!!! Enemy Behaviour (to move to enemies.cpp abnd enemies.h)
-bool isWall(vector<pair<int,int>> &w, int x, int y) {
-    for (auto i: w) {
-        if (i.first == x && i.second == y) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void bBouncer(entity &e, vector<pair<int,int>> &w) {
-    if (e.x == 0) e.ax = 1;
-    else if (e.x == n - 1) e.ax = -1;
-    if (e.y == 0) e.ay = 1;
-    else if (e.y == m - 1) e.ay = -1;
-
-    int nextX = e.x + e.ax;
-    int nextY = e.y + e.ay;
-
-    if (isWall(w, nextX, nextY)) {
-        e.ax *= -1;
-        e.ay *= -1;
-        nextX = e.x + e.ax;
-        nextY = e.y + e.ay;
-    }
-
-    if (!isWall(w, nextX, nextY)) {
-        e.x = nextX;
-        e.y = nextY;
-    }
-}
-
-void bFollow(entity &e, player p, vector<pair<int,int>> &w) {
-    if (e.t == 1) {
-        int nextX = e.x;
-        int nextY = e.y;
-
-        if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
-            if (rand/50 == 0) {
-                if (p.x > e.x) nextX++;
-                else nextX--;
-            } else {
-                if (p.y > e.y) nextY++;
-                else nextY--;
-            }
-        } else {
-            if (abs(e.x - p.x) > 0) {
-                if (p.x > e.x) nextX++;
-                else nextX--;
-            } else if (abs(e.y - p.y) > 0) {
-                if (p.y > e.y) nextY++;
-                else nextY--;
-            }
-        }
-
-        if (!isWall(w, nextX, nextY)) {
-            e.x = nextX;
-            e.y = nextY;
-        }
-
-        e.t = 0;
-    } else e.t++;
-}
-
-void bGate(entity &e, player p) {
-    if (e.x == p.x && e.y == p.y && e.t == -1) {
-        open++;
-        e.t = 0;
-        e.c = 1;
-    }
-}
-
-void bCoin(entity &e, player p) {
-    if (e.x == p.x && e.y == p.y && e.c > -1) {
-        e.t = 0;
-        e.c = -1;
-    }
-}
-
-void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
-    for (auto &i: e) {
-        if (i.type == "bouncer") bBouncer(i, w);
-        if (i.type == "follow") bFollow(i, p, w);
-        if (i.type == "gate") bGate(i, p);
-        if (i.type == "coin") bCoin(i, p);
-    }
-}
-
 void setupLevel(vector<entity> &elist, player &p, int level) {
     vector<pair<int, int>> ignoredWalls;
     elist.clear();
@@ -261,23 +172,6 @@ void showWinScreen() {
     nodelay(stdscr, FALSE);
     timeout(-1);
     getch();
-}
-
-bool isDamagingEnemy(entity e) {
-    return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "ghost" || e.type == "charger" || e.type === "knight" || e.type == "projectile");
-}
-
-int getPlayerHitIndex(vector<entity> e, player p) {
-    for (int i = 0; i < (int)e.size(); i++) {
-        if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
-            return i;
-        }
-        if (bMushroom(e[i], p) {
-            return i;
-        }
-    }
-
-    return -1;
 }
 
 bool isPickup(entity e) {

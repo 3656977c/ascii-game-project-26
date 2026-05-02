@@ -8,7 +8,7 @@ else
 LDLIBS := -lncursesw
 endif
 
-main.o: main.cpp declar.h upgrades.h director.h
+main.o: main.cpp declar.h upgrades.h director.h enemies.h
 	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
 menu.o: menu.cpp declar.h
@@ -23,21 +23,21 @@ director.o: director.cpp director.h declar.h
 enemies.o: enemies.cpp enemies.h declar.h
 	$(CXX) $(CXXFLAGS) -c enemies.cpp -o enemies.o
 
-main.exe: main.o menu.o upgrades.o director.o
-	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o -o main.exe $(LDLIBS)
+main.exe: main.o menu.o upgrades.o director.o enemies.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o enemies.o -o main.exe $(LDLIBS)
 
 ifeq ($(UNAME_S),Darwin)
-main: main.o menu.o upgrades.o director.o
-	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o -o main $(LDLIBS)
+main: main.o menu.o upgrades.o director.o enemies.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o enemies.o -o main $(LDLIBS)
 else
 main: main.exe
 endif
 
 clean:
 ifeq ($(UNAME_S),Darwin)
-	rm -f main main.exe main.o menu.o upgrades.o director.o
+	rm -f main main.exe main.o menu.o upgrades.o director.o enemies.o
 else
-	-del /Q main.exe main.o menu.o upgrades.o director.o 2>nul
+	-del /Q main.exe main.o menu.o upgrades.o director.o enemies.o 2>nul
 endif
 
 .PHONY: clean main
