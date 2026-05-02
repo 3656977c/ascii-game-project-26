@@ -28,7 +28,9 @@ void bProjectile(entity &e, vector<pair<int,int>> &w);
 void bGate(entity &e, player p);
 void bCoin(entity &e, player p);
 
-void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades);
+void bGrappler(entity &e, player &p, vector<pair<int,int>> &w);
+
+void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades);
 
 bool isDamagingEnemy(entity e);
 int getPlayerHitIndex(vector<entity> e, player p);
