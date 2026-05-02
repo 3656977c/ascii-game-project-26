@@ -63,6 +63,14 @@ void spawnBouncer(vector<entity> &elist, player p, int n, int m) {
   elist.push_back(enemy);
 }
 
+//Adss one follower enemy
+void spawnFollower(vector<entity> &elist, player p, int n, int m) {
+  int x,y;
+  getFreePosition(elist, p, n, m, x, y);
+  entity enemy{x, y, "follow", '!',2, 1, 1, 0};
+  entity.push_back(enemy);
+}
+
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
 //it is run during the start of each level
