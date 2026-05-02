@@ -131,7 +131,17 @@ void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
     }
 }
 
-vector<int> getUpgradeChoices() {
+bool hasUpgrade(vector<int> pickedUpgrades, int upgradeNumber) {
+    for (int upgrade: pickedUpgrades) {
+        if (upgrade == upgradeNumber) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+vector<int> getUpgradeChoices(vector<int> pickedUpgrades) {
     vector<int> choices;
 
     while ((int)choices.size() < 3) {
@@ -142,14 +152,16 @@ vector<int> getUpgradeChoices() {
             if (choice == upgradeNumber) alreadyChosen = true;
         }
 
+        if (hasUpgrade(pickedUpgrades, upgradeNumber)) alreadyChosen = true;
+
         if (!alreadyChosen) choices.push_back(upgradeNumber);
     }
 
     return choices;
 }
 
-int chooseUpgrade(int level, int health, int maxHealth) {
-    vector<int> choices = getUpgradeChoices();
+int chooseUpgrade(int level, int health, int maxHealth, vector<int> pickedUpgrades) {
+    vector<int> choices = getUpgradeChoices(pickedUpgrades);
 
     while (true) {
         erase();
@@ -349,7 +361,8 @@ signed main() {
                 break;
             }
 
-            int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
+            int selectedUpgrade = chooseUpgrade(level, health, maxHealth, pickedUpgrades);
+            pickedUpgrades.push_back(selectedUpgrade);
             level++;
             setupLevel(elist, wlist, player, level, epool);
             addCarriedUpgradePickups(upgrades, elist);

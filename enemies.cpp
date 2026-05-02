@@ -232,6 +232,7 @@ bool bMushroom(entity mushroom, player p) {
 
 // TURRET
 // Shoots projectiles in 8 directions every 3 turns.
+// It spawns all valid adjacent projectiles at the same time.
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
     e.t++;
 
@@ -251,22 +252,15 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
     for (int i = 0; i < 8; i++) {
         int dx = dirs[i][0];
         int dy = dirs[i][1];
+
         int spawnX = e.x + dx;
         int spawnY = e.y + dy;
 
-        // For diagonal projectiles, do not allow corner phasing at spawn either.
-        if (dx != 0 && dy != 0) {
-            if (
-                isBlocked(w, e.x + dx, e.y) ||
-                isBlocked(w, e.x, e.y + dy) ||
-                isBlocked(w, spawnX, spawnY)
-            ) {
-                continue;
-            }
-        } else {
-            if (isBlocked(w, spawnX, spawnY)) {
-                continue;
-            }
+        // Only block the projectile if the actual spawn tile is blocked.
+        // Do NOT check side tiles here, because the projectile is being created,
+        // not moving diagonally from a previous tile yet.
+        if (isBlocked(w, spawnX, spawnY)) {
+            continue;
         }
 
         entity projectile{
@@ -282,7 +276,6 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
 
         elist.push_back(projectile);
     }
-
 }
 int signNum(int value) {
     if (value > 0) return 1;
