@@ -150,6 +150,10 @@ bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>
 }
 
 vector<string> listgen(int pts, vector<pair<int, string>> epool) {
+    int temp = rand%(epool.size());
+    vector<string> list;
+
+    while (pts - epool[temp].first > 0)
     return {};
 }
 
