@@ -85,6 +85,14 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
 
     for (auto i: e) {
         if (i.type == "gate" || i.type == "coin") continue;
+        if (i.type != "projectile") continue;
+        if (i.c == -1) continue;
+        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
+    }
+
+    for (auto i: e) {
+        if (i.type == "gate" || i.type == "coin") continue;
+        if (i.type == "projectile") continue;
         if (i.c == -1) continue;
         mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
@@ -329,6 +337,7 @@ signed main() {
         } else {
             updateentities(elist, player, wlist);
         }
+
 
         collectPickups(upgrades, health, maxHealth, elist, player);
 

@@ -210,11 +210,11 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         //spawn gate
             int x = 0, y = 0;
             for (int i = 0; i < 50; i++) {
-                x = rand%5; y = rand%9;
+                x = rand%5 + bgx; y = rand%9 + bgy;
                 if (occupied(x, y, p, elist, wall)) break;
                 x = 1; y = 2;
             }
-            entity gate = {bgx+x, bgy+y, "gate", 'G', 3, -1, -1, -1};
+            entity gate = {x, y, "gate", 'G', 3, -1, -1, -1};
             elist.push_back(gate);
         //spawn enemy
 //ADDDDHERE   
@@ -237,13 +237,15 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     //spawn gate
         int x = 0, y = 0;
         for (int i = 0; i < 50; i++) {
-            x = rand%5; y = rand%9;
+            x = rand%5 + bgx; y = rand%9 + bgy;
             if (occupied(x, y, p, elist, wall)) break;
             x = 1; y = 2;
         }
-        entity coin = {bgx+x, bgy+y, "coin", 'c', 3, -1, -1, -1};
+        entity coin = {x, y, "coin", 'c', 3, -1, -1, -1};
         elist.push_back(coin);
     //spawn enemy
 //ADDDDHERE   
     }
+    entity enemy = {4,4, "turret", 'E', 2, 1, 1, 1};
+    elist.push_back(enemy);
 }

@@ -1,10 +1,15 @@
+#include "declar.h"
 #include "enemies.h"
-#include <cstdlib>
 #include <cmath>
 
 extern int n;
 extern int m;
 extern int open;
+
+extern unsigned seed;
+extern mt19937 engine;
+extern uniform_int_distribution<int> dist;
+#define rando dist(engine) 
 
 bool isWall(vector<pair<int,int>> &w, int x, int y) {
   for (auto tile : w) {
@@ -86,20 +91,26 @@ void bFollow(entity &e, player p, vector<pair<int,int>> &w) {
 // GHOST
 // Follows the player but ignores walls.
 void bGhost(entity &e, player p) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
-
-  if (abs(e.x - p.x) > abs(e.y - p.y)) {
-    if (p.x > e.x && e.x < n - 1) e.x++;
-    else if (p.x < e.x && e.x > 0) e.x--;
-  } else {
-    if (p.y > e.y && e.y < m - 1) e.y++;
-    else if (p.y < e.y && e.y > 0) e.y--;
-  }
-
-  e.t = 0;
+    if (e.t == 1) {
+        if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
+            if (rando%2 == 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        } else {
+            if (abs(e.x - p.x) > 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else if (abs(e.y - p.y) > 0) {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        }
+        e.t = 0;
+    } else e.t++;
 }
 
 // CHARGER
@@ -198,7 +209,7 @@ bool bMushroom(entity mushroom, player p) {
 void bTurret(entity &e, vector<entity> &elist) {
   e.t++;
 
-  if (e.t < 3) {
+  if (e.t < 4) {
     return;
   }
 
