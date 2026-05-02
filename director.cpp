@@ -31,6 +31,16 @@ bool occupied(vector<entity> &elist,int x,int y, player p){
   return false;
 }
 
+
+// Adds the 3 required gates in 3 differnt map sections
+void spawnGates(vector<entity> &elist, player p, int n, int m) {
+  for (int section = 0;section < 3; section++) {
+        int x,y;
+        getFreePositionInSection(elist,p,n,m,section,x,y);
+        entity gate{x,y, "gate",'H',3,-1,-1,-1};
+        elist.push_back(gate);
+  }
+}
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
 //it is run during the start of each level
