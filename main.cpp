@@ -2,6 +2,7 @@
 #include "upgrades.h"
 #include "enemies.h"
 #include "director.h"
+#include <algorithm>
 int n = 15;
 int m = 27;
 int open = 0;
@@ -347,6 +348,11 @@ signed main() {
         }
 
         collectPickups(upgrades, health, maxHealth, elist, player);
+
+        // Remove dead entities from the list to prevent unbounded growth
+        elist.erase(remove_if(elist.begin(), elist.end(), 
+                              [](const entity &e) { return e.c == -1; }), 
+                    elist.end());
 
         int enemyIndex = getPlayerHitIndex(elist, player);
         if (enemyIndex != -1) {
