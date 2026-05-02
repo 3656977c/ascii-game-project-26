@@ -37,6 +37,7 @@ class entity {
         int ax; //horizontal velocity
         int ay; //vertical velocity
         int t; //timer
+        
 };
 
 inline entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
