@@ -153,11 +153,6 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
     }
 }
 
-entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
-    entity item{x, y, type, symbol, color, ax, ay, timer};
-    return item;
-}
-
 void setupLevel(vector<entity> &elist, player &p, int level) {
     vector<pair<int, int>> ignoredWalls;
     elist.clear();
