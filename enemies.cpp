@@ -91,22 +91,21 @@ void bFollow(entity &e, player p, vector<pair<int,int>> &w) {
     return;
   }
 
-  int nextX = e.x;
-  int nextY = e.y;
+  int dx = 0;
+  int dy = 0;
 
   if (abs(e.x - p.x) > abs(e.y - p.y)) {
-    if (p.x > e.x) nextX++;
-    else if (p.x < e.x) nextX--;
+    if (p.x > e.x) dx = 1;
+    else if (p.x < e.x) dx = -1;
   } else {
-    if (p.y > e.y) nextY++;
-    else if (p.y < e.y) nextY--;
+    if (p.y > e.y) dy = 1;
+    else if (p.y < e.y) dy = -1;
   }
 
-  if (
-    nextX >= 0 && nextX < n &&
-    nextY >= 0 && nextY < m &&
-    !isWall(w, nextX, nextY)
-  ) {
+  int nextX = e.x + dx;
+  int nextY = e.y + dy;
+
+  if (!isBlocked(w, nextX, nextY)) {
     e.x = nextX;
     e.y = nextY;
   }
