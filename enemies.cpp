@@ -283,7 +283,137 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
         elist.push_back(projectile);
     }
 
-}// PROJECTILE
+}
+// PROJECTILE SHOOTER
+// Keeps roughly 5-6 tiles away from the player.
+// Every few turns, shoots a three-wide volley toward the player.
+void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> &w) {
+    int dxToPlayer = p.x - e.x;
+    int dyToPlayer = p.y - e.y;
+
+    int absDx = abs(dxToPlayer);
+    int absDy = abs(dyToPlayer);
+
+    int distSq = distanceSquared(e, p);
+
+    // Shoot every 4 turns.
+    // e.t works as the cooldown/charge timer.
+    if (e.t >= 4) {
+        e.t = 0;
+
+        int ax = 0;
+        int ay = 0;
+
+        // Choose the main direction toward the player.
+        // If the player is mostly vertical, shoot vertically.
+        // If mostly horizontal, shoot horizontally.
+        // If diagonal-ish, shoot diagonally.
+        if (absDx > absDy + 1) {
+            ax = signNum(dxToPlayer);
+            ay = 0;
+        }
+        else if (absDy > absDx + 1) {
+            ax = 0;
+            ay = signNum(dyToPlayer);
+        }
+        else {
+            ax = signNum(dxToPlayer);
+            ay = signNum(dyToPlayer);
+        }
+
+        if (ax == 0 && ay == 0) {
+            return;
+        }
+
+        // Three-wide volley offsets.
+        // If shooting vertically, spread left/right.
+        // If shooting horizontally, spread up/down.
+        // If shooting diagonally, use a small perpendicular spread.
+        int offsets[3][2];
+
+        if (ax != 0 && ay == 0) {
+            offsets[0][0] = 0;  offsets[0][1] = -1;
+            offsets[1][0] = 0;  offsets[1][1] = 0;
+            offsets[2][0] = 0;  offsets[2][1] = 1;
+        }
+        else if (ax == 0 && ay != 0) {
+            offsets[0][0] = -1; offsets[0][1] = 0;
+            offsets[1][0] = 0;  offsets[1][1] = 0;
+            offsets[2][0] = 1;  offsets[2][1] = 0;
+        }
+        else {
+            // Perpendicular to diagonal direction.
+            offsets[0][0] = -ax; offsets[0][1] = ay;
+            offsets[1][0] = 0;   offsets[1][1] = 0;
+            offsets[2][0] = ax;  offsets[2][1] = -ay;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            int spawnX = e.x + ax + offsets[i][0];
+            int spawnY = e.y + ay + offsets[i][1];
+
+            if (!canSpawnProjectile(w, spawnX, spawnY, ax, ay)) {
+                continue;
+            }
+
+            entity projectile{
+                spawnX,
+                spawnY,
+                "projectile",
+                '*',
+                2,
+                ax,
+                ay,
+                0
+            };
+
+            elist.push_back(projectile);
+        }
+
+        return;
+    }
+
+    // Movement phase:
+    // If too close, move away.
+    // If too far, move closer.
+    // If at good distance, stay still and charge.
+    int moveX = 0;
+    int moveY = 0;
+
+    if (distSq < 25) {
+        // Too close: move away from player.
+        if (absDx > absDy) {
+            moveX = -signNum(dxToPlayer);
+        } else {
+            moveY = -signNum(dyToPlayer);
+        }
+    }
+    else if (distSq > 36) {
+        // Too far: move toward player.
+        if (absDx > absDy) {
+            moveX = signNum(dxToPlayer);
+        } else {
+            moveY = signNum(dyToPlayer);
+        }
+    }
+    else {
+        // Good range: pause/charge.
+        e.t++;
+        return;
+    }
+
+    int nextX = e.x + moveX;
+    int nextY = e.y + moveY;
+
+    if (!isBlocked(w, nextX, nextY)) {
+        e.x = nextX;
+        e.y = nextY;
+    }
+
+    // The shooter charges slowly even while repositioning.
+    e.t++;
+}
+// PROJECTILE
 // Moves in its direction.
 // Dies when it hits a wall or leaves the map.
 void bProjectile(entity &e, vector<pair<int,int>> &w) {
