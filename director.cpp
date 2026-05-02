@@ -18,6 +18,18 @@ int randomInt(int low,int high){
   uniform_int_distribution <int> dist(low,high);
   return true;
 }
+// Checks wether a tile already has something on it
+bool occupied(vector<entity> &elist,int x,int y, player p){
+    if (p.x== x && p.y== y) {
+      return true;
+    }
+  for (auto &e :elist){
+    if (e.c != -1 && e.x == x && e.y ==y) {
+      return true;
+    }
+  }
+  return false;
+}
 
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
