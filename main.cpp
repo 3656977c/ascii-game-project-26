@@ -20,13 +20,13 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void display(int n, int m, vector<entity> e, player p, int health, int maxHealth) {
+void display(int n, int m, vector<entity> e, player p, int health, int maxHealth, int level) {
     char c = '.';
     int a = 2, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
     else mvprintw(0, 0, "You Beat This Level!");
-    mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+    mvprintw(1, 0, "Level: %d/5  Health: %d/%d", level, health, maxHealth);
     for (int i = 0; i < n+2; i++) {
         mvaddch(3+i+a-1, 2*(-1)+b, '|' | COLOR_PAIR(4));
         mvaddch(3+i+a-1, 2*m+b, '|' | COLOR_PAIR(4));
@@ -110,6 +110,96 @@ void updateentities(vector<entity> &e, player p) {
     }
 }
 
+entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
+    entity item{x, y, type, symbol, color, ax, ay, timer};
+    return item;
+}
+
+void setupLevel(vector<entity> &elist, player &p) {
+    elist.clear();
+    open = 0;
+    p.x = 0;
+    p.y = 0;
+
+    elist.push_back(makeEntity(2, 6, "follow", '!', 2, 1, 1, -1));
+    elist.push_back(makeEntity(1, 2, "bouncer", 'O', 2, 1, 1, 0));
+
+    elist.push_back(makeEntity(5, 9, "gate", 'H', 3, -1, -1, -1));
+    elist.push_back(makeEntity(5, 1, "gate", 'H', 3, -1, -1, -1));
+    elist.push_back(makeEntity(0, 8, "gate", 'H', 3, -1, -1, -1));
+
+    elist.push_back(makeEntity(3, 4, "coin", 'c', 3, -1, -1, -1));
+    elist.push_back(makeEntity(3, 6, "coin", 'c', 3, -1, -1, -1));
+}
+
+void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
+    if (upgrades.spawnTimeStopPickups) {
+        spawnPickup(elist, n, m, "time_stop", 'T');
+        spawnPickup(elist, n, m, "time_stop", 'T');
+    }
+
+    if (upgrades.spawnKillPickups) {
+        spawnPickup(elist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, n, m, "kill_pickup", 'K');
+    }
+
+    if (upgrades.spawnSwapPickups) {
+        spawnPickup(elist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, n, m, "swap_pickup", 'S');
+    }
+}
+
+vector<int> getUpgradeChoices() {
+    vector<int> choices;
+
+    while ((int)choices.size() < 3) {
+        int upgradeNumber = rand % 15 + 1;
+        bool alreadyChosen = false;
+
+        for (int choice: choices) {
+            if (choice == upgradeNumber) alreadyChosen = true;
+        }
+
+        if (!alreadyChosen) choices.push_back(upgradeNumber);
+    }
+
+    return choices;
+}
+
+int chooseUpgrade(int level, int health, int maxHealth) {
+    vector<int> choices = getUpgradeChoices();
+
+    while (true) {
+        erase();
+        mvprintw(0, 0, "Level %d cleared!", level);
+        mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+        mvprintw(3, 0, "Choose an upgrade:");
+
+        for (int i = 0; i < (int)choices.size(); i++) {
+            string name = getUpgradeName(choices[i]);
+            mvprintw(5 + i, 0, "%d. %s", i + 1, name.c_str());
+        }
+
+        mvprintw(9, 0, "Press 1, 2, or 3");
+        refresh();
+
+        int c = getch();
+        if (c >= '1' && c <= '3') {
+            return choices[c - '1'];
+        }
+    }
+}
+
+void showWinScreen() {
+    erase();
+    mvprintw(0, 0, "You beat all 5 levels!");
+    mvprintw(1, 0, "Press any key to exit.");
+    refresh();
+    nodelay(stdscr, FALSE);
+    timeout(-1);
+    getch();
+}
+
 bool isDamagingEnemy(entity e) {
     return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "projectile");
 }
@@ -138,16 +228,52 @@ bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, 
     return health <= 0;
 }
 
-void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player p) {
-    for (auto &i: elist) {
-        if (isPickup(i) && i.x == p.x && i.y == p.y) {
-            if (i.type == "kill_pickup") {
+bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
+    for (int i = 0; i < (int)elist.size(); i++) {
+        if (i != swapIndex && elist[i].type == "swap_pickup" && elist[i].c != -1) {
+            int oldPlayerX = p.x;
+            int oldPlayerY = p.y;
+
+            p.x = elist[i].x;
+            p.y = elist[i].y;
+            elist[i].x = oldPlayerX;
+            elist[i].y = oldPlayerY;
+            elist[swapIndex].t = 0;
+            elist[swapIndex].c = -1;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player &p) {
+    for (int i = 0; i < (int)elist.size(); i++) {
+        if (isPickup(elist[i]) && elist[i].x == p.x && elist[i].y == p.y) {
+            bool collected = true;
+
+            if (elist[i].type == "kill_pickup") {
                 killFirstEnemy(elist);
             }
 
-            i.t = 0;
-            i.c = -1;
-            onPickupCollected(upgrades, health, maxHealth, elist);
+            if (elist[i].type == "time_stop") {
+                upgrades.timeStopPickupCount++;
+                if (upgrades.timeStopPickupCount >= 2) {
+                    upgrades.timeStopTurns = 2;
+                    upgrades.timeStopPickupCount = 0;
+                }
+            }
+
+            if (elist[i].type == "swap_pickup") {
+                collected = useSwapPickup(elist, p, i);
+            } else {
+                elist[i].t = 0;
+                elist[i].c = -1;
+            }
+
+            if (collected) {
+                onPickupCollected(upgrades, health, maxHealth, elist);
+            }
         }
     }
 }
@@ -162,14 +288,38 @@ void showDeathScreen() {
     getch();
 }
 
-void updateplayer(player &p, string &state) {
+void updateplayer(player &p, string &state, UpgradeState &upgrades) {
     int c = getch();
+    bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
+
     switch (c) {
-        case 'w': if (p.x > 0) p.x--; break;
-        case 'a': if (p.y > 0) p.y--; break;
-        case 's': if (p.x < n-1) p.x++; break;
-        case 'd': if (p.y < m-1) p.y++; break;
+        case 'w': if (p.x > 0 || canLoop) p.x--; break;
+        case 'a': if (p.y > 0 || canLoop) p.y--; break;
+        case 's': if (p.x < n-1 || canLoop) p.x++; break;
+        case 'd': if (p.y < m-1 || canLoop) p.y++; break;
         case 'q': state = "quit"; break;
+    }
+
+    if (canLoop) {
+        bool used = false;
+
+        if (p.x < 0) {
+            p.x = n - 1;
+            used = true;
+        } else if (p.x >= n) {
+            p.x = 0;
+            used = true;
+        }
+
+        if (p.y < 0) {
+            p.y = m - 1;
+            used = true;
+        } else if (p.y >= m) {
+            p.y = 0;
+            used = true;
+        }
+
+        if (used) upgrades.loopCharges--;
     }
 }
 
@@ -179,34 +329,18 @@ signed main() {
     initialize();
     colorscale();
     string state = "run";
+    int level = 1;
     int maxHealth = 3;
     int health = maxHealth;
-    bool stageClearApplied = false;
     UpgradeState upgrades;
 
     vector<entity> elist;
     player player{0,0};
-
-    entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
-    entity fol{1, 2, "bouncer", 'O', 2, 1, 1, 0};
-    elist.push_back(bounce);
-    elist.push_back(fol);
-
-    entity gate1{5, 9, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate1);
-    entity gate2{5, 1, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate2);
-    entity gate3{0, 8, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate3);
-
-    entity coin1{3, 4, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin1);
-    entity coin2{3, 6, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin2);
+    setupLevel(elist, player);
 
     while (state == "run") {
-        display(n, m, elist, player, health, maxHealth);
-        updateplayer(player, state);
+        display(n, m, elist, player, health, maxHealth, level);
+        updateplayer(player, state, upgrades);
         if (state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, elist, player);
@@ -222,7 +356,11 @@ signed main() {
             hitThisTurn = true;
         }
 
-        updateentities(elist, player);
+        if (upgrades.timeStopTurns > 0) {
+            upgrades.timeStopTurns--;
+        } else {
+            updateentities(elist, player);
+        }
 
         collectPickups(upgrades, health, maxHealth, elist, player);
 
@@ -233,17 +371,31 @@ signed main() {
             }
         }
 
-        if (open >= 3 && !stageClearApplied) {
+        if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
-            stageClearApplied = true;
+
+            if (level >= 5) {
+                state = "win";
+                break;
+            }
+
+            int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
+            level++;
+            setupLevel(elist, player);
+            addCarriedUpgradePickups(upgrades, elist);
+            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
         }
 
         nextUpgradeTurn(upgrades);
     }
 
     if (state == "dead") {
-        display(n, m, elist, player, health, maxHealth);
+        display(n, m, elist, player, health, maxHealth, level);
         showDeathScreen();
+    }
+
+    if (state == "win") {
+        showWinScreen();
     }
 
     endwin();
