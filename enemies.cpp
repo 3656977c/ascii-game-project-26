@@ -232,58 +232,91 @@ bool bMushroom(entity mushroom, player p) {
 
 // TURRET
 // Shoots projectiles in 8 directions every 3 turns.
-void bTurret(entity &e, vector<entity> &elist) {
-  e.t++;
+void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
+    e.t++;
 
-  if (e.t < 4) {
-    return;
-  }
+    if (e.t < 3) {
+        return;
+    }
 
-  e.t = 0;
+    e.t = 0;
 
-  int dirs[8][2] = {
-    {-1, 0}, {1, 0},
-    {0, -1}, {0, 1},
-    {-1, -1}, {-1, 1},
-    {1, -1}, {1, 1}
-  };
-
-  for (int i = 0; i < 8; i++) {
-    entity projectile{
-      e.x,
-      e.y,
-      "projectile",
-      '*',
-      2,
-      dirs[i][0],
-      dirs[i][1],
-      0
+    int dirs[8][2] = {
+        {-1, 0}, {1, 0},
+        {0, -1}, {0, 1},
+        {-1, -1}, {-1, 1},
+        {1, -1}, {1, 1}
     };
 
-      elist.push_back(projectile);
-  }
-}
+    for (int i = 0; i < 8; i++) {
+        int dx = dirs[i][0];
+        int dy = dirs[i][1];
+        int spawnX = e.x + dx;
+        int spawnY = e.y + dy;
 
-// PROJECTILE
+        // For diagonal projectiles, do not allow corner phasing at spawn either.
+        if (dx != 0 && dy != 0) {
+            if (
+                isBlocked(w, e.x + dx, e.y) ||
+                isBlocked(w, e.x, e.y + dy) ||
+                isBlocked(w, spawnX, spawnY)
+            ) {
+                continue;
+            }
+        } else {
+            if (isBlocked(w, spawnX, spawnY)) {
+                continue;
+            }
+        }
+
+        entity projectile{
+            spawnX,
+            spawnY,
+            "projectile",
+            '*',
+            2,
+            dx,
+            dy,
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+
+}// PROJECTILE
 // Moves in its direction.
 // Dies when it hits a wall or leaves the map.
 void bProjectile(entity &e, vector<pair<int,int>> &w) {
-  int nextX = e.x + e.ax;
-  int nextY = e.y + e.ay;
+    int nextX = e.x + e.ax;
+    int nextY = e.y + e.ay;
 
-  if (
-    nextX < 0 || nextX >= n ||
-    nextY < 0 || nextY >= m ||
-    isWall(w, nextX, nextY)
-  ) {
-    e.c = -1;
-    return;
-  }
+    // Cardinal projectile movement:
+    // only needs to check the landing tile.
+    if (e.ax == 0 || e.ay == 0) {
+        if (isBlocked(w, nextX, nextY)) {
+            e.c = -1;
+            return;
+        }
 
-  e.x = nextX;
-  e.y = nextY;
+        e.x = nextX;
+        e.y = nextY;
+        return;
+    }
+
+    // Diagonal projectile movement:
+    // must check both side tiles and the landing tile.
+    bool verticalSideBlocked = isBlocked(w, e.x + e.ax, e.y);
+    bool horizontalSideBlocked = isBlocked(w, e.x, e.y + e.ay);
+    bool landingBlocked = isBlocked(w, nextX, nextY);
+
+    if (verticalSideBlocked || horizontalSideBlocked || landingBlocked) {
+        e.c = -1;
+        return;
+    }
+
+    e.x = nextX;
+    e.y = nextY;
 }
-
 // GATE
 void bGate(entity &e, player p) {
   if (e.x == p.x && e.y == p.y && e.t == -1) {
