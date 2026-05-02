@@ -41,6 +41,18 @@ void spawnGates(vector<entity> &elist, player p, int n, int m) {
         elist.push_back(gate);
   }
 }
+//Adds the coins
+void spawnCoins(vector<entity> &elist, player p,int n,int m, int level){
+    int coinCount = 2+level;
+    for (int i=0; i < coinCount ; i++) {
+        int x,y;
+        getFreePosition(elist,p,n,m,x,y);
+        entity coin{x,y, "coin", 'c',3,-1,-1,-1};
+        elist.push_back(coin);
+    }
+}
+
+
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
 //it is run during the start of each level
