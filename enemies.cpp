@@ -6,7 +6,7 @@ extern int m;
 extern int open;
 
 // BOUNCER
-// Moves diagonally and bounces off the map borders.
+// Moves diagonally and bounces off the map borders
 void bBouncer(entity &e) {
     int nextX = e.x + e.ax;
     int nextY = e.y + e.ay;
@@ -47,6 +47,24 @@ void bFollow(entity &e, player p) {
                 if (p.y > e.y) e.y++;
                 else e.y--;
             }
+        }
+
+        e.t = 0;
+    } else {
+        e.t++;
+    }
+
+}
+/ GHOST
+// Similar to follower, but should be treated as ignoring walls.
+void bGhost(entity &e, player p) {
+    if (e.t == 1) {
+        if (abs(e.x - p.x) > abs(e.y - p.y)) {
+            if (p.x > e.x) e.x++;
+            else if (p.x < e.x) e.x--;
+        } else {
+            if (p.y > e.y) e.y++;
+            else if (p.y < e.y) e.y--;
         }
 
         e.t = 0;
