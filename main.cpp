@@ -199,6 +199,14 @@ bool isPickup(entity e) {
     return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
 }
 
+void removeInactiveEntities(vector<entity> &elist) {
+    for (int i = (int)elist.size() - 1; i >= 0; i--) {
+        if (elist[i].c == -1) {
+            elist.erase(elist.begin() + i);
+        }
+    }
+}
+
 void clampHealth(int &health) {
     if (health < 0) health = 0;
 }
@@ -340,20 +348,24 @@ signed main() {
         if (state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, elist, player);
+        removeInactiveEntities(elist);
 
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
             updateentities(elist, player, wlist);
         }
+        removeInactiveEntities(elist);
 
         collectPickups(upgrades, health, maxHealth, elist, player);
+        removeInactiveEntities(elist);
 
         int enemyIndex = getPlayerHitIndex(elist, player);
         if (enemyIndex != -1) {
             if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
                 state = "dead";
             }
+            removeInactiveEntities(elist);
         }
         if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
