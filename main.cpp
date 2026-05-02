@@ -321,20 +321,20 @@ signed main() {
 
         collectPickups(upgrades, health, maxHealth, elist, player);
 
-if (upgrades.timeStopTurns > 0) {
-    upgrades.timeStopTurns--;
-} else {
-    updateentities(elist, player, wlist);
-}
+        if (upgrades.timeStopTurns > 0) {
+            upgrades.timeStopTurns--;
+        } else {
+            updateentities(elist, player, wlist);
+        }
 
-collectPickups(upgrades, health, maxHealth, elist, player);
+        collectPickups(upgrades, health, maxHealth, elist, player);
 
-int enemyIndex = getPlayerHitIndex(elist, player);
-if (enemyIndex != -1) {
-        if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
-        state = "dead";
-    }
-}
+        int enemyIndex = getPlayerHitIndex(elist, player);
+        if (enemyIndex != -1) {
+            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
+                state = "dead";
+            }
+        }
         if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
 
