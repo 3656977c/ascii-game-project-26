@@ -91,6 +91,20 @@ bool isPickupSpotFree(vector<entity> &elist, vector<pair<int, int>> &wlist, int 
     return true;
 }
 
+void addPickup(vector<entity> &elist, int x, int y, string pickupType, char symbol) {
+    entity pickup;
+    pickup.x = x;
+    pickup.y = y;
+    pickup.type = pickupType;
+    pickup.s = symbol;
+    pickup.c = 3;
+    pickup.ax = -1;
+    pickup.ay = -1;
+    pickup.t = -1;
+
+    elist.push_back(pickup);
+}
+
 // Put one pickup on a free random tile.
 void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol) {
     int x = 0;
@@ -109,17 +123,7 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
         for (x = 0; x < n; x++) {
             for (y = 0; y < m; y++) {
                 if (isPickupSpotFree(elist, wlist, x, y)) {
-                    entity pickup;
-                    pickup.x = x;
-                    pickup.y = y;
-                    pickup.type = pickupType;
-                    pickup.s = symbol;
-                    pickup.c = 3;
-                    pickup.ax = -1;
-                    pickup.ay = -1;
-                    pickup.t = -1;
-
-                    elist.push_back(pickup);
+                    addPickup(elist, x, y, pickupType, symbol);
                     return;
                 }
             }
@@ -128,17 +132,7 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
         return;
     }
 
-    entity pickup;
-    pickup.x = x;
-    pickup.y = y;
-    pickup.type = pickupType;
-    pickup.s = symbol;
-    pickup.c = 3;
-    pickup.ax = -1;
-    pickup.ay = -1;
-    pickup.t = -1;
-
-    elist.push_back(pickup);
+    addPickup(elist, x, y, pickupType, symbol);
 }
 
 // Turn on the chosen upgrade, and spawn anything it gives immediately.
@@ -279,37 +273,6 @@ void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int
     }
 }
 
-// Older loop-around helper kept for code that uses entity as the player.
-void checkLoopAroundMap(UpgradeState &upgrades, entity &player, int n, int m) {
-    if (upgrades.loopAroundMap == false || upgrades.loopCharges <= 0) {
-        return;
-    }
-
-    bool used = false;
-
-    if (player.x < 0) {
-        player.x = n - 1;
-        used = true;
-    }
-    else if (player.x >= n) {
-        player.x = 0;
-        used = true;
-    }
-
-    if (player.y < 0) {
-        player.y = m - 1;
-        used = true;
-    }
-    else if (player.y >= m) {
-        player.y = 0;
-        used = true;
-    }
-
-    if (used == true) {
-        upgrades.loopCharges--;
-    }
-}
-
 // Spend a projectile block if one is available.
 bool tryBlockProjectile(UpgradeState &upgrades) {
     if (upgrades.blockOneProjectile == true && upgrades.projectileBlocks > 0) {
@@ -321,7 +284,7 @@ bool tryBlockProjectile(UpgradeState &upgrades) {
 }
 
 // Projectile spawn cap.
-bool canSpawnProjectile(UpgradeState &upgrades, vector<entity> &elist) {
+bool canSpawnMoreProjectiles(UpgradeState &upgrades, vector<entity> &elist) {
     if (upgrades.limitProjectiles == false) {
         return true;
     }

@@ -218,7 +218,7 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrade
             continue;
         }
 
-        if (!canSpawnProjectile(upgrades, elist)) {
+        if (!canSpawnMoreProjectiles(upgrades, elist)) {
             return;
         }
 
@@ -366,7 +366,7 @@ void bShooter(
                 continue;
             }
 
-            if (!canSpawnProjectile(upgrades, elist)) {
+            if (!canSpawnMoreProjectiles(upgrades, elist)) {
                 return;
             }
 
