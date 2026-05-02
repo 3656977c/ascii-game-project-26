@@ -72,7 +72,7 @@ void spawnFollower(vector<entity> &elist, player p, int n, int m) {
 }
 
 //Chooses an enemy from the current enemy pool
-void spawnRandomEnemies(vector,entity> &elist, player p, int n,int m, int enemyPoolSize) {
+void spawnRandomEnemies(vector<entity> &elist, player p, int n,int m, int enemyPoolSize) {
   int enemyType= randomInt(1, enemyPoolSize);
   if (enemyType ==1) {
       spawnBouncer(elist, p, n, m);
@@ -100,6 +100,7 @@ void directorTurnUpdate(vector<entity> &elist, player p,int n, int m, int level,
       }
 }
 
+??
 
 
 //the director is responsible for the flow of the game, and managing the random events faced by the player
