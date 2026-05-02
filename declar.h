@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 #include <set>
-#include <ncurses/ncurses.h>
+#include <ncurses/ncurses.h> //only part that differs from environment to environment
 
 //initialize randomness
 #include <random>
