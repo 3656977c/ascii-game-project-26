@@ -586,6 +586,71 @@ void bPlusTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upg
         elist.push_back(projectile);
     }
 }
+// XTUR
+// Moving turret that shoots diagonal projectiles.
+void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades) {
+    e.t++;
+
+    // Random movement every turn.
+    int dirsMove[4][2] = {
+        {-1, 0},
+        {1, 0},
+        {0, -1},
+        {0, 1}
+    };
+
+    int choice = rando % 4;
+    int nextX = e.x + dirsMove[choice][0];
+    int nextY = e.y + dirsMove[choice][1];
+
+    if (!isBlocked(w, nextX, nextY)) {
+        e.x = nextX;
+        e.y = nextY;
+    }
+
+    // Shoot every 3 turns.
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirsShoot[4][2] = {
+        {-1, -1},
+        {-1, 1},
+        {1, -1},
+        {1, 1}
+    };
+
+    for (int i = 0; i < 4; i++) {
+        int dx = dirsShoot[i][0];
+        int dy = dirsShoot[i][1];
+
+        int spawnX = e.x + dx;
+        int spawnY = e.y + dy;
+
+        if (isBlocked(w, spawnX, spawnY)) {
+            continue;
+        }
+
+        if (!canSpawnProjectile(upgrades, elist)) {
+            return;
+        }
+
+        entity projectile{
+            spawnX,
+            spawnY,
+            "projectile",
+            '*',
+            2,
+            dx,
+            dy,
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+}
 // Updates all active entities.
 void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
   int originalSize = e.size();
@@ -625,6 +690,12 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     else if (e[i].type == "grappler") {
     bGrappler(e[i], p, w);
     }
+    else if (e[i].type == "+tur") {
+    bPlusTurret(e[i], e, w, upgrades);
+    }
+    else if (e[i].type == "xtur") {
+    bXTurret(e[i], e, w, upgrades);
+    }
   }
 }
 
@@ -636,6 +707,8 @@ bool isDamagingEnemy(entity e) {
         e.type == "leaper" ||
         e.type == "shooter" ||
         e.type == "grappler" ||
+        e.type == "+tur" ||
+        e.type == "xtur" ||
         e.type == "projectile"
     );
 }
