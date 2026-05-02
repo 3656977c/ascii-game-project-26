@@ -323,6 +323,7 @@ signed main() {
 
     vector<entity> elist;
     vector<pair<int, int>> wlist;
+    vector<int> pickedUpgrades;
 
     //enemies with defaul start vals
     entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
