@@ -16,41 +16,67 @@ bool isWall(vector<pair<int,int>> &w, int x, int y) {
   return false;
 }
 
-// BOUNCER
-// Moves diagonally and bounces off both borders and walls.
-void bBouncer(entity &e, vector<pair<int,int>> &w) {
-  int nextX = e.x + e.ax;
-  int nextY = e.y + e.ay;
+bool isBlocked(vector<pair<int,int>> &w, int x, int y) {
+    if (x < 0 || x >= n || y < 0 || y >= m) {
+        return true;
+    }
 
-  if (nextX < 0 || nextX >= n) {
-    e.ax *= -1;
-  }
-
-  if (nextY < 0 || nextY >= m) {
-    e.ay *= -1;
-  }
-
-  nextX = e.x + e.ax;
-  nextY = e.y + e.ay;
-
-  if (isWall(w, nextX, nextY)) {
-    e.ax *= -1;
-    e.ay *= -1;
-
-    nextX = e.x + e.ax;
-    nextY = e.y + e.ay;
-  }
-
-  if (
-    nextX >= 0 && nextX < n &&
-    nextY >= 0 && nextY < m &&
-    !isWall(w, nextX, nextY)
-  ) {
-    e.x = nextX;
-    e.y = nextY;
-  }
+    return isWall(w, x, y);
 }
 
+// BOUNCER
+// Moves diagonally.
+// Bounces off borders, walls, and wall corners.
+// It checks both adjacent side tiles before allowing diagonal movement.
+void bBouncer(entity &e, vector<pair<int,int>> &w) {
+    int dx = e.ax;
+    int dy = e.ay;
+
+    // Safety: bouncer should always have a direction.
+    if (dx == 0) dx = 1;
+    if (dy == 0) dy = 1;
+
+    // Check the side tiles separately.
+    bool blockedVerticalSide = isBlocked(w, e.x + dx, e.y);
+    bool blockedHorizontalSide = isBlocked(w, e.x, e.y + dy);
+
+    // If the vertical side is blocked, reverse vertical direction.
+    if (blockedVerticalSide) {
+        dx *= -1;
+    }
+
+    // If the horizontal side is blocked, reverse horizontal direction.
+    if (blockedHorizontalSide) {
+        dy *= -1;
+    }
+
+    int nextX = e.x + dx;
+    int nextY = e.y + dy;
+
+    // If the diagonal landing tile itself is blocked,
+    // reverse both directions.
+    if (isBlocked(w, nextX, nextY)) {
+        dx *= -1;
+        dy *= -1;
+
+        nextX = e.x + dx;
+        nextY = e.y + dy;
+    }
+
+    // Final safety check.
+    // Only move if the final tile and both side paths are valid.
+    if (
+        !isBlocked(w, nextX, nextY) &&
+        !isBlocked(w, e.x + dx, e.y) &&
+        !isBlocked(w, e.x, e.y + dy)
+    ) {
+        e.x = nextX;
+        e.y = nextY;
+    }
+
+    e.ax = dx;
+    e.ay = dy;
+}
 // FOLLOWER
 // Moves one tile toward the player every other turn.
 // Cannot pass through walls.
