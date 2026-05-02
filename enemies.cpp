@@ -192,3 +192,15 @@ void bCoin(entity &e, player p) {
         e.c = -1;
     }
 }
+bool bMushroom(entity mushroom, player p) {
+if (mushroom.c == -1 || mushroom.type != "mushroom") {
+return false;
+}
+
+int dx = mushroom.x - p.x;
+int dy = mushroom.y - p.y;
+
+// Radius 2 circle:
+// dx² + dy² <= 2²
+return dx * dx + dy * dy <= 4;
+}
