@@ -32,6 +32,18 @@ bool occupied(vector<entity> &elist,int x,int y, player p){
   }
   return false;
 }
+// gets a free tile anywhere  on the map
+void getFreePosition(vector<entity> &elist, player p, int n, int m, int &x, int &y) {
+      do{
+          x = randomInt(0, n-1);
+          y = randomInt(0, m-1);
+    } while(occupied(elist, x, y, p))
+  }
+
+
+
+
+
 
 
 // Adds the 3 required gates in 3 differnt map sections
