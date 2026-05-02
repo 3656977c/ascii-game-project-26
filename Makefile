@@ -1,19 +1,37 @@
 CXX := g++
 CXXFLAGS := -g
-LDLIBS := -lncursesw
 
-main.o: main.cpp declar.h
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+LDLIBS := -lncurses
+else
+LDLIBS := -lncursesw
+endif
+
+main.o: main.cpp declar.h upgrades.h
 	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
 menu.o: menu.cpp declar.h
 	$(CXX) $(CXXFLAGS) -c menu.cpp -o menu.o
 
-main.exe: main.o menu.o
-	$(CXX) $(CXXFLAGS) main.o menu.o -o main.exe $(LDLIBS)
+upgrades.o: upgrades.cpp upgrades.h declar.h
+	$(CXX) $(CXXFLAGS) -c upgrades.cpp -o upgrades.o
 
+main.exe: main.o menu.o upgrades.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o -o main.exe $(LDLIBS)
+
+ifeq ($(UNAME_S),Darwin)
+main: main.o menu.o upgrades.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o -o main $(LDLIBS)
+else
 main: main.exe
+endif
 
 clean:
-	-del /Q main.exe main.o menu.o 2>nul
+ifeq ($(UNAME_S),Darwin)
+	rm -f main main.exe main.o menu.o upgrades.o
+else
+	-del /Q main.exe main.o menu.o upgrades.o 2>nul
+endif
 
 .PHONY: clean main

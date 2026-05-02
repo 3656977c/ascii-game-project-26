@@ -1,4 +1,5 @@
 #include "declar.h"
+#include "upgrades.h"
 int n = 6;
 int m = 10;
 int open = 0;
@@ -19,29 +20,30 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void display(int n, int m, vector<entity> e, entity p) {
+void display(int n, int m, vector<entity> e, entity p, int health, int maxHealth) {
     char c = '.';
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
     else mvprintw(0, 0, "You Beat This Level!");
+    mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-            mvaddch(2+i, 2*j, c | COLOR_PAIR(4));
+            mvaddch(3+i, 2*j, c | COLOR_PAIR(4));
         }
     }
 
     for (auto i: e) {
         if (i.type != "gate" && i.type != "coin") continue;
         if (i.c == -1) continue;
-        mvaddch(2+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
+        mvaddch(3+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
     }
 
     for (auto i: e) {
         if (i.type == "gate" || i.type == "coin") continue;
         if (i.c == -1) continue;
-        mvaddch(2+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
+        mvaddch(3+i.x, 2*i.y, i.s | COLOR_PAIR(i.c));
     }
-    mvaddch(2+p.x, 2*p.y, p.s | COLOR_PAIR(1));
+    mvaddch(3+p.x, 2*p.y, p.s | COLOR_PAIR(1));
     refresh();
 }
 
@@ -102,14 +104,66 @@ void updateentities(vector<entity> &e, entity p) {
     }
 }
 
-void updateplayer(entity &p) {
+bool isDamagingEnemy(entity e) {
+    return e.c != -1 && (e.type == "bouncer" || e.type == "follow" || e.type == "projectile");
+}
+
+int getPlayerHitIndex(vector<entity> e, entity p) {
+    for (int i = 0; i < (int)e.size(); i++) {
+        if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+bool isPickup(entity e) {
+    return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
+}
+
+void clampHealth(int &health) {
+    if (health < 0) health = 0;
+}
+
+bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
+    onPlayerHit(upgrades, health, elist, enemyIndex);
+    clampHealth(health);
+    return health <= 0;
+}
+
+void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, entity p) {
+    for (auto &i: elist) {
+        if (isPickup(i) && i.x == p.x && i.y == p.y) {
+            if (i.type == "kill_pickup") {
+                killFirstEnemy(elist);
+            }
+
+            i.t = 0;
+            i.c = -1;
+            onPickupCollected(upgrades, health, maxHealth, elist);
+        }
+    }
+}
+
+void showDeathScreen() {
+    erase();
+    mvprintw(0, 0, "You died!");
+    mvprintw(1, 0, "Press any key to exit.");
+    refresh();
+    nodelay(stdscr, FALSE);
+    timeout(-1);
+    getch();
+}
+
+void updateplayer(entity &p, string &state) {
     int c = getch();
     switch (c) {
         case 'w': if (p.x > 0) p.x--; break;
         case 'a': if (p.y > 0) p.y--; break;
         case 's': if (p.x < n-1) p.x++; break;
         case 'd': if (p.y < m-1) p.y++; break;
-        case 'q': endwin();
+        case 'q': state = "quit"; break;
     }
 }
 
@@ -119,6 +173,10 @@ signed main() {
     initialize();
     colorscale();
     string state = "run";
+    int maxHealth = 3;
+    int health = maxHealth;
+    bool stageClearApplied = false;
+    UpgradeState upgrades;
 
     vector<entity> elist;
     entity player{0,0,"player", '@', -1, -1,-1,-1};
@@ -141,9 +199,46 @@ signed main() {
     elist.push_back(coin2);
 
     while (state == "run") {
-        display(n, m, elist, player);
-        updateplayer(player);
+        display(n, m, elist, player, health, maxHealth);
+        updateplayer(player, state);
+        if (state != "run") break;
+
+        collectPickups(upgrades, health, maxHealth, elist, player);
+
+        bool hitThisTurn = false;
+        int enemyIndex = getPlayerHitIndex(elist, player);
+
+        if (enemyIndex != -1) {
+            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
+                state = "dead";
+                break;
+            }
+            hitThisTurn = true;
+        }
+
         updateentities(elist, player);
+
+        collectPickups(upgrades, health, maxHealth, elist, player);
+
+        enemyIndex = getPlayerHitIndex(elist, player);
+        if (!hitThisTurn && enemyIndex != -1) {
+            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
+                state = "dead";
+            }
+        }
+
+        if (open >= 3 && !stageClearApplied) {
+            onStageClear(upgrades, health, maxHealth);
+            stageClearApplied = true;
+        }
+
+        nextUpgradeTurn(upgrades);
     }
+
+    if (state == "dead") {
+        display(n, m, elist, player, health, maxHealth);
+        showDeathScreen();
+    }
+
     endwin();
 }
