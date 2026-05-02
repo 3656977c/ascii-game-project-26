@@ -52,6 +52,16 @@ void spawnCoins(vector<entity> &elist, player p,int n,int m, int level){
     }
 }
 
+//Adss one bouncer enemy
+void spawnBouncer(vector<entity> &elist, player p, int n, int m) {
+  int x,y;
+  getFreePosition(elist,p,n,m,x,y);
+
+  int ax = randomInt(0,1) == 0 ? -1 : 1;
+  int ay = randomInt(0,1) == 0 ? -1 : 1;
+  entity enemy{x,y,"bouncer", 'O', 2, ax, ay, 0};
+  elist.push_back(enemy);
+}
 
 //the director is responsible for the flow of the game, and managing the random events faced by the player
 //for example, the director is the algorithm that pulls skills and enemy encounters to create for the player.
