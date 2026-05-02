@@ -21,7 +21,34 @@ void initialize() {
     nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
     timeout(-1); //how long getch() waits for input
 }
+void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
+    for (auto mushroom : e) {
+        if (mushroom.type != "mushroom" || mushroom.c == -1) {
+            continue;
+        }
 
+        for (int dx = -2; dx <= 2; dx++) {
+            for (int dy = -2; dy <= 2; dy++) {
+                if (dx * dx + dy * dy <= 4) {
+                    int tileX = mushroom.x + dx;
+                    int tileY = mushroom.y + dy;
+
+                    if (tileX < 0 || tileX >= n || tileY < 0 || tileY >= m) {
+                        continue;
+                    }
+
+                    if (isWall(w, tileX, tileY)) {
+                        continue;
+                    }
+
+                    mvaddch(3 + tileX + a, 2 * tileY + b, '.' | COLOR_PAIR(20));
+                    mvaddch(3 + tileX + a, 2 * tileY + b - 1, ' ' | COLOR_PAIR(20));
+                    mvaddch(3 + tileX + a, 2 * tileY + b + 1, ' ' | COLOR_PAIR(20));
+                }
+            }
+        }
+    }
+}
 void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, int health, int maxHealth, int level) {
     char c = '.';
     int a = 2, b = 4; //map displacement
