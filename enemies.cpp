@@ -684,9 +684,6 @@ void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, Upgr
     if (e[i].type == "bouncer") {
       bBouncer(e[i], w);
     }
-    else if (e[i].type == "follow") {
-      bFollow(e[i], p, w);
-    }
     else if (e[i].type == "ghost") {
       bGhost(e[i], p);
     }
@@ -695,12 +692,6 @@ void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, Upgr
     }
     else if (e[i].type == "spawner") {
       bSpawner(e[i]);
-    }
-    else if (e[i].type == "charger") {
-      bCharger(e[i], p, w);
-    }
-    else if (e[i].type == "knight") {
-      bKnight(e[i], w);
     }
     else if (e[i].type == "turret") {
       bTurret(e[i], e, w, upgrades);
