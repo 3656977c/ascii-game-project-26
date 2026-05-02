@@ -232,247 +232,58 @@ bool bMushroom(entity mushroom, player p) {
 
 // TURRET
 // Shoots projectiles in 8 directions every 3 turns.
-void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w) {
-    e.t++;
+void bTurret(entity &e, vector<entity> &elist) {
+  e.t++;
 
-    if (e.t < 3) {
-        return;
-    }
+  if (e.t < 4) {
+    return;
+  }
 
-    e.t = 0;
+  e.t = 0;
 
-    int dirs[8][2] = {
-        {-1, 0}, {1, 0},
-        {0, -1}, {0, 1},
-        {-1, -1}, {-1, 1},
-        {1, -1}, {1, 1}
+  int dirs[8][2] = {
+    {-1, 0}, {1, 0},
+    {0, -1}, {0, 1},
+    {-1, -1}, {-1, 1},
+    {1, -1}, {1, 1}
+  };
+
+  for (int i = 0; i < 8; i++) {
+    entity projectile{
+      e.x,
+      e.y,
+      "projectile",
+      '*',
+      2,
+      dirs[i][0],
+      dirs[i][1],
+      0
     };
 
-    for (int i = 0; i < 8; i++) {
-        int dx = dirs[i][0];
-        int dy = dirs[i][1];
-        int spawnX = e.x + dx;
-        int spawnY = e.y + dy;
-
-        // For diagonal projectiles, do not allow corner phasing at spawn either.
-        if (dx != 0 && dy != 0) {
-            if (
-                isBlocked(w, e.x + dx, e.y) ||
-                isBlocked(w, e.x, e.y + dy) ||
-                isBlocked(w, spawnX, spawnY)
-            ) {
-                continue;
-            }
-        } else {
-            if (isBlocked(w, spawnX, spawnY)) {
-                continue;
-            }
-        }
-
-        entity projectile{
-            spawnX,
-            spawnY,
-            "projectile",
-            '*',
-            2,
-            dx,
-            dy,
-            0
-        };
-
-        elist.push_back(projectile);
-    }
-
-}
-int signNum(int value) {
-    if (value > 0) return 1;
-    if (value < 0) return -1;
-    return 0;
+      elist.push_back(projectile);
+  }
 }
 
-int distanceSquared(entity e, player p) {
-    int dx = e.x - p.x;
-    int dy = e.y - p.y;
-    return dx * dx + dy * dy;
-}
-
-bool canSpawnProjectile(vector<pair<int,int>> &w, int x, int y, int ax, int ay) {
-    if (isBlocked(w, x, y)) {
-        return false;
-    }
-
-    // Diagonal projectile cannot spawn by cutting through a wall corner.
-    if (ax != 0 && ay != 0) {
-        if (isBlocked(w, x - ax, y) || isBlocked(w, x, y - ay)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-// PROJECTILE SHOOTER
-// Keeps roughly 5-6 tiles away from the player.
-// Every few turns, shoots a three-wide volley toward the player.
-void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> &w) {
-    int dxToPlayer = p.x - e.x;
-    int dyToPlayer = p.y - e.y;
-
-    int absDx = abs(dxToPlayer);
-    int absDy = abs(dyToPlayer);
-
-    int distSq = distanceSquared(e, p);
-
-    // Shoot every 4 turns.
-    // e.t works as the cooldown/charge timer.
-    if (e.t >= 4) {
-        e.t = 0;
-
-        int ax = 0;
-        int ay = 0;
-
-        // Choose the main direction toward the player.
-        // If the player is mostly vertical, shoot vertically.
-        // If mostly horizontal, shoot horizontally.
-        // If diagonal-ish, shoot diagonally.
-        if (absDx > absDy + 1) {
-            ax = signNum(dxToPlayer);
-            ay = 0;
-        }
-        else if (absDy > absDx + 1) {
-            ax = 0;
-            ay = signNum(dyToPlayer);
-        }
-        else {
-            ax = signNum(dxToPlayer);
-            ay = signNum(dyToPlayer);
-        }
-
-        if (ax == 0 && ay == 0) {
-            return;
-        }
-
-        // Three-wide volley offsets.
-        // If shooting vertically, spread left/right.
-        // If shooting horizontally, spread up/down.
-        // If shooting diagonally, use a small perpendicular spread.
-        int offsets[3][2];
-
-        if (ax != 0 && ay == 0) {
-            offsets[0][0] = 0;  offsets[0][1] = -1;
-            offsets[1][0] = 0;  offsets[1][1] = 0;
-            offsets[2][0] = 0;  offsets[2][1] = 1;
-        }
-        else if (ax == 0 && ay != 0) {
-            offsets[0][0] = -1; offsets[0][1] = 0;
-            offsets[1][0] = 0;  offsets[1][1] = 0;
-            offsets[2][0] = 1;  offsets[2][1] = 0;
-        }
-        else {
-            // Perpendicular to diagonal direction.
-            offsets[0][0] = -ax; offsets[0][1] = ay;
-            offsets[1][0] = 0;   offsets[1][1] = 0;
-            offsets[2][0] = ax;  offsets[2][1] = -ay;
-        }
-
-        for (int i = 0; i < 3; i++) {
-            int spawnX = e.x + ax + offsets[i][0];
-            int spawnY = e.y + ay + offsets[i][1];
-
-            if (!canSpawnProjectile(w, spawnX, spawnY, ax, ay)) {
-                continue;
-            }
-
-            entity projectile{
-                spawnX,
-                spawnY,
-                "projectile",
-                '*',
-                2,
-                ax,
-                ay,
-                0
-            };
-
-            elist.push_back(projectile);
-        }
-
-        return;
-    }
-
-    // Movement phase:
-    // If too close, move away.
-    // If too far, move closer.
-    // If at good distance, stay still and charge.
-    int moveX = 0;
-    int moveY = 0;
-
-    if (distSq < 25) {
-        // Too close: move away from player.
-        if (absDx > absDy) {
-            moveX = -signNum(dxToPlayer);
-        } else {
-            moveY = -signNum(dyToPlayer);
-        }
-    }
-    else if (distSq > 36) {
-        // Too far: move toward player.
-        if (absDx > absDy) {
-            moveX = signNum(dxToPlayer);
-        } else {
-            moveY = signNum(dyToPlayer);
-        }
-    }
-    else {
-        // Good range: pause/charge.
-        e.t++;
-        return;
-    }
-
-    int nextX = e.x + moveX;
-    int nextY = e.y + moveY;
-
-    if (!isBlocked(w, nextX, nextY)) {
-        e.x = nextX;
-        e.y = nextY;
-    }
-
-    // The shooter charges slowly even while repositioning.
-    e.t++;
-}
 // PROJECTILE
 // Moves in its direction.
 // Dies when it hits a wall or leaves the map.
 void bProjectile(entity &e, vector<pair<int,int>> &w) {
-    int nextX = e.x + e.ax;
-    int nextY = e.y + e.ay;
+  int nextX = e.x + e.ax;
+  int nextY = e.y + e.ay;
 
-    // Cardinal projectile movement:
-    // only needs to check the landing tile.
-    if (e.ax == 0 || e.ay == 0) {
-        if (isBlocked(w, nextX, nextY)) {
-            e.c = -1;
-            return;
-        }
+  if (
+    nextX < 0 || nextX >= n ||
+    nextY < 0 || nextY >= m ||
+    isWall(w, nextX, nextY)
+  ) {
+    e.c = -1;
+    return;
+  }
 
-        e.x = nextX;
-        e.y = nextY;
-        return;
-    }
-
-    // Diagonal projectile movement:
-    // must check both side tiles and the landing tile.
-    bool verticalSideBlocked = isBlocked(w, e.x + e.ax, e.y);
-    bool horizontalSideBlocked = isBlocked(w, e.x, e.y + e.ay);
-    bool landingBlocked = isBlocked(w, nextX, nextY);
-
-    if (verticalSideBlocked || horizontalSideBlocked || landingBlocked) {
-        e.c = -1;
-        return;
-    }
-
-    e.x = nextX;
-    e.y = nextY;
+  e.x = nextX;
+  e.y = nextY;
 }
+
 // GATE
 void bGate(entity &e, player p) {
   if (e.x == p.x && e.y == p.y && e.t == -1) {
@@ -513,10 +324,7 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
       bKnight(e[i], w);
     }
     else if (e[i].type == "turret") {
-      bTurret(e[i], e, w);
-    }
-    else if (e[i].type== "shooter") {
-      bShooter(e[i], p, e, w);
+      bTurret(e[i], e);
     }
     else if (e[i].type == "projectile") {
       bProjectile(e[i], w);
@@ -537,7 +345,6 @@ bool isDamagingEnemy(entity e) {
     e.type == "ghost" ||
     e.type == "charger" ||
     e.type == "knight" ||
-    e.type == "shooter" ||
     e.type == "projectile"
   );
 }
