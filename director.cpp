@@ -325,3 +325,19 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     }
 }
 
+void updater(int &val, pair<int, entity> &target, vector<pair<int, entity>> epool, player p, vector<entity> &elist, vector<pair<int,int>> &wall) {
+    if (val > 2*target.first) {
+        for (int i = 0; i < 100; i++) {
+                x = rand%5 + bgx; y = rand%9 + bgy;
+                if (occupied(x, y, p, elist, wall)) {
+                    elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 4,
+                    
+                    });
+                    enemylineup.pop_back();
+                    break;
+                }
+        }
+        val = -4;
+        target = epool[rand/epool.size()];
+    } else val++;
+}

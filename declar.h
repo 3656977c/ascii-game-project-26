@@ -37,7 +37,12 @@ class entity {
         int ax; //horizontal velocity
         int ay; //vertical velocity
         int t; //timer
-        
+
+        //ignore these, this is purely for spawning mechanics
+        pair<char, int> spawnl; //spawn looks
+        string spawntype; //spawn type
+        int spawnval[3]; //spawn parameters
+
 };
 
 inline entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
@@ -53,6 +58,7 @@ inline void colorscale() {
         init_pair(2, COLOR_RED, COLOR_BLACK);
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
         init_pair(4, COLOR_WHITE, COLOR_BLACK);
+        init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
         init_pair(10, COLOR_WHITE, COLOR_WHITE);
         init_pair(20, COLOR_WHITE, COLOR_RED);    //mushroom attack area
         
