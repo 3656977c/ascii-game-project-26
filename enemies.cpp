@@ -163,3 +163,32 @@ void bTurret(entity &e, vector<entity> &elist) {
     }
 
 }
+
+// PROJECTILE
+// Moves in its stored direction.
+// Disappears when it leaves the map.
+void bProjectile(entity &e) {
+    e.x += e.ax;
+    e.y += e.ay;
+
+    if (e.x < 0 || e.x >= n || e.y < 0 || e.y >= m) {
+        e.c = -1;
+    }
+}
+
+// GATE
+void bGate(entity &e, player p) {
+    if (e.x == p.x && e.y == p.y && e.t == -1) {
+        open++;
+        e.t = 0;
+        e.c = 1;
+    }
+}
+
+// COIN
+void bCoin(entity &e, player p) {
+    if (e.x == p.x && e.y == p.y && e.c > -1) {
+        e.t = 0;
+        e.c = -1;
+    }
+}
