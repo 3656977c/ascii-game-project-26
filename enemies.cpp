@@ -93,3 +93,38 @@ void bCharger(entity &e, player p) {
 
     e.t = 0;
 }
+void bKnight(entity &e, vector<pair<int,int>> &w) {
+    if (e.t == 0) {
+    e.t++;
+    return;
+    }
+
+    int directions[4][2] = {
+    {-1, 0},
+    {1, 0},
+    {0, -1},
+    {0, 1}
+    };
+
+    for (int tries = 0; tries < 8; tries++) {
+        int choice = rand % 4;
+
+        int dx = directions[choice][0];
+        int dy = directions[choice][1];
+
+        int landX = e.x + 2 * dx;
+        int landY = e.y + 2 * dy;
+
+        if (
+            landX >= 0 && landX < n &&
+            landY >= 0 && landY < m &&
+            !isWall(w, landX, landY)
+        ) {
+            e.x = landX;
+            e.y = landY;
+            break;
+}
+}
+
+    e.t = 0;
+}
