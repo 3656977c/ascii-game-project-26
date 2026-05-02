@@ -59,7 +59,9 @@ bool isEnemyType(string type) {
            type == "mushroom" ||
            type == "turret" ||
            type == "shooter" ||
-           type == "grappler";
+           type == "grappler" ||
+           type == "+tur" ||
+           type == "xtur";
 }
 
 // Remove the first enemy still active on the board.
