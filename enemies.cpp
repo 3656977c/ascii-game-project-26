@@ -138,81 +138,37 @@ void bGhost(entity &e, player p) {
     } else e.t++;
 }
 
-// CHARGER
-// Moves 2 tiles toward the player.
-// Cannot land inside a wall.
-void bCharger(entity &e, player p, vector<pair<int,int>> &w) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
-
-  int dx = 0;
-  int dy = 0;
-
-  if (abs(e.x - p.x) > abs(e.y - p.y)) {
-    if (p.x > e.x) dx = 1;
-    else if (p.x < e.x) dx = -1;
-  } else {
-    if (p.y > e.y) dy = 1;
-    else if (p.y < e.y) dy = -1;
-  }
-
-  for (int step = 0; step < 2; step++) {
-    int nextX = e.x + dx;
-    int nextY = e.y + dy;
-
-    if (
-      nextX >= 0 && nextX < n &&
-      nextY >= 0 && nextY < m &&
-      !isWall(w, nextX, nextY)
-    ) {
-      e.x = nextX;
-      e.y = nextY;
+// // LEAPER
+// Merges charger + knight.
+// It jumps exactly 2 tiles toward the player.
+// It skips the middle tile and only checks the landing tile.
+void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
+    if (e.t == 0) {
+        e.t++;
+        return;
     }
-  }
 
-  e.t = 0;
-}
+    int dx = 0;
+    int dy = 0;
 
-// KNIGHT
-// Jumps exactly 2 tiles in one cardinal direction.
-// It skips the middle tile.
-// It cannot land on a wall.
-void bKnight(entity &e, vector<pair<int,int>> &w) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
+    int diffX = p.x - e.x;
+    int diffY = p.y - e.y;
 
-  int directions[4][2] = {
-    {-1, 0},
-    {1, 0},
-    {0, -1},
-    {0, 1}
-  };
-
-  for (int tries = 0; tries < 8; tries++) {
-    int choice = std::rand() % 4;
-
-    int dx = directions[choice][0];
-    int dy = directions[choice][1];
+    if (abs(diffX) > abs(diffY)) {
+        dx = signNum(diffX);
+    } else {
+        dy = signNum(diffY);
+    }
 
     int landX = e.x + 2 * dx;
     int landY = e.y + 2 * dy;
 
-    if (
-      landX >= 0 && landX < n &&
-      landY >= 0 && landY < m &&
-      !isWall(w, landX, landY)
-    ) {
-      e.x = landX;
-      e.y = landY;
-      break;
+    if (!isBlocked(w, landX, landY)) {
+        e.x = landX;
+        e.y = landY;
     }
-  }
 
-  e.t = 0;
+    e.t = 0;
 }
 
 // MUSHROOM
@@ -533,11 +489,8 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     else if (e[i].type == "ghost") {
       bGhost(e[i], p);
     }
-    else if (e[i].type == "charger") {
-      bCharger(e[i], p, w);
-    }
-    else if (e[i].type == "knight") {
-      bKnight(e[i], w);
+    else if (e[i].type == "leaper") {
+    bLeaper(e[i], p, w);
     }
     else if (e[i].type == "turret") {
       bTurret(e[i], e, w, upgrades);
@@ -564,8 +517,7 @@ bool isDamagingEnemy(entity e) {
         e.type == "bouncer" ||
         e.type == "follow" ||
         e.type == "ghost" ||
-        e.type == "charger" ||
-        e.type == "knight" ||
+        e.type == "leaper" ||
         e.type == "shooter" ||
         e.type == "projectile"
     );
