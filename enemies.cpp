@@ -128,3 +128,38 @@ void bKnight(entity &e, vector<pair<int,int>> &w) {
 
     e.t = 0;
 }
+
+// TURRET
+// Stationary enemy that shoots projectiles in 8 directions every few turns.
+void bTurret(entity &e, vector<entity> &elist) {
+    e.t++;
+
+    if (e.t < 3) {
+        return;
+    }
+
+    e.t = 0;
+
+    int dirs[8][2] = {
+        {-1, 0}, {1, 0},
+        {0, -1}, {0, 1},
+        {-1, -1}, {-1, 1},
+        {1, -1}, {1, 1}
+    };
+
+    for (int i = 0; i < 8; i++) {
+        entity projectile{
+            e.x,
+            e.y,
+            "projectile",
+            '*',
+            2,
+            dirs[i][0],
+            dirs[i][1],
+            0
+        };
+
+        elist.push_back(projectile);
+    }
+
+}
