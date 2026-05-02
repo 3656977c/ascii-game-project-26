@@ -8,7 +8,7 @@ void bFollow(entity &e, player p);
 void bGhost(entity &e, player p);
 void bCharger(entity &e, player p);
 void bKnight(entity &e);
-void bMushroom(entity &e);
+bool bMushroom(entity mushroom,player p);
 void bTurret(entity &e, vector<entity> &elist);
 void bProjectile(entity &e);
 
