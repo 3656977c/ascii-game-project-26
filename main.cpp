@@ -1,5 +1,6 @@
 #include "declar.h"
 #include "upgrades.h"
+#include "enemies.h"
 #include "director.h"
 int n = 15;
 int m = 27;
