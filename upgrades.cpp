@@ -48,17 +48,21 @@ int countProjectiles(vector<entity> &elist) {
     return total;
 }
 
+bool isEnemyType(string type) {
+    return type == "bouncer" ||
+           type == "follow" ||
+           type == "ghost" ||
+           type == "charger" ||
+           type == "knight" ||
+           type == "mushroom" ||
+           type == "turret" ||
+           type == "shooter";
+}
+
 // Remove the first enemy still active on the board.
 void killFirstEnemy(vector<entity> &elist) {
     for (int i = 0; i < (int)elist.size(); i++) {
-        if (elist[i].type == "bouncer" ||
-            elist[i].type == "follow" ||
-            elist[i].type == "ghost" ||
-            elist[i].type == "charger" ||
-            elist[i].type == "knight" ||
-            elist[i].type == "mushroom" ||
-            elist[i].type == "turret" ||
-            elist[i].type == "shooter") {
+        if (isEnemyType(elist[i].type)) {
             if (elist[i].c != -1) {
                 elist[i].c = -1;
                 return;
