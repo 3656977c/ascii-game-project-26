@@ -127,9 +127,6 @@ entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int
     return item;
 }
 
-void setupLevel(vector<entity> &elist, player &p, int level) {
-    buildLevel(elist, p, n, m, level);
-}
 
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist) {
     if (upgrades.spawnTimeStopPickups) {
@@ -337,27 +334,10 @@ signed main() {
     vector<pair<int, int>> wlist;
     player player{0,0};
 
-    entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
-    entity fol{1, 2, "bouncer", 'O', 2, 1, 1, 0};
-    elist.push_back(bounce);
-    elist.push_back(fol);
-
-    entity gate1{5, 9, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate1);
-    entity gate2{5, 1, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate2);
-    entity gate3{0, 8, "gate", 'H', 3, -1, -1, -1};
-    elist.push_back(gate3);
-
-    entity coin1{3, 4, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin1);
-    entity coin2{3, 6, "coin", 'c', 3, -1, -1, -1};
-    elist.push_back(coin2);
-
     director(elist, wlist, player, 0);
     while (state == "run") {
         display(n, m, elist, wlist, player, health, maxHealth);
-        updateplayer(player, state);
+        updateplayer(player, state, upgrades);
         if (state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, elist, player);
@@ -398,7 +378,6 @@ signed main() {
 
             int selectedUpgrade = chooseUpgrade(level, health, maxHealth);
             level++;
-            setupLevel(elist, player, level);
             addCarriedUpgradePickups(upgrades, elist);
             applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, n, m);
         }

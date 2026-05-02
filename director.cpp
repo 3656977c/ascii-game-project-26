@@ -2,7 +2,7 @@
 #include "director.h"
 //#include "enemies.cpp"
 
-//!!!!!!!!!!MAybe we use everything here? idk it depends because were still on generation
+/*!!!!!!!!!!MAybe we use everything here? idk it depends because were still on generation
 #include <random>
 #include <chrono>
 #include <vector>
@@ -13,7 +13,7 @@ using namespace std;
 extern int open;
 
 //Random generator
-static unsigned seed= chrono::system_clock::now().time_since_epoch().count():
+static unsigned seed= chrono::system_clock::now().time_since_epoch().count();
 static mt19937 engine(seed);
 
 int randomInt(int low,int high){
@@ -102,7 +102,7 @@ void directorTurnUpdate(vector<entity> &elist, player p,int n, int m, int level,
       }
 }
 
-
+*/
 
 //rand val - declared in main.cpp
 extern unsigned seed;
@@ -110,11 +110,37 @@ extern mt19937 engine;
 extern uniform_int_distribution<int> dist;
 #define rand dist(engine) 
 
+bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>> wall) {
+    if (p.x == x && p.y == y) return false;
+    for (entity i: elist) {
+        if (i.x == x && i.y == y) return false;
+    }
+    for (auto i: wall) {
+        if (i.first == x && i.second == y) return false;
+    }
+
+    return true;
+}
+
 void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int danval) {
     //elist is the list of all entities, p is player, danval is the danger value
 
+    //enemy pool
+    vector<string> epool = {"bouncer", "follow"};
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int temp = rand%9;
+    //add more stuff
+    vector<vector<pair<int,int>>> layout = {
+        {},{},{},{}, //empty type layouts are 4 times as likely to spawn
+        {{1, 1}, {1, 7}, {3, 7}},
+        {{3, 1}, {1, 7}},
+        {{1, 1}, {3, 1}},
+        {{1, 8}, {2, 5}, {2, 6}, {2, 7}, {2, 8}, {3, 8}},
+        {{1, 0}, {2, 0}, {2, 1}, {2, 2}, {2, 3}, {3, 0}},
+        {{1, 4}, {2, 2}, {2, 3}, {2, 4}, {2, 5}, {2, 6}, {3, 4}},
+        {{1, 3}, {1, 4}, {1, 5}, {2, 3}, {2, 4}, {2, 5}, {3, 3}, {3, 4}, {3, 5}},
+        {{0, 1}, {0, 2}, {0, 5}, {0, 6}, {0, 7}, {4, 1}, {4, 2}, {4, 3}, {4, 6}, {4, 7}}
+    };
 
     //pick a section of the map for the player.
     //the player spawns in the middle of this section
@@ -140,4 +166,57 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         for (auto &i : playout[temp]) {
             wall.emplace_back(bpx + i.first, bpy + i.second);
         }
+    //GATE SECTION
+    for (int i = 8; i > 5; i--) {
+        temp = rand%i;
+        //choose section
+            int gsection = section[temp];
+            section.erase(section.begin() + temp);
+        //init section borders
+            int bgx = 5 *((gsection - 1)%3);
+            int bgy = 9 *((gsection - 1)/3);
+        //choose layout
+            temp = rand%12;
+            for (auto &i : layout[temp]) {
+                wall.emplace_back(bgx + i.first, bgy + i.second);
+            }
+        //spawn gate
+            int x = 0, y = 0;
+            for (int i = 0; i < 50; i++) {
+                x = rand%5; y = rand%9;
+                if (occupied(x, y, p, elist, wall)) break;
+                x = 1; y = 2;
+            }
+            entity gate = {bgx+x, bgy+y, "gate", 'G', 3, -1, -1, -1};
+            elist.push_back(gate);
+        //spawn enemy
+//ADDDDHERE   
+    }
+
+    //COIN SECTION
+    for (int i = 5; i > 3; i--) {
+        temp = rand%i;
+    //choose section
+        int gsection = section[temp];
+        section.erase(section.begin() + temp);
+    //init section borders
+        int bgx = 5 *((gsection - 1)%3);
+        int bgy = 9 *((gsection - 1)/3);
+    //choose layout
+        temp = rand%12;
+        for (auto &i : layout[temp]) {
+            wall.emplace_back(bgx + i.first, bgy + i.second);
+        }
+    //spawn gate
+        int x = 0, y = 0;
+        for (int i = 0; i < 50; i++) {
+            x = rand%5; y = rand%9;
+            if (occupied(x, y, p, elist, wall)) break;
+            x = 1; y = 2;
+        }
+        entity coin = {bgx+x, bgy+y, "coin", 'c', 3, -1, -1, -1};
+        elist.push_back(coin);
+    //spawn enemy
+//ADDDDHERE   
+    }
 }
