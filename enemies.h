@@ -13,7 +13,15 @@ void bKnight(entity &e, vector<pair<int,int>> &w);
 bool bMushroom(entity mushroom, player p);
 
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w);
-void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> &w);
+bool isShooterBlocked(vector<entity> &elist, vector<pair<int,int>> &w, int x, int y, int selfIndex);
+
+void bShooter(
+    entity &e,
+    player p,
+    vector<entity> &elist,
+    vector<pair<int,int>> &w,
+    int selfIndex
+);
 void bProjectile(entity &e, vector<pair<int,int>> &w);
 
 void bGate(entity &e, player p);

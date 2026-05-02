@@ -303,10 +303,49 @@ bool canSpawnProjectile(vector<pair<int,int>> &w, int x, int y, int ax, int ay) 
 
     return true;
 }
+bool isShooterBlocked(vector<entity> &elist, vector<pair<int,int>> &w, int x, int y, int selfIndex) {
+    if (isBlocked(w, x, y)) {
+        return true;
+    }
+
+    for (int i = 0; i < (int)elist.size(); i++) {
+        if (i == selfIndex) {
+            continue;
+        }
+
+        if (elist[i].c == -1 || elist[i].type != "shooter") {
+            continue;
+        }
+
+        int dx = abs(elist[i].x - x);
+        int dy = abs(elist[i].y - y);
+
+        // A shooter cannot move onto or next to another shooter.
+        // This makes nearby shooters act like walls.
+        if (dx <= 1 && dy <= 1) {
+            return true;
+        }
+    }
+
+    return false;
+}
 // PROJECTILE SHOOTER
 // Keeps roughly 5-6 tiles away from the player.
 // Every few turns, shoots a three-wide volley toward the player.
-void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> &w) {
+void bShooter(
+    entity &e,
+    player p,
+    vector<entity> &elist,
+    vector<pair<int,int>> &w,
+    int selfIndex
+) {
+    // Cooldown after shooting.
+    // During cooldown, the shooter does not move or charge.
+    if (e.t < 0) {
+        e.t++;
+        return;
+    }
+
     int dxToPlayer = p.x - e.x;
     int dyToPlayer = p.y - e.y;
 
@@ -315,17 +354,11 @@ void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> 
 
     int distSq = distanceSquared(e, p);
 
-    // Shoot every 4 turns.
-    // e.t works as the cooldown/charge timer.
+    // Shoot when fully charged.
     if (e.t >= 4) {
-        e.t = 0;
         int ax = 0;
         int ay = 0;
 
-        // Choose the main direction toward the player.
-        // If the player is mostly vertical, shoot vertically.
-        // If mostly horizontal, shoot horizontally.
-        // If diagonal-ish, shoot diagonally.
         if (absDx > absDy + 1) {
             ax = signNum(dxToPlayer);
             ay = 0;
@@ -340,13 +373,10 @@ void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> 
         }
 
         if (ax == 0 && ay == 0) {
+            e.t = -3;
             return;
         }
 
-        // Three-wide volley offsets.
-        // If shooting vertically, spread left/right.
-        // If shooting horizontally, spread up/down.
-        // If shooting diagonally, use a small perpendicular spread.
         int offsets[3][2];
 
         if (ax != 0 && ay == 0) {
@@ -360,7 +390,6 @@ void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> 
             offsets[2][0] = 1;  offsets[2][1] = 0;
         }
         else {
-            // Perpendicular to diagonal direction.
             offsets[0][0] = -ax; offsets[0][1] = ay;
             offsets[1][0] = 0;   offsets[1][1] = 0;
             offsets[2][0] = ax;  offsets[2][1] = -ay;
@@ -388,34 +417,32 @@ void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> 
             elist.push_back(projectile);
         }
 
+        // Wait 3 turns after shooting.
+        e.t = -3;
         return;
     }
 
-    // Movement phase:
-    // If too close, move away.
-    // If too far, move closer.
-    // If at good distance, stay still and charge.
     int moveX = 0;
     int moveY = 0;
 
+    // Too close: move away.
     if (distSq < 25) {
-        // Too close: move away from player.
         if (absDx > absDy) {
             moveX = -signNum(dxToPlayer);
         } else {
             moveY = -signNum(dyToPlayer);
         }
     }
+    // Too far: move closer.
     else if (distSq > 36) {
-        // Too far: move toward player.
         if (absDx > absDy) {
             moveX = signNum(dxToPlayer);
         } else {
             moveY = signNum(dyToPlayer);
         }
     }
+    // Good range: stay still and charge.
     else {
-        // Good range: pause/charge.
         e.t++;
         return;
     }
@@ -423,12 +450,11 @@ void bShooter(entity &e, player p, vector<entity> &elist, vector<pair<int,int>> 
     int nextX = e.x + moveX;
     int nextY = e.y + moveY;
 
-    if (!isBlocked(w, nextX, nextY)) {
+    if (!isShooterBlocked(elist, w, nextX, nextY, selfIndex)) {
         e.x = nextX;
         e.y = nextY;
     }
 
-    // The shooter charges slowly even while repositioning.
     e.t++;
 }
 // PROJECTILE
@@ -508,7 +534,7 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
       bTurret(e[i], e, w);
     }
     else if (e[i].type == "shooter") {
-      bShooter(e[i], p, e, w);
+      bShooter(e[i], p, e, w, i);
     }
     else if (e[i].type == "projectile") {
       bProjectile(e[i], w);
@@ -523,16 +549,16 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
 }
 
 bool isDamagingEnemy(entity e) {
-  return e.c != -1 && (
-    e.type == "bouncer" ||
-    e.type == "follow" ||
-    e.type == "ghost" ||
-    e.type == "charger" ||
-    e.type == "knight" ||
-    e.type == "projectile"
-  );
+    return e.c != -1 && (
+        e.type == "bouncer" ||
+        e.type == "follow" ||
+        e.type == "ghost" ||
+        e.type == "charger" ||
+        e.type == "knight" ||
+        e.type == "shooter" ||
+        e.type == "projectile"
+    );
 }
-
 int getPlayerHitIndex(vector<entity> e, player p) {
   for (int i = 0; i < (int)e.size(); i++) {
     if (e[i].c == -1) {
