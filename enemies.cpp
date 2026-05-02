@@ -357,7 +357,7 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w) {
       bKnight(e[i], w);
     }
     else if (e[i].type == "turret") {
-      bTurret(e[i], e);
+      bTurret(e[i], e, w);
     }
     else if (e[i].type == "projectile") {
       bProjectile(e[i], w);
