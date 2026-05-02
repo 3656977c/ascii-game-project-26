@@ -26,3 +26,32 @@ void bBouncer(entity &e) {
     }
 
 }
+
+// FOLLOWER
+// Moves one tile toward the player every other turn.
+void bFollow(entity &e, player p) {
+    if (e.t == 1) {
+        if (abs(e.x - p.x) != 0 && abs(e.y - p.y) != 0) {
+            if (rand() % 2 == 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        } else {
+            if (abs(e.x - p.x) > 0) {
+                if (p.x > e.x) e.x++;
+                else e.x--;
+            } else if (abs(e.y - p.y) > 0) {
+                if (p.y > e.y) e.y++;
+                else e.y--;
+            }
+        }
+
+        e.t = 0;
+    } else {
+        e.t++;
+    }
+
+}
