@@ -469,6 +469,27 @@ void bShooter(
 // PROJECTILE
 // Moves in its direction.
 // Dies when it hits a wall or leaves the map.
+
+void bSpawner(entity &e) {
+  if (e.t > 3) {
+    e.t--;
+    return;
+  } else {
+    e.c = 2;
+    if (e.t <= 0) {
+      //transform
+      e.s = e.spawnl.first;
+      e.c = e.spawnl.second;
+      e.type = e.spawntype;
+      e.ax = e.spawnval[0];
+      e.ay = e.spawnval[1];
+      e.t = e.spawnval[2];
+      return;
+    }
+    e.t--;
+  }
+}
+
 void bProjectile(entity &e, vector<pair<int,int>> &w) {
     int nextX = e.x + e.ax;
     int nextY = e.y + e.ay;
@@ -532,6 +553,9 @@ void updateentities(vector<entity> &e, player p, vector<pair<int,int>> &w, Upgra
     }
     else if (e[i].type == "ghost") {
       bGhost(e[i], p);
+    }
+    else if (e[i].type == "spawner") {
+      bSpawner(e[i]);
     }
     else if (e[i].type == "charger") {
       bCharger(e[i], p, w);

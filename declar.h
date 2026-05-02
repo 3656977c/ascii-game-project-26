@@ -37,8 +37,6 @@ class entity {
         int ax; //horizontal velocity
         int ay; //vertical velocity
         int t; //timer
-
-        //ignore these, this is purely for spawning mechanics
         pair<char, int> spawnl; //spawn looks
         string spawntype; //spawn type
         int spawnval[3]; //spawn parameters

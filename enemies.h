@@ -11,6 +11,7 @@ void bFollow(entity &e, player p, vector<pair<int,int>> &w);
 void bGhost(entity &e, player p);
 void bCharger(entity &e, player p, vector<pair<int,int>> &w);
 void bKnight(entity &e, vector<pair<int,int>> &w);
+void bSpawner(entity &e);
 bool bMushroom(entity mushroom, player p);
 
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades);

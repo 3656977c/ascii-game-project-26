@@ -10,7 +10,7 @@ int open = 0;
 //initialize randomness
     unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
     mt19937 engine(seed);
-    uniform_int_distribution<int> dist(0,99);
+    uniform_int_distribution<int> dist(0,7559);
     #define rand dist(engine) 
 
 void initialize() {
@@ -106,6 +106,7 @@ void setupLevel(vector<entity> &elist, player &p, int level, vector<pair<int, en
     elist.clear();
     open = 0;
     director(elist, ignoredWalls, p, level - 1, epool);
+
 }
 
 void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level, vector<pair<int, entity>> epool) {
@@ -336,12 +337,14 @@ signed main() {
 
     //enemies with defaul start vals
     entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
-    entity ghst = {0, 0, "ghost", '%', 2, -1, -1, -1};
+    entity ghst = {0, 0, "ghost", '%', 2, -1, -1, 0};
     entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
     vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}}; //enemy pool
     player player{0,0};
-
+    int turns = 0;
+    pair<int,entity> targ = epool[rand%3];
     setupLevel(elist, wlist, player, level, epool);
+    
     while (state == "run") {
         display(n, m, elist, wlist, player, health, maxHealth, level);
         updateplayer(player, state, upgrades, wlist);
@@ -384,6 +387,7 @@ signed main() {
         }
 
         nextUpgradeTurn(upgrades);
+        updater(turns, targ, epool, player, elist, wlist);
     }
 
     if (state == "dead") {
