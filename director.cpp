@@ -149,10 +149,16 @@ bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>
     return true;
 }
 
+vector<string> listgen(int pts, vector<pair<int, string>> epool) {
+    return {};
+}
+
 void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, string>> epool) {
     //elist is the list of all entities, p is player, level is the danger value
+    vector<int> difficulty = {50, 60, 70, 80, 90};
+    int pts = difficulty[level];
+    vector<string> enemylineup = listgen(pts, epool);
 
-    //enemy pool
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int temp = rand%9;
     //add more stuff
@@ -233,7 +239,7 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         for (auto &i : layout[temp]) {
             wall.emplace_back(bgx + i.first, bgy + i.second);
         }
-    //spawn gate
+    //spawn coins
         int x = 0, y = 0;
         for (int i = 0; i < 50; i++) {
             x = rand%5 + bgx; y = rand%9 + bgy;
@@ -242,6 +248,24 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         }
         entity coin = {x, y, "coin", 'c', 3, -1, -1, -1};
         elist.push_back(coin);
+    //spawn enemy
+//ADDDDHERE   
+    }
+
+    //ENEMY SECTION
+    for (int i = 3; i > 0; i--) {
+        temp = rand%i;
+    //choose section
+        int gsection = section[temp];
+        section.erase(section.begin() + temp);
+    //init section borders
+        int bgx = 5 *((gsection - 1)%3);
+        int bgy = 9 *((gsection - 1)/3);
+    //choose layout
+        temp = rand%12;
+        for (auto &i : layout[temp]) {
+            wall.emplace_back(bgx + i.first, bgy + i.second);
+        }
     //spawn enemy
 //ADDDDHERE   
     }
