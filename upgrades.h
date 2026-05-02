@@ -8,16 +8,21 @@ class UpgradeState {
         bool revengeKill;
         bool healOneEndStage;
         bool healHalfEndStage;
-        bool killEveryThreePickups;
-        bool healEveryThreePickups;
+        bool killEveryTwoPickups;
+        bool healEveryTwoPickups;
         bool loopAroundMap;
         bool fifthTurnImmune;
         bool swapStationaryEnemy;
         bool blockOneProjectile;
         bool limitProjectiles;
         bool slowProjectiles;
+        bool spawnTimeStopPickups;
+        bool spawnKillPickups;
+        bool spawnSwapPickups;
 
         int pickupCount;
+        int timeStopPickupCount;
+        int timeStopTurns;
         int turnCount;
         int loopCharges;
         int projectileBlocks;
