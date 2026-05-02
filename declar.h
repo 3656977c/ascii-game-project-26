@@ -53,6 +53,7 @@ inline void colorscale() {
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
         init_pair(4, COLOR_WHITE, COLOR_BLACK);
         init_pair(10, COLOR_WHITE, COLOR_WHITE);
+        init_pair(20, COLOR_WHITE, COLOR_RED);    //mushroom attack area
         
     }
 }
