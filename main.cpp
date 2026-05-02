@@ -1,5 +1,6 @@
 #include "declar.h"
 #include "upgrades.h"
+#include "director.h"
 int n = 15;
 int m = 27;
 int open = 0;
@@ -20,20 +21,30 @@ void initialize() {
     timeout(-1); //how long getch() waits for input
 }
 
-void display(int n, int m, vector<entity> e, player p, int health, int maxHealth) {
+void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, int health, int maxHealth) {
     char c = '.';
     int a = 2, b = 4; //map displacement
     erase();
-    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
+    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit %d, %d", p.x, p.y);
     else mvprintw(0, 0, "You Beat This Level!");
     mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+
     for (int i = 0; i < n+2; i++) {
-        mvaddch(3+i+a-1, 2*(-1)+b, '|' | COLOR_PAIR(4));
-        mvaddch(3+i+a-1, 2*m+b, '|' | COLOR_PAIR(4));
+        mvaddch(3+i+a-1, 2*(-1)+b-1, '|' | COLOR_PAIR(10));
+        mvaddch(3+i+a-1, 2*(-1)+b, '|' | COLOR_PAIR(10));
+        mvaddch(3+i+a-1, 2*m+b, '|' | COLOR_PAIR(10));
+        mvaddch(3+i+a-1, 2*m+b+1, '|' | COLOR_PAIR(10));
     }
     for (int i = -1; i < m+1; i++) {
-        mvaddch(3+a-1, 2*i+b, '-' | COLOR_PAIR(4));
-        mvaddch(3+n+a, 2*i+b, '-' | COLOR_PAIR(4));
+        mvaddch(3+a-1, 2*i+b, '-' | COLOR_PAIR(10));
+        mvaddch(3+a-1, 2*i+b - 1, '-' | COLOR_PAIR(10));
+        mvaddch(3+n+a, 2*i+b, '-' | COLOR_PAIR(10));
+         mvaddch(3+n+a, 2*i+b - 1, '-' | COLOR_PAIR(10));
+    }
+    for (auto i: w) {
+        mvaddch(3+i.first+a, 2*i.second+b, 'W' | COLOR_PAIR(10));
+        mvaddch(3+i.first+a, 2*i.second+b-1, 'W' | COLOR_PAIR(10));
+        mvaddch(3+i.first+a, 2*i.second+b + 1, 'W' | COLOR_PAIR(10));
     }
 
   
@@ -185,6 +196,7 @@ signed main() {
     UpgradeState upgrades;
 
     vector<entity> elist;
+    vector<pair<int, int>> wlist;
     player player{0,0};
 
     entity bounce{2, 6, "follow", '!', 2, 1, 1, -1};
@@ -204,8 +216,9 @@ signed main() {
     entity coin2{3, 6, "coin", 'c', 3, -1, -1, -1};
     elist.push_back(coin2);
 
+    director(elist, wlist, player, 0);
     while (state == "run") {
-        display(n, m, elist, player, health, maxHealth);
+        display(n, m, elist, wlist, player, health, maxHealth);
         updateplayer(player, state);
         if (state != "run") break;
 
@@ -242,7 +255,7 @@ signed main() {
     }
 
     if (state == "dead") {
-        display(n, m, elist, player, health, maxHealth);
+        display(n, m, elist, wlist, player, health, maxHealth);
         showDeathScreen();
     }
 

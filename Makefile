@@ -8,7 +8,7 @@ else
 LDLIBS := -lncursesw
 endif
 
-main.o: main.cpp declar.h upgrades.h
+main.o: main.cpp declar.h upgrades.h director.h
 	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
 menu.o: menu.cpp declar.h
@@ -17,12 +17,15 @@ menu.o: menu.cpp declar.h
 upgrades.o: upgrades.cpp upgrades.h declar.h
 	$(CXX) $(CXXFLAGS) -c upgrades.cpp -o upgrades.o
 
-main.exe: main.o menu.o upgrades.o
-	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o -o main.exe $(LDLIBS)
+director.o: director.cpp director.h declar.h
+	$(CXX) $(CXXFLAGS) -c director.cpp -o director.o
+
+main.exe: main.o menu.o upgrades.o director.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o -o main.exe $(LDLIBS)
 
 ifeq ($(UNAME_S),Darwin)
-main: main.o menu.o upgrades.o
-	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o -o main $(LDLIBS)
+main: main.o menu.o upgrades.o director.o
+	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o -o main $(LDLIBS)
 else
 main: main.exe
 endif
