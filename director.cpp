@@ -17,6 +17,18 @@ int randomInt(int low, int high) {
     uniform_int_distribution<int> dist(low, high);
     return dist(engine);
 }
+// gets a free tile anywhere  on the map
+void getFreePosition(vector<entity> &elist, player p, int n, int m, int &x, int &y) {
+      do{
+          x = randomInt(0, n-1);
+          y = randomInt(0, m-1);
+    } while(occupied(elist, x, y, p))
+  }
+
+
+
+
+
 
 // Checks whether a tile already has something on it
 bool occupied(vector<entity> &elist, int x, int y, player p) {
