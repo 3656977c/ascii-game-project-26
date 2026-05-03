@@ -3,7 +3,7 @@ O  Bouncer      Bounces diagonally around the map.
 %  Ghost        Follows the player and ignores walls.
 &  Shooter      Keeps distance and fires projectile volleys.
 #  Turret       Stays still and shoots in all directions.
-^  Leaper       Jumps two tiles toward the player.
+^  Leaper       Jumps two tiles toward the player, leaving behind a damaging area in its wake.
 !  Mushroom     Creates a red danger area nearby.
 $  Grappler     Pulls the player in rows or columns.
 +  Plus turret  Moves and shoots straight projectiles.
@@ -18,7 +18,7 @@ c  Coin         Adds upgrade choices after the level.
 X  Spawner      Turns into an enemy after its timer.
 
 == Pickups ==
-T  Time stop    Collect 2 to stop enemies for 2 turns.
+T  Time stop    Collect 2 to stop enemies for 3 turns.
 K  Kill pickup  Removes one active enemy.
 S  Swap pickup  Teleports to the other swap pickup.
 
