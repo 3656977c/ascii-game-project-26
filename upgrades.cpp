@@ -440,6 +440,11 @@ vector<int> getUpgradeChoices(const uppick& pickedUpgrades) {
 
 int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgrades) {
     vector<int> choices = getUpgradeChoices(pickedUpgrades);
+    int choiceCount = coin + 2;
+
+    if (choiceCount > (int)choices.size()) {
+        choiceCount = choices.size();
+    }
 
     while (true) {
         erase();
@@ -447,16 +452,16 @@ int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgr
         mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
         mvprintw(3, 0, "Choose an upgrade:");
 
-        for (int i = 0; i < coin + 2; i++) {
+        for (int i = 0; i < choiceCount; i++) {
             string name = getUpgradeName(choices[i]);
             mvprintw(5 + i, 0, "%d. %s", i + 1, name.c_str());
         }
 
-        mvprintw(9, 0, "Press 1, 2, or 3");
+        mvprintw(9, 0, "Press 1-%d", choiceCount);
         refresh();
 
         int c = getch();
-        if (c >= '1' && c <= 48 + 2 + coin) {
+        if (c >= '1' && c < '1' + choiceCount) {
             return choices[c - '1'];
         }
     }
