@@ -105,7 +105,7 @@ void showBestiary() {
             mvprintw(5 + i, 4, "%s", lines[lineIndex].c_str());
         }
 
-        mvprintw(18, 4, "W/S scroll  A/D page  ESC back");
+        mvprintw(18, 4, "W/S scroll  ESC back");
         refresh();
 
         int c = tolower(getch());
