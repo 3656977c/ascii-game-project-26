@@ -1,0 +1,2 @@
+//ignore .o files to avoid confusion
+*.o
