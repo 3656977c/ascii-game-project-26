@@ -1,5 +1,9 @@
 #include "upgrades.h"
 
+extern int n;
+extern int m;
+extern int coin;
+
 // Upgrade state and small helpers used by the main game loop.
 
 UpgradeState::UpgradeState() {
@@ -136,6 +140,23 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
     addPickup(elist, x, y, pickupType, symbol);
 }
 
+void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vector<pair<int, int>> &wlist) {
+    if (upgrades.spawnTimeStopPickups) {
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
+        spawnPickup(elist, wlist, n, m, "time_stop", 'T');
+    }
+
+    if (upgrades.spawnKillPickups) {
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
+        spawnPickup(elist, wlist, n, m, "kill_pickup", 'K');
+    }
+
+    if (upgrades.spawnSwapPickups) {
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
+        spawnPickup(elist, wlist, n, m, "swap_pickup", 'S');
+    }
+}
+
 // Turn on the chosen upgrade, and spawn anything it gives immediately.
 void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m) {
     if (upgradeNumber == 1) {
@@ -239,6 +260,63 @@ void onPickupCollected(UpgradeState &upgrades, int &health, int maxHealth, vecto
     }
 }
 
+bool isPickup(entity e) {
+    return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
+}
+
+bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
+    for (int i = 0; i < (int)elist.size(); i++) {
+        if (i != swapIndex && elist[i].type == "swap_pickup" && elist[i].c != -1) {
+            int oldPlayerX = p.x;
+            int oldPlayerY = p.y;
+
+            p.x = elist[i].x;
+            p.y = elist[i].y;
+            elist[i].x = oldPlayerX;
+            elist[i].y = oldPlayerY;
+            elist[swapIndex].t = 0;
+            elist[swapIndex].c = -1;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player &p) {
+    for (int i = 0; i < (int)elist.size(); i++) {
+        if (isPickup(elist[i]) && elist[i].x == p.x && elist[i].y == p.y) {
+            bool collected = true;
+
+            if (elist[i].type == "kill_pickup") {
+                killFirstEnemy(elist);
+            }
+
+            if (elist[i].type == "time_stop") {
+                upgrades.timeStopPickupCount++;
+                if (upgrades.timeStopPickupCount >= 2) {
+                    upgrades.timeStopTurns = 2;
+                    upgrades.timeStopPickupCount = 0;
+                }
+            }
+
+            if (elist[i].type == "swap_pickup") {
+                collected = useSwapPickup(elist, p, i);
+            } else {
+                if (elist[i].type == "coin") {
+                    coin++;
+                }
+                elist[i].t = 0;
+                elist[i].c = -1;
+            }
+
+            if (collected) {
+                onPickupCollected(upgrades, health, maxHealth, elist);
+            }
+        }
+    }
+}
+
 // Fifth-turn immunity check.
 bool isPlayerImmune(UpgradeState &upgrades) {
     if (upgrades.fifthTurnImmune == true && upgrades.turnCount % 5 == 0) {
@@ -329,4 +407,62 @@ string getUpgradeName(int upgradeNumber) {
     if (upgradeNumber == 14) return "Slow projectiles";
 
     return "Unknown upgrade";
+}
+
+bool hasUpgrade(const uppick& pickedUpgrades, int upgradeNumber) {
+    for (int i = 0; i < pickedUpgrades.uit; i++) {
+        if (pickedUpgrades.u[i] == upgradeNumber) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+vector<int> getUpgradeChoices(const uppick& pickedUpgrades) {
+    vector<int> choices;
+
+    while ((int)choices.size() < 4) {
+        int upgradeNumber = rand() % 14 + 1;
+        bool alreadyChosen = false;
+
+        for (int choice: choices) {
+            if (choice == upgradeNumber) alreadyChosen = true;
+        }
+
+        if (hasUpgrade(pickedUpgrades, upgradeNumber)) alreadyChosen = true;
+
+        if (!alreadyChosen) choices.push_back(upgradeNumber);
+    }
+
+    return choices;
+}
+
+int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgrades) {
+    vector<int> choices = getUpgradeChoices(pickedUpgrades);
+    int choiceCount = coin + 2;
+
+    if (choiceCount > (int)choices.size()) {
+        choiceCount = choices.size();
+    }
+
+    while (true) {
+        erase();
+        mvprintw(0, 0, "Level %d cleared!", level);
+        mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+        mvprintw(3, 0, "Choose an upgrade:");
+
+        for (int i = 0; i < choiceCount; i++) {
+            string name = getUpgradeName(choices[i]);
+            mvprintw(5 + i, 0, "%d. %s", i + 1, name.c_str());
+        }
+
+        mvprintw(9, 0, "Press 1-%d", choiceCount);
+        refresh();
+
+        int c = getch();
+        if (c >= '1' && c < '1' + choiceCount) {
+            return choices[c - '1'];
+        }
+    }
 }
