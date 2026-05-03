@@ -176,7 +176,7 @@ void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w
             harmTile.c = 20;
             harmTile.ax = 0;
             harmTile.ay = 0;
-            harmTile.t = 1;
+            harmTile.t = 2;
 
             elist.push_back(harmTile);
         }
