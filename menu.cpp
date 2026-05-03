@@ -2,14 +2,14 @@
 #include "menu.h"
 #include <fstream>
 
-//menu is initially responsible for the start menu settings, which allows the player to start the game, change difficulties, look at the bestiary, and edit settings
-//menu also works when "state" is listed as pause or is anything else but "game"
+//menu screens
 
 void drawMenuTitle() {
     mvprintw(1, 4, "ASCII KNIGHT");
     mvprintw(2, 4, "----------");
 }
 
+//turn diff number into menu text
 string difficultyName(int diff) {
     if (diff == 0) return "Easy";
     if (diff == 1) return "Normal";
@@ -18,6 +18,7 @@ string difficultyName(int diff) {
     return "Unknown";
 }
 
+//cycle easy, normal, hard
 void changeDifficulty(gamestate &settings) {
     settings.diff++;
 
@@ -27,6 +28,7 @@ void changeDifficulty(gamestate &settings) {
 }
 
 string showMainMenu(gamestate &settings) {
+    //wait for menu input
     timeout(-1);
 
     while (true) {
@@ -61,6 +63,7 @@ string showMainMenu(gamestate &settings) {
 }
 
 void showBestiary() {
+    //read bestiary from text file
     timeout(-1);
 
     ifstream bestiaryFile("bestiary.txt");
@@ -122,6 +125,7 @@ void showBestiary() {
 }
 
 string showEndMenu(string result) {
+    //shown after a run ends
     timeout(-1);
 
     while (true) {

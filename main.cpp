@@ -191,6 +191,8 @@ string playGame(int diff) {
     gamestate gmst;
     gmst.state = "run";
     gmst.level = 1;
+    gmst.diff = diff;
+
     //init upgrades
     UpgradeState upgrades;
     uppick pickedUpgrades;
