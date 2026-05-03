@@ -10,7 +10,8 @@ void bBouncer(entity &e, vector<pair<int,int>> &w);
 void bGhost(entity &e, player p);
 void bLeaper(entity &e, player p, vector<pair<int,int>> &w);
 void bSpawner(entity &e);
-bool bMushroom(entity mushroom, player p);
+void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w);
+void bHarmingTile(entity &e);
 
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades);
 bool isShooterBlocked(vector<entity> &elist, vector<pair<int,int>> &w, int x, int y, int selfIndex);
