@@ -29,8 +29,8 @@ entity turret = {0, 0, "turret", '#', 2, -1, -1, 0};
 entity leaper = {0, 0, "leaper", '^', 2, -1, -1, 0};
 entity mushroom = {0, 0, "mushroom", '!', 2, -1, -1, 0};
 entity grappler = {0, 0, "grappler", '$', 2, -1, -1, 0};
-entity ttur = {0, 0, "+tur", 'x', 2, -1, -1, 0};
-entity xtur = {0, 0, "xtur", '+', 2, -1, -1, 0};
+entity ttur = {0, 0, "+tur", '+', 2, -1, -1, 0};
+entity xtur = {0, 0, "xtur", 'x', 2, -1, -1, 0};
 vector<pair<int, entity>> enemies = {
     {5, turret},
     {4, leaper},

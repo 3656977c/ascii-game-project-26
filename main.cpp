@@ -56,7 +56,6 @@ void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, 
 }
 void display(gamestate g, player p, int health, int maxHealth) {
     int a = 2, b = 4; //map displacement
-    
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
     else mvprintw(0, 0, "You Beat This Level!");
@@ -139,9 +138,9 @@ void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vec
     }
 }
 
-bool hasUpgrade(vector<int> pickedUpgrades, int upgradeNumber) {
-    for (int upgrade: pickedUpgrades) {
-        if (upgrade == upgradeNumber) {
+bool hasUpgrade(const uppick& pickedUpgrades, int upgradeNumber) {
+    for (int i = 0; i < pickedUpgrades.uit; i++) {
+        if (pickedUpgrades.u[i] == upgradeNumber) {
             return true;
         }
     }
@@ -149,7 +148,7 @@ bool hasUpgrade(vector<int> pickedUpgrades, int upgradeNumber) {
     return false;
 }
 
-vector<int> getUpgradeChoices(vector<int> pickedUpgrades) {
+vector<int> getUpgradeChoices(const uppick& pickedUpgrades) {
     vector<int> choices;
 
     while ((int)choices.size() < 4) {
@@ -168,7 +167,7 @@ vector<int> getUpgradeChoices(vector<int> pickedUpgrades) {
     return choices;
 }
 
-int chooseUpgrade(int level, int health, int maxHealth, vector<int> pickedUpgrades) {
+int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgrades) {
     vector<int> choices = getUpgradeChoices(pickedUpgrades);
 
     while (true) {
@@ -335,9 +334,8 @@ signed main() {
 
     //move into upgrades?
     UpgradeState upgrades;
-    vector<int> pickedUpgrades;
 
-
+    uppick pickedUpgrades;
     player player{0,0};
 
     //initialization for updater, ill consider moving it to gamestate
