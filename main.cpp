@@ -111,7 +111,6 @@ void display(gamestate g, player p, int health, int maxHealth) {
     refresh();
 }
 
-
 //cleaned, dont touch for now
 void genLevel(gamestate &g, player &p) {
     g.elist.clear();
@@ -137,7 +136,7 @@ void clampHealth(int &health) {
 
 bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
     onPlayerHit(upgrades, health, elist, enemyIndex);
-    clampHealth(health);
+    health = max(0, health);
     return health <= 0;
 }
 
