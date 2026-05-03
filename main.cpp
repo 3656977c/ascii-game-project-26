@@ -2,6 +2,7 @@
 #include "upgrades.h"
 #include "enemies.h"
 #include "director.h"
+#include "menu.h"
 #include <algorithm>
 int n = 15; //enforced # of columns
 int m = 27; //enforced # of rows
@@ -197,9 +198,7 @@ void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
     }
 }
 
-signed main() {
-    initialize();
-    colorscale();
+string playGame() {
     gamestate gmst;
     gmst.state = "run";
     gmst.level = 1;
@@ -267,12 +266,47 @@ signed main() {
     }
 
     if (gmst.state == "dead") {
+<<<<<<< HEAD
+        display(gmst, player, health, maxHealth);
+        pickedUpgrades.release();
+        return "dead";
+=======
         display(gmst, player);
         showDeathScreen();
+>>>>>>> 5a0a335e23071f1bd9fbc6ebecb1bb4691ee8074
     }
 
     if (gmst.state == "win") {
-        showWinScreen();
+        pickedUpgrades.release();
+        return "win";
+    }
+
+    pickedUpgrades.release();
+    return "quit";
+}
+
+signed main() {
+    initialize();
+    colorscale();
+
+    while (true) {
+        string menuChoice = showMainMenu();
+
+        if (menuChoice == "quit") {
+            break;
+        }
+
+        string result = playGame();
+        string endChoice = showEndMenu(result);
+
+        while (endChoice == "restart") {
+            result = playGame();
+            endChoice = showEndMenu(result);
+        }
+
+        if (endChoice == "quit") {
+            break;
+        }
     }
 
     endwin();

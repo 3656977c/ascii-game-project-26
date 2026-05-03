@@ -8,10 +8,10 @@ else
 LDLIBS := -lncursesw
 endif
 
-main.o: main.cpp declar.h upgrades.h director.h enemies.h
+main.o: main.cpp declar.h upgrades.h director.h enemies.h menu.h
 	$(CXX) $(CXXFLAGS) -c main.cpp -o main.o
 
-menu.o: menu.cpp declar.h
+menu.o: menu.cpp menu.h declar.h
 	$(CXX) $(CXXFLAGS) -c menu.cpp -o menu.o
 
 upgrades.o: upgrades.cpp upgrades.h declar.h
