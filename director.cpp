@@ -7,6 +7,9 @@ extern mt19937 engine;
 extern uniform_int_distribution<int> dist;
 #define rand dist(engine) 
 
+extern int n;
+extern int m;
+
 //global vals
 vector<int> difficulty = {20, 25, 30, 35, 40, 55}; //vector<int> difficulty = {30, 40, 50, 60, 70, 80};
 vector<vector<pair<int,int>>> layout = { 
@@ -73,8 +76,8 @@ vector<entity> listgen(int pts, vector<pair<int, entity>> epool) {
 bool forcespawn(player p, gamestate &g, entity e, int bgx, int bgy) { 
     int x = 0, y = 0;
     for (int i = 0; i < 100; i++) { //try a spawn 100 times
-        x = rand%5 + bgx;
-        y = rand%9 + bgy;
+        x = rand%(n/3) + bgx;
+        y = rand%(n/3) + bgy;
         if (occupied(x, y, p, g)) {
             entity n = e;
             n.x = x; n.y = y;
@@ -125,8 +128,8 @@ void director(gamestate& g, player& p) {
             section.erase(section.begin() + temp);
 
             //init section borders
-            int bgx = 5 *((gsection - 1)%3);
-            int bgy = 9 *((gsection - 1)/3);
+            int bgx = (n/3) *((gsection - 1)%3);
+            int bgy = (m/3) *((gsection - 1)/3);
 
             //choose layout
             temp = rand%12;
@@ -159,7 +162,7 @@ void updater(int &val, pair<int, entity> &target, gamestate &g, player p) {
     if (val > 25 + 3*target.first) {
         int x = 0, y = 0;
         for (int i = 0; i < 100; i++) {
-            x = rand%15; y = rand%27;
+            x = rand%n; y = rand%m;
             if (occupied(x, y, p, g)) {
                 g.elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 6,
                 {target.second.s, target.second.c}, target.second.type, {target.second.ax, target.second.ay, target.second.t}

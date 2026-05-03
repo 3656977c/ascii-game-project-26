@@ -3,8 +3,8 @@
 #include "enemies.h"
 #include "director.h"
 #include <algorithm>
-int n = 15; //enforced # of columns
-int m = 27; //enforced # of rows
+int n = 30; //enforced # of columns
+int m = 54; //enforced # of rows
 int open = 0; //global "open" val
 int coin = 0; //global "coin" val
 
