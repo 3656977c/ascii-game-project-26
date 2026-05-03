@@ -456,7 +456,7 @@ void bSpawner(entity &e) {
   }
 }
 
-void bProjectile(entity &e, vector<pair<int,int>> &w) {
+void bProjectile(entity &e, vector<pair<int,int>> &w, player p) {
     int nextX = e.x + e.ax;
     int nextY = e.y + e.ay;
 
@@ -718,7 +718,7 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
     }
     else if (e.type == "projectile") {
       if (shouldProjectileMove(upgrades)) {
-        bProjectile(g.elist[i], g.wlist);
+        bProjectile(g.elist[i], g.wlist, p);
       }
     }
     else if (e.type == "gate") {
@@ -739,7 +739,7 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
 }
 
 bool isDamagingEnemy(entity e) {
-    return e.c != -1 && (
+    return e.c == 2 && (
         e.type == "bouncer" ||
         e.type == "follow" ||
         e.type == "ghost" ||
