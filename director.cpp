@@ -42,7 +42,7 @@ vector<pair<int, entity>> enemies = {
     {5, turret},
     {3, leaper},
     {4, mushroom},
-    {6, grappler},
+    {8, grappler},
     {3, ttur},
     {3, xtur}
 };
