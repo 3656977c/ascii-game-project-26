@@ -7,6 +7,8 @@ extern mt19937 engine;
 extern uniform_int_distribution<int> dist;
 #define rand dist(engine) 
 
+
+
 bool occupied(int x, int y, player p, vector<entity> elist, vector<pair<int,int>> wall) {
     if (p.x == x && p.y == y) return false;
     for (entity i: elist) {

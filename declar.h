@@ -48,11 +48,7 @@ class gamestate {
         entity ghst = {0, 0, "ghost", '%', 2, -1, -1, 0};
         entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
     public:
-        //int ecap = 1;
-        //int * elist = (int *)malloc(ecap * sizeof(entity));
         vector<entity> elist;
-        //int wcap = 1;
-        //int * wlist = (int *)malloc(wcap * sizeof(pair<int, int>));
         vector<pair<int,int>> wlist;
         vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
         int level;
