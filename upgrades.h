@@ -30,19 +30,19 @@ class UpgradeState {
         UpgradeState();
 };
 
-void healPlayer(int &health, int maxHealth, int amount);
+void healPlayer(player &p, int amount);
 int countProjectiles(vector<entity> &elist);
 void killFirstEnemy(vector<entity> &elist);
 void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol);
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vector<pair<int, int>> &wlist);
-void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m);
-void onStageClear(UpgradeState &upgrades, int &health, int maxHealth);
-void onPickupCollected(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist);
+void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, player &p, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m);
+void onStageClear(UpgradeState &upgrades, player &p);
+void onPickupCollected(UpgradeState &upgrades, player &p, vector<entity> &elist);
 bool isPickup(entity e);
 bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex);
-void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player &p);
+void collectPickups(UpgradeState &upgrades, vector<entity> &elist, player &p);
 bool isPlayerImmune(UpgradeState &upgrades);
-void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex);
+void onPlayerHit(UpgradeState &upgrades, player &p, vector<entity> &elist, int enemyIndex);
 bool tryBlockProjectile(UpgradeState &upgrades);
 bool canSpawnMoreProjectiles(UpgradeState &upgrades, vector<entity> &elist);
 bool shouldProjectileMove(UpgradeState &upgrades);
@@ -50,6 +50,6 @@ void nextUpgradeTurn(UpgradeState &upgrades);
 string getUpgradeName(int upgradeNumber);
 bool hasUpgrade(const uppick& pickedUpgrades, int upgradeNumber);
 vector<int> getUpgradeChoices(const uppick& pickedUpgrades);
-int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgrades);
+int chooseUpgrade(int level, player &p, const uppick& pickedUpgrades);
 
 #endif

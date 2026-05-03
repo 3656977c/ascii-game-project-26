@@ -1,6 +1,6 @@
 #include "declar.h"
 #include "director.h"
-
+#include <vector>
 //rand val - declared in main.cpp
 extern unsigned seed;
 extern mt19937 engine;

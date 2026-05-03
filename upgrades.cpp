@@ -31,10 +31,10 @@ UpgradeState::UpgradeState() {
 }
 
 // Heal without passing the current max health.
-void healPlayer(int &health, int maxHealth, int amount) {
-    health += amount;
-    if (health > maxHealth) {
-        health = maxHealth;
+void healPlayer(player &p, int amount) {
+    p.health += amount;
+    if (p.health > p.maxHealth) {
+        p.health = p.maxHealth;
     }
 }
 
@@ -158,11 +158,11 @@ void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vec
 }
 
 // Turn on the chosen upgrade, and spawn anything it gives immediately.
-void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &maxHealth, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m) {
+void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, player &p, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m) {
     if (upgradeNumber == 1) {
         // More max hp, with a full heal.
-        maxHealth += 1;
-        health = maxHealth;
+        p.maxHealth += 1;
+        p.health = p.maxHealth;
     }
     else if (upgradeNumber == 2) {
         // The enemy that hits you dies too.
@@ -228,15 +228,15 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &m
 }
 
 // Stage-end effects.
-void onStageClear(UpgradeState &upgrades, int &health, int maxHealth) {
+void onStageClear(UpgradeState &upgrades, player &p) {
     if (upgrades.healOneEndStage == true) {
-        healPlayer(health, maxHealth, 1);
+        healPlayer(p, 1);
     }
 
     if (upgrades.healHalfEndStage == true) {
-        int halfHealth = (maxHealth + 1) / 2;
-        if (health < halfHealth) {
-            health = halfHealth;
+        int halfHealth = (p.maxHealth + 1) / 2;
+        if (p.health < halfHealth) {
+            p.health = halfHealth;
         }
     }
 
@@ -246,7 +246,7 @@ void onStageClear(UpgradeState &upgrades, int &health, int maxHealth) {
 }
 
 // Pickup-count effects.
-void onPickupCollected(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist) {
+void onPickupCollected(UpgradeState &upgrades, player &p, vector<entity> &elist) {
     upgrades.pickupCount++;
 
     if (upgrades.pickupCount % 2 == 0) {
@@ -255,7 +255,7 @@ void onPickupCollected(UpgradeState &upgrades, int &health, int maxHealth, vecto
         }
 
         if (upgrades.healEveryTwoPickups == true) {
-            healPlayer(health, maxHealth, 1);
+            healPlayer(p, 1);
         }
     }
 }
@@ -281,7 +281,7 @@ bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
     return false;
 }
 
-void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<entity> &elist, player &p) {
+void collectPickups(UpgradeState &upgrades, vector<entity> &elist, player &p) {
     for (int i = 0; i < (int)elist.size(); i++) {
         if (isPickup(elist[i]) && elist[i].x == p.x && elist[i].y == p.y) {
             bool collected = true;
@@ -309,7 +309,7 @@ void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<e
             }
 
             if (collected) {
-                onPickupCollected(upgrades, health, maxHealth, elist);
+                onPickupCollected(upgrades, p, elist);
             }
         }
     }
@@ -325,7 +325,7 @@ bool isPlayerImmune(UpgradeState &upgrades) {
 }
 
 // Apply damage and any revenge effect.
-void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
+void onPlayerHit(UpgradeState &upgrades, player &p, vector<entity> &elist, int enemyIndex) {
     if (isPlayerImmune(upgrades) == true) {
         return;
     }
@@ -337,7 +337,7 @@ void onPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int
         }
     }
 
-    health--;
+    p.health--;
 
     if (upgrades.revengeKill == true) {
         if (enemyIndex >= 0 && enemyIndex < (int)elist.size()) {
@@ -436,7 +436,7 @@ vector<int> getUpgradeChoices(const uppick& pickedUpgrades) {
     return choices;
 }
 
-int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgrades) {
+int chooseUpgrade(int level, player &p, const uppick& pickedUpgrades) {
     vector<int> choices = getUpgradeChoices(pickedUpgrades);
     int choiceCount = coin + 2;
 
@@ -447,7 +447,7 @@ int chooseUpgrade(int level, int health, int maxHealth, const uppick& pickedUpgr
     while (true) {
         erase();
         mvprintw(0, 0, "Level %d cleared!", level);
-        mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
+        mvprintw(1, 0, "Health: %d/%d", p.health, p.maxHealth);
         mvprintw(3, 0, "Choose an upgrade:");
 
         for (int i = 0; i < choiceCount; i++) {

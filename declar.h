@@ -23,6 +23,8 @@ class player {
     public:
         int x;
         int y;
+        int health;
+        int maxHealth;
 };
 
 //entity and projectile class
