@@ -708,7 +708,10 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
       bTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
     else if (e.type == "mushroom") {
-      bMushroom(g.elist[i], p);
+      bMushroom(g.elist[i], g.elist, g.wlist);
+    }
+    else if (e.type == "harming tile") {
+      bHarmingTile(g.elist[i]);
     }
     else if (e.type == "shooter") {
       bShooter(g.elist[i], p, g.elist, g.wlist, i, upgrades);
@@ -758,7 +761,7 @@ int getPlayerHitIndex(vector<entity> e, player p) {
       return i;
     }
 
-    if (bMushroom(e[i], p)) {
+    if (e[i].type == "harming tile" && e[i].x == p.x && e[i].y == p.y) {
       return i;
     }
   }
