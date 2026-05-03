@@ -690,6 +690,9 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
     else if (e.type == "turret") {
       bTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
+    else if (e.type == "mushroom") {
+      bMushroom(g.elist[i], p);
+    }
     else if (e.type == "shooter") {
       bShooter(g.elist[i], p, g.elist, g.wlist, i, upgrades);
     }
