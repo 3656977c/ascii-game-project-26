@@ -88,9 +88,19 @@ void bBouncer(entity &e, vector<pair<int,int>> &w) {
 // GHOST
 // Follows the player but ignores walls.
 void bGhost(entity &e, player p) {
+    if (e.t < 0) {
+        e.t++;
+
+        if (e.t == 0) {
+            e.c = 2;
+        }
+
+        return;
+    }
+
     if (e.t >= 1) {
-        if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
-            if (rando%2 == 0) {
+        if (abs(e.x - p.x) != 0 && abs(e.y - p.y) != 0) {
+            if (rando % 2 == 0) {
                 if (p.x > e.x) e.x++;
                 else e.x--;
             } else {
@@ -102,12 +112,15 @@ void bGhost(entity &e, player p) {
                 if (p.x > e.x) e.x++;
                 else e.x--;
             } else if (abs(e.y - p.y) > 0) {
-                if (p.y > e.y) e.y++;
-                else e.y--;
+                if (p.y > e.y) e.y--;
+                else e.y++;
             }
         }
+
         e.t = 0;
-    } else e.t++;
+    } else {
+        e.t++;
+    }
 }
 
 // // LEAPER
@@ -751,20 +764,25 @@ bool isDamagingEnemy(entity e) {
         e.type == "projectile"
     );
 }
-int getPlayerHitIndex(vector<entity> e, player p) {
-  for (int i = 0; i < (int)e.size(); i++) {
-    if (e[i].c == -1 || e[i].c == 5) {
-      continue;
+int getPlayerHitIndex(vector<entity> &e, player p) {
+    for (int i = 0; i < (int)e.size(); i++) {
+        if (e[i].c == -1 || e[i].c == 5) {
+            continue;
+        }
+
+        if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
+            if (e[i].type == "ghost") {
+                e[i].c = 5;
+                e[i].t = -6;
+            }
+
+            return i;
+        }
+
+        if (e[i].type == "harming tile" && e[i].x == p.x && e[i].y == p.y) {
+            return i;
+        }
     }
 
-    if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
-      return i;
-    }
-
-    if (e[i].type == "harming tile" && e[i].x == p.x && e[i].y == p.y) {
-      return i;
-    }
-  }
-
-  return -1;
+    return -1;
 }
