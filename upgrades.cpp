@@ -4,6 +4,7 @@ extern int n;
 extern int m;
 extern int coin;
 
+//default upgrade values
 UpgradeState::UpgradeState() {
     revengeKill = false;
     healOneEndStage = false;
@@ -28,6 +29,7 @@ UpgradeState::UpgradeState() {
     projectileLimit = 999;
 }
 
+//keeps hp from going over max hp
 void healPlayer(player &p, int amount) {
     p.health += amount;
     if (p.health > p.maxHealth) {
@@ -39,6 +41,7 @@ bool isProjectileEntity(entity item) {
     return item.type == "projectile" && item.c != -1;
 }
 
+//used by projectile limit upgrade
 int countProjectiles(vector<entity> &elist) {
     int total = 0;
 
@@ -64,6 +67,7 @@ bool isEnemyType(string type) {
            type == "xtur";
 }
 
+//used by kill pickups and some upgrades
 void killFirstEnemy(vector<entity> &elist) {
     for (int i = 0; i < (int)elist.size(); i++) {
         if (isEnemyType(elist[i].type)) {
@@ -91,6 +95,7 @@ bool isPickupSpotFree(vector<entity> &elist, vector<pair<int, int>> &wlist, int 
     return true;
 }
 
+//make the actual pickup entity
 void addPickup(vector<entity> &elist, int x, int y, string pickupType, char symbol) {
     entity pickup;
     pickup.x = x;
@@ -105,6 +110,7 @@ void addPickup(vector<entity> &elist, int x, int y, string pickupType, char symb
     elist.push_back(pickup);
 }
 
+//tries random spots first, then searches the map
 void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m, string pickupType, char symbol) {
     int x = 0;
     int y = 0;
@@ -134,6 +140,7 @@ void spawnPickup(vector<entity> &elist, vector<pair<int, int>> &wlist, int n, in
     addPickup(elist, x, y, pickupType, symbol);
 }
 
+//adds pickups from upgrades you already own
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vector<pair<int, int>> &wlist) {
     if (upgrades.spawnTimeStopPickups) {
         spawnPickup(elist, wlist, n, m, "time_stop", 'T');
@@ -221,6 +228,7 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, player &p, vector<e
     }
 }
 
+//runs when a level is cleared
 void onStageClear(UpgradeState &upgrades, player &p) {
     if (upgrades.healOneEndStage == true) {
         healPlayer(p, 1);
@@ -238,6 +246,7 @@ void onStageClear(UpgradeState &upgrades, player &p) {
     }
 }
 
+//some upgrades care about every 2 pickups
 void onPickupCollected(UpgradeState &upgrades, player &p, vector<entity> &elist) {
     upgrades.pickupCount++;
 
@@ -253,13 +262,17 @@ void onPickupCollected(UpgradeState &upgrades, player &p, vector<entity> &elist)
 }
 
 bool isPickup(entity e) {
-    return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
+    return e.c != -1 &&
+           (e.type == "coin" ||
+            e.type == "time_stop" ||
+            e.type == "kill_pickup" ||
+            e.type == "swap_pickup");
 }
 
+//teleport to the other swap pickup, then remove both
 bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
     for (int i = 0; i < (int)elist.size(); i++) {
         if (i != swapIndex && elist[i].type == "swap_pickup" && elist[i].c != -1) {
-
             p.x = elist[i].x;
             p.y = elist[i].y;
             elist[i].t = 0;
@@ -273,6 +286,7 @@ bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
     return false;
 }
 
+//checks if the player is standing on a pickup
 void collectPickups(UpgradeState &upgrades, vector<entity> &elist, player &p) {
     for (int i = 0; i < (int)elist.size(); i++) {
         if (isPickup(elist[i]) && elist[i].x == p.x && elist[i].y == p.y) {
@@ -307,6 +321,7 @@ void collectPickups(UpgradeState &upgrades, vector<entity> &elist, player &p) {
     }
 }
 
+//damage skips on every fifth turn if owned
 bool isPlayerImmune(UpgradeState &upgrades) {
     if (upgrades.fifthTurnImmune == true && upgrades.turnCount % 5 == 0) {
         return true;
@@ -315,6 +330,7 @@ bool isPlayerImmune(UpgradeState &upgrades) {
     return false;
 }
 
+//handles damage and revenge kill
 void onPlayerHit(UpgradeState &upgrades, player &p, vector<entity> &elist, int enemyIndex) {
     if (isPlayerImmune(upgrades) == true) {
         return;
@@ -345,6 +361,7 @@ bool tryBlockProjectile(UpgradeState &upgrades) {
     return false;
 }
 
+//called before enemies spawn projectiles
 bool canSpawnMoreProjectiles(UpgradeState &upgrades, vector<entity> &elist) {
     if (upgrades.limitProjectiles == false) {
         return true;
@@ -369,10 +386,12 @@ bool shouldProjectileMove(UpgradeState &upgrades) {
     return false;
 }
 
+//one game turn passed
 void nextUpgradeTurn(UpgradeState &upgrades) {
     upgrades.turnCount++;
 }
 
+//names shown in the upgrade menu
 string getUpgradeName(int upgradeNumber) {
     if (upgradeNumber == 1) return "Increase max health and heal to full";
     if (upgradeNumber == 2) return "Kill the enemy that damages you";
