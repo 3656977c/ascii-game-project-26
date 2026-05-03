@@ -432,9 +432,6 @@ void bShooter(
 
     e.t++;
 }
-// PROJECTILE
-// Moves in its direction.
-// Dies when it hits a wall or leaves the map.
 
 void bSpawner(entity &e) {
   if (e.t > 4) {
@@ -456,6 +453,9 @@ void bSpawner(entity &e) {
   }
 }
 
+// PROJECTILE
+// Moves in its direction.
+// Dies when it hits a wall or leaves the map.
 void bProjectile(entity &e, vector<pair<int,int>> &w, player p) {
     int nextX = e.x + e.ax;
     int nextY = e.y + e.ay;

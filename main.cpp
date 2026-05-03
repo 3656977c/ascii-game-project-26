@@ -26,13 +26,12 @@ void initialize() {
     noecho(); //dont show typed keys
     curs_set(0); //hide text cursor
     keypad(stdscr, TRUE); //allow arrowkeys
-    //nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
-    //timeout(-1); //how long getch() waits for input
     keypad(stdscr, FALSE);
     timeout(framems);
 }
 
-void display(gamestate g, player p) {
+//print the screen for the player to see
+void display(gamestate g, player p, uppick pickedUpgrades) {
     int a = 2, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, ESC to quit");
@@ -98,9 +97,14 @@ void display(gamestate g, player p) {
     //print player and refresh
     mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
     refresh();
+
+    mvprintw(n+a+5, 0, "Collected upgrades: ( %d picked up so far)", pickedUpgrades.uit);
+    for (int i = 0; i < pickedUpgrades.uit; i++) {
+         mvprintw(n+a+5+i+1, 0, "%s", getUpgradeName(pickedUpgrades.u[i]).c_str());
+    }
 }
 
-//cleaned, dont touch for now
+//level generation (goes into director.cpp)
 void genLevel(gamestate &g, player &p) {
     g.elist.clear();
     g.wlist.clear();
@@ -111,9 +115,10 @@ void genLevel(gamestate &g, player &p) {
     director(g, p);
 }
 
+//Win Screen
 void showWinScreen() {
     erase();
-    mvprintw(0, 0, "You beat all 6 levels!");
+    mvprintw(0, 0, "Congradulations! You beat all 6 levels!");
     mvprintw(1, 0, "Press any key to exit.");
     refresh();
     nodelay(stdscr, FALSE);
@@ -121,22 +126,14 @@ void showWinScreen() {
     getch();
 }
 
+//Apply a hit onto the player
 bool applyPlayerHit(UpgradeState &upgrades, player &p, vector<entity> &elist, int enemyIndex) {
     onPlayerHit(upgrades, p, elist, enemyIndex);
     p.health = max(0, p.health);
     return p.health <= 0;
 }
 
-void showDeathScreen() {
-    erase();
-    mvprintw(0, 0, "You died!");
-    mvprintw(1, 0, "Press any key to exit.");
-    refresh();
-    nodelay(stdscr, FALSE);
-    timeout(-1);
-    getch();
-}
-
+//Get Input and Move Player
 void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
     auto inputStart = chrono::steady_clock::now();
     int c = tolower(getch());
@@ -205,7 +202,7 @@ string playGame(int diff) {
 
     while (gmst.state == "run") {
         //show screen
-        display(gmst, player);
+        display(gmst, player, pickedUpgrades);
 
         //collect player input and update player position, pickups check
         updateplayer(player, upgrades, gmst);
