@@ -9,6 +9,19 @@ $  Grappler: pulls you in lines
 +  Plus turret: moves and shoots straight
 x  X turret: moves and shoots diagonally
 
+Other entities
+@  Player: you
+W  Wall: blocks movement
+G  Gate: open 3 gates to clear a level
+c  Coin: gives more upgrade choices
+*  Projectile: hurts the player
+X  Spawner: turns into an enemy after a timer
+
+Pickups
+T  Time stop pickup: collect 2 to stop enemies
+K  Kill pickup: removes one enemy
+S  Swap pickup: teleports to the other swap pickup
+
 Upgrades
 1  Increase max health and heal to full
 2  Kill the enemy that damages you
