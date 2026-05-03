@@ -88,7 +88,7 @@ bool forcespawn(player p, gamestate &g, entity e, int bgx, int bgy) {
     int x = 0, y = 0;
     for (int i = 0; i < 100; i++) { //try a spawn 100 times
         x = rand%(n/3) + bgx;
-        y = rand%(n/3) + bgy;
+        y = rand%(m/3) + bgy;
         if (occupied(x, y, p, g)) {
             entity n = e;
             n.x = x; n.y = y;
