@@ -40,9 +40,9 @@ entity ttur = {0, 0, "+tur", '+', 2, -1, -1, 0};
 entity xtur = {0, 0, "xtur", 'x', 2, -1, -1, 0};
 vector<pair<int, entity>> enemies = {
     {5, turret},
-    {4, leaper},
-    {5, mushroom},
-    {5, grappler},
+    {3, leaper},
+    {4, mushroom},
+    {6, grappler},
     {3, ttur},
     {3, xtur}
 };

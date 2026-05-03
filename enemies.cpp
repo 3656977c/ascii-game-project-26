@@ -87,7 +87,7 @@ void bBouncer(entity &e, vector<pair<int,int>> &w) {
 
 // GHOST
 // Follows the player but ignores walls.
-void bGhost(entity &e, player p) {
+void bGhost(entity &e, player p, vector<pair<int,int>> w) {
     if (e.t < 0) {
         e.t++;
 
@@ -97,7 +97,7 @@ void bGhost(entity &e, player p) {
 
         return;
     }
-
+    
     if (e.t >= 1) {
         if (abs(e.x - p.x) != 0 && abs(e.y - p.y) != 0) {
             if (rando % 2 == 0) {
@@ -112,12 +112,14 @@ void bGhost(entity &e, player p) {
                 if (p.x > e.x) e.x++;
                 else e.x--;
             } else if (abs(e.y - p.y) > 0) {
-                if (p.y > e.y) e.y--;
-                else e.y++;
+                if (p.y > e.y) e.y++;
+                else e.y--;
             }
         }
 
         e.t = 0;
+        if (isWall(w, e.x ,e.y)) e.c = 6;
+        else e.c = 2;
     } else {
         e.t++;
     }
@@ -127,8 +129,18 @@ void bGhost(entity &e, player p) {
 // Merges charger + knight.
 // It jumps exactly 2 tiles toward the player.
 // It skips the middle tile and only checks the landing tile.
-void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
-    if (e.t == 0) {
+void bLeaper(entity &e, player p, vector<pair<int,int>> &w, vector<entity> &elist) {
+    if (e.t < 0) {
+        e.t++;
+
+        if (e.t == 0) {
+            e.c = 2;
+        }
+
+        return;
+    }
+
+    if (e.t  < 7) {
         e.t++;
         return;
     }
@@ -145,15 +157,18 @@ void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
         dy = signNum(diffY);
     }
 
-    int landX = e.x + 2 * dx;
-    int landY = e.y + 2 * dy;
-
+    int landX = e.x + 3 * dx;
+    int landY = e.y + 3 * dy;
+    
+    e.t = 0;
     if (!isBlocked(w, landX, landY)) {
         e.x = landX;
         e.y = landY;
-    }
-
-    e.t = 0;
+        entity htile1 = {e.x - 2*dx, e.y - 2*dy, "harming tile", 'H', 2, 0, 0, 1};
+        entity htile2 = {e.x - 1*dx, e.y - 1*dy, "harming tile", 'H', 2, 0, 0, 1};
+        elist.push_back(htile1);
+        elist.push_back(htile2);
+      }
 }
 
 // MUSHROOM
@@ -169,14 +184,17 @@ void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w
 
     mushroom.t = 0;
     mushroom.c = 5;
+
+    int mushx = mushroom.x;
+    int mushy = mushroom.y;
     for (int dx = -2; dx <= 2; dx++) {
         for (int dy = -2; dy <= 2; dy++) {
             if (dx * dx + dy * dy > 4) {
                 continue;
             }
 
-            int tileX = mushroom.x + dx;
-            int tileY = mushroom.y + dy;
+            int tileX = mushx + dx;
+            int tileY = mushy + dy;
 
             if (isBlocked(w, tileX, tileY)) {
                 continue;
@@ -216,13 +234,14 @@ void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrade
         {-1, -1}, {-1, 1},
         {1, -1}, {1, 1}
     };
-
+    int ex = e.x;
+    int ey = e.y;
     for (int i = 0; i < 8; i++) {
         int dx = dirs[i][0];
         int dy = dirs[i][1];
 
-        int spawnX = e.x + dx;
-        int spawnY = e.y + dy;
+        int spawnX = ex + dx;
+        int spawnY = ey + dy;
 
         // Only block the projectile if the actual spawn tile is blocked.
         // Do NOT check side tiles here, because the projectile is being created,
@@ -564,17 +583,20 @@ void bPlusTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upg
         {0, 1}
     };
 
-    int choice = rando % 4;
-    int nextX = e.x + dirsMove[choice][0];
-    int nextY = e.y + dirsMove[choice][1];
-
-    if (!isBlocked(w, nextX, nextY)) {
+    int choice = rando % 6;
+    if (choice <= 3) {
+      int nextX = e.x + dirsMove[choice][0];
+      int nextY = e.y + dirsMove[choice][1];
+      if (!isBlocked(w, nextX, nextY)) {
         e.x = nextX;
         e.y = nextY;
+      }
     }
 
-    // Shoot every 3 turns.
-    if (e.t < 3) {
+    
+
+    // Shoot every 9 turns.
+    if (e.t < 9) {
         return;
     }
 
@@ -630,18 +652,21 @@ void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrad
     };
 
     int choice = rando % 4;
-    int nextX = e.x + dirsMove[choice][0];
-    int nextY = e.y + dirsMove[choice][1];
+    if (choice <= 3) {
+      int nextX = e.x + dirsMove[choice][0];
+      int nextY = e.y + dirsMove[choice][1];
 
-    if (!isBlocked(w, nextX, nextY)) {
-        e.x = nextX;
-        e.y = nextY;
+      if (!isBlocked(w, nextX, nextY)) {
+          e.x = nextX;
+          e.y = nextY;
+      }
     }
-
-    // Shoot every 3 turns.
-    if (e.t < 3) {
+    
+    // Shoot every 9 turns.
+    if (e.t < 9) {
         return;
     }
+  
 
     e.t = 0;
 
@@ -702,10 +727,10 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
       bBouncer(g.elist[i], g.wlist);
     }
     else if (e.type == "ghost") {
-      bGhost(g.elist[i], p);
+      bGhost(g.elist[i], p, g.wlist);
     }
     else if (e.type == "leaper") {
-      bLeaper(g.elist[i], p, g.wlist);
+      bLeaper(g.elist[i], p, g.wlist, g.elist);
     }
     else if (e.type == "spawner") {
       bSpawner(g.elist[i]);
@@ -765,6 +790,10 @@ int getPlayerHitIndex(vector<entity> &e, player p) {
 
         if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
             if (e[i].type == "ghost") {
+                e[i].c = 5;
+                e[i].t = -6;
+            }
+            if (e[i].type == "leaper") {
                 e[i].c = 5;
                 e[i].t = -6;
             }

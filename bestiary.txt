@@ -1,11 +1,11 @@
 == Enemies ==
-O  Bouncer      Bounces diagonally around the map.
-%  Ghost        Follows the player and ignores walls.
-&  Shooter      Keeps distance and fires projectile volleys.
-#  Turret       Stays still and shoots in all directions.
-^  Leaper       Jumps two tiles toward the player, leaving behind a damaging area in its wake.
-!  Mushroom     Creates a red danger area nearby.
-$  Grappler     Pulls the player in rows or columns.
+O  Bouncer      Bounces diagonally around the map and never stops.
+%  Ghost        Constantly stalks the player and goes through walls.
+&  Shooter      Keeps a distance and fires projectile volleys.
+#  Turret       Stays still and shoots in all 8 directions.
+^  Leaper       Jumps three tiles toward the player, leaving behind a damaging area in its wake.
+!  Mushroom     Damages every tile around it in cycles.
+$  Grappler     Pulls the player toward it in rows or columns.
 +  Plus turret  Moves and shoots straight projectiles.
 x  X turret     Moves and shoots diagonal projectiles.
 

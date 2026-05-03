@@ -55,9 +55,7 @@ class gamestate {
 
         int wn = 1;
         vector<pair<int,int>> wlist;
-        entity mushroom = {0, 0, "turret", '#', 2, -1, -1, 0};
-        vector<pair<int,entity>> epool = {{5, mushroom}, {5, mushroom}, {5, mushroom}};
-        //vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
+        vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
         int level;
         int diff = 1;
         string state;
@@ -95,6 +93,7 @@ inline void colorscale() {
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
         init_pair(4, COLOR_WHITE, COLOR_BLACK);
         init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+        init_pair(6, COLOR_RED, COLOR_WHITE);
         init_pair(10, COLOR_WHITE, COLOR_WHITE);  //wall
         init_pair(20, COLOR_WHITE, COLOR_RED);    //mushroom attack area
         

@@ -8,7 +8,7 @@ bool isWall(vector<pair<int,int>> &w, int x, int y);
 
 void bBouncer(entity &e, vector<pair<int,int>> &w);
 void bGhost(entity &e, player p);
-void bLeaper(entity &e, player p, vector<pair<int,int>> &w);
+void bLeaper(entity &e, player p, vector<pair<int,int>> &w, vector<entity> &elist);
 void bSpawner(entity &e);
 void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w);
 void bHarmingTile(entity &e);
