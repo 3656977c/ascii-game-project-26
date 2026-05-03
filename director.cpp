@@ -11,7 +11,11 @@ extern int n;
 extern int m;
 
 //global vals
-vector<int> difficulty = {20, 25, 30, 35, 40, 55}; //vector<int> difficulty = {30, 40, 50, 60, 70, 80};
+vector<vector<int>> difficulty = {
+    {10, 12, 14, 18, 20, 25},
+    {20, 25, 30, 35, 40, 55},
+    {40, 45, 50, 55, 60, 70}
+}; //vector<int> difficulty = {30, 40, 50, 60, 70, 80};
 vector<vector<pair<int,int>>> layout = { 
     {},{},{},{}, //empty type layouts are 4 times as likely to spawn
     {{1, 1}, {1, 7}, {3, 7}},
@@ -108,7 +112,7 @@ void director(gamestate& g, player& p) {
     enemies.erase(enemies.begin() + newen);
 
     //generate list of enemies to spawn
-    vector<entity> enemylineup = listgen(difficulty[g.level - 1], g.epool);
+    vector<entity> enemylineup = listgen(difficulty[g.diff][g.level - 1], g.epool);
 
     //build a list of sections and a rand number
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
