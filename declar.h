@@ -57,6 +57,7 @@ class gamestate {
 
         vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
         int level;
+        int diff = 0;
         string state;
 };
 
