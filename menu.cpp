@@ -40,25 +40,52 @@ string showMainMenu() {
 }
 
 void showBestiary() {
-    erase();
-    drawMenuTitle();
-
     ifstream bestiaryFile("bestiary.txt");
+    vector<string> lines;
     string line;
-    int row = 5;
 
     if (bestiaryFile.is_open()) {
-        while (getline(bestiaryFile, line) && row < 16) {
-            mvprintw(row, 4, "%s", line.c_str());
-            row++;
+        while (getline(bestiaryFile, line)) {
+            lines.push_back(line);
         }
     } else {
-        mvprintw(5, 4, "Could not open bestiary.txt");
+        lines.push_back("Could not open bestiary.txt");
     }
 
-    mvprintw(16, 4, "Press any key to go back.");
-    refresh();
-    getch();
+    int topLine = 0;
+    int visibleLines = 11;
+
+    while (true) {
+        erase();
+        drawMenuTitle();
+
+        for (int i = 0; i < visibleLines; i++) {
+            int lineIndex = topLine + i;
+
+            if (lineIndex >= (int)lines.size()) {
+                break;
+            }
+
+            mvprintw(5 + i, 4, "%s", lines[lineIndex].c_str());
+        }
+
+        mvprintw(17, 4, "W/S scroll, ESC go back");
+        refresh();
+
+        int c = tolower(getch());
+
+        if (c == 27) {
+            return;
+        }
+
+        if (c == 'w' && topLine > 0) {
+            topLine--;
+        }
+
+        if (c == 's' && topLine + visibleLines < (int)lines.size()) {
+            topLine++;
+        }
+    }
 }
 
 string showEndMenu(string result) {
