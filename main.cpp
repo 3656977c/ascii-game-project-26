@@ -370,8 +370,6 @@ signed main() {
             removeInactiveEntities(gmst.elist);
         }
         if (open >= 3) {
-            onStageClear(upgrades, health, maxHealth);
-
             if (gmst.level >= 6) {
                 gmst.state = "win";
                 break;
@@ -379,6 +377,16 @@ signed main() {
 
             int selectedUpgrade = chooseUpgrade(gmst.level, health, maxHealth, pickedUpgrades);
             pickedUpgrades.push_back(selectedUpgrade);
+
+            if (selectedUpgrade == 3) {
+                upgrades.healOneEndStage = true;
+            }
+            else if (selectedUpgrade == 4) {
+                upgrades.healHalfEndStage = true;
+            }
+
+            onStageClear(upgrades, health, maxHealth);
+
             gmst.level++;
             genLevel(gmst, player);
             addCarriedUpgradePickups(upgrades, gmst.elist, gmst.wlist);
