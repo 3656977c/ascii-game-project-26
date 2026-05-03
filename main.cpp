@@ -7,6 +7,7 @@ int n = 15; //enforced # of columns
 int m = 27; //enforced # of rows
 int open = 0; //global "open" val
 int coin = 0; //global "coin" val
+int framems = 100; //how long one frame is
 
 //initialize randomness
 unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
@@ -23,7 +24,7 @@ void initialize() {
     //nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
     //timeout(-1); //how long getch() waits for input
     keypad(stdscr, FALSE);
-    timeout(200);
+    timeout(framems);
 }
 
 void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
@@ -147,8 +148,15 @@ void showDeathScreen() {
 }
 
 void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
+    auto inputStart = chrono::steady_clock::now();
     int c = tolower(getch());
-    napms(100);
+    auto inputEnd = chrono::steady_clock::now();
+
+    int elapsedMs = static_cast<int>(
+        chrono::duration_cast<chrono::milliseconds>(inputEnd - inputStart).count());
+    int remainingMs = max(0, framems - elapsedMs);
+    napms(remainingMs);
+
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
     int oldX = p.x;
     int oldY = p.y;
