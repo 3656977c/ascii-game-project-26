@@ -40,6 +40,8 @@ string showMainMenu() {
 }
 
 void showBestiary() {
+    timeout(-1);
+
     ifstream bestiaryFile("bestiary.txt");
     vector<string> lines;
     string line;
@@ -53,11 +55,21 @@ void showBestiary() {
     }
 
     int topLine = 0;
-    int visibleLines = 11;
+    int visibleLines = 12;
 
     while (true) {
         erase();
         drawMenuTitle();
+        mvprintw(3, 4, "Bestiary");
+
+        int lastShown = topLine + visibleLines;
+        if (lastShown > (int)lines.size()) {
+            lastShown = lines.size();
+        }
+
+        if ((int)lines.size() > visibleLines) {
+            mvprintw(3, 24, "Lines %d-%d/%d", topLine + 1, lastShown, (int)lines.size());
+        }
 
         for (int i = 0; i < visibleLines; i++) {
             int lineIndex = topLine + i;
@@ -69,7 +81,7 @@ void showBestiary() {
             mvprintw(5 + i, 4, "%s", lines[lineIndex].c_str());
         }
 
-        mvprintw(17, 4, "W/S scroll, ESC go back");
+        mvprintw(18, 4, "W/S scroll  A/D page  ESC back");
         refresh();
 
         int c = tolower(getch());

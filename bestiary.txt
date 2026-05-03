@@ -1,49 +1,52 @@
-Enemies
-O  Bouncer: bounces around the map
-%  Ghost: follows through walls
-&  Shooter: fires projectile volleys
-#  Turret: shoots in all directions
-^  Leaper: jumps toward you
-!  Mushroom: hurts nearby tiles
-$  Grappler: pulls you in lines
-+  Plus turret: moves and shoots straight
-x  X turret: moves and shoots diagonally
+== Enemies ==
+O  Bouncer      Bounces diagonally around the map.
+%  Ghost        Follows the player and ignores walls.
+&  Shooter      Keeps distance and fires projectile volleys.
+#  Turret       Stays still and shoots in all directions.
+^  Leaper       Jumps two tiles toward the player.
+!  Mushroom     Creates a red danger area nearby.
+$  Grappler     Pulls the player in rows or columns.
++  Plus turret  Moves and shoots straight projectiles.
+x  X turret     Moves and shoots diagonal projectiles.
 
-Other entities
-@  Player: you
-W  Wall: blocks movement
-G  Gate: open 3 gates to clear a level
-c  Coin: gives more upgrade choices
-*  Projectile: hurts the player
-X  Spawner: turns into an enemy after a timer
+== Other Entities ==
+@  Player       You.
+W  Wall         Blocks player, enemies, and projectiles.
+G  Gate         Open 3 gates to clear a level.
+c  Coin         Adds upgrade choices after the level.
+*  Projectile   Damages the player on contact.
+X  Spawner      Turns into an enemy after its timer.
 
-Pickups
-T  Time stop pickup: collect 2 to stop enemies
-K  Kill pickup: removes one enemy
-S  Swap pickup: teleports to the other swap pickup
+== Pickups ==
+T  Time stop    Collect 2 to stop enemies for 2 turns.
+K  Kill pickup  Removes one active enemy.
+S  Swap pickup  Teleports to the other swap pickup.
 
-Upgrades
-1  Increase max health and heal to full
-2  Kill the enemy that damages you
-3  Heal 1 HP after every stage
-4  Heal back to half HP after every stage
-5  Spawn 2 time stop pickups
-6  Spawn 2 kill enemy pickups
-7  Spawn 2 swap pickups
-8  Kill an enemy every 2 pickups
-9  Gain 1 HP every 2 pickups
-10 Loop around the map once
-11 Immune every fifth turn
-12 Block one projectile per floor
-13 Limit projectiles to 12
-14 Slow projectiles
+== Upgrades ==
+1  Increase max health and heal to full.
+2  Kill the enemy that damages you.
+3  Heal 1 HP after every stage.
+4  Start each stage at least half healed.
+5  Spawn 2 time stop pickups each stage.
+6  Spawn 2 kill enemy pickups each stage.
+7  Spawn 2 swap pickups each stage.
+8  Kill an enemy every 2 pickups.
+9  Gain 1 HP every 2 pickups.
+10 Loop around the map once.
+11 Become immune every fifth turn.
+12 Block one projectile per floor.
+13 Limit active projectiles to 12.
+14 Slow projectile movement.
 
-Hints
-Projectiles
--Projectiles always move in deterministic patterns, and always damage the tile they are going into, not the tile they were previously in. If a projectile is moving toward you and about to hit you, you can dodge the projectile by moving counter to its current trajectory with good timing.
+== Hints ==
+Projectiles:
+Projectiles damage the tile they move into.
+Move out of their path before the next enemy update.
 
-Time
--If you stay in a stage too long, enemies will start to spawn, significantly making the level much harder.
+Time:
+If you stay too long, spawners can appear.
+Spawners make the level harder by adding enemies.
 
-Coins
--If you're having trouble finding good upgrades, try collecting the 'c' coins scattered around the map. More coins collected at the end of each level means more options presented in the upgrades screen.
+Coins:
+You normally see 2 upgrade choices.
+Each coin collected adds 1 more choice that level.
