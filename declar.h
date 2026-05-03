@@ -14,7 +14,7 @@
 #ifdef __APPLE__
 #include <curses.h>
 #else
-#include <ncurses.h>
+#include <ncurses/ncurses.h>
 #endif
 
 using namespace std;

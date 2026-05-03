@@ -32,12 +32,13 @@ void initialize() {
 
 //print the screen for the player to see
 void display(gamestate g, player p, uppick pickedUpgrades) {
-    int a = 2, b = 4; //map displacement
+    int a = 4, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, ESC to quit");
     else mvprintw(0, 0, "You Beat This Level!");
     mvprintw(1, 0, "Level: %d/6  Health: %d/%d", g.level, p.health, p.maxHealth);
     
+    if (g.level > 1) mvprintw(3, 0, "New Enemy Added! \"%s\"", g.epool.back().second.type.c_str());
     //print borders
     for (int i = 0; i < n+2; i++) {
         mvaddch(3+i+a-1, 2*(-1)+b-1, '|' | COLOR_PAIR(10));
