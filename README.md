@@ -73,3 +73,6 @@ make clean
 ## Libraries Used
 
 No non-standard C/C++ libraries are used.
+
+## Post Submission Patch Notes
+v1.1 - Added a cooldown to the grappler enemy
