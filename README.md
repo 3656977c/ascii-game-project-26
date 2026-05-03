@@ -17,13 +17,22 @@ After each level, the player can choose upgrades. Coins collected during the lev
 
 ## Features
 
-- Random level elements and enemy spawning
-- Different enemy types with unique movement and attacks
-- Pickups such as time stop, kill enemy, and swap
-- Upgrade system after each level
-- Multiple levels with increasing difficulty
-- Bestiary system using file input (bestiary.txt)
-- Menu system for navigation
+- Random level elements and enemy spawning  
+- Different enemy types with unique movement and attacks  
+- Pickups such as time stop, kill enemy, and swap  
+- Upgrade system after each level  
+- Multiple levels with increasing difficulty  
+- Bestiary system using file input (bestiary.txt)  
+- Menu system for navigation  
+
+## How Features Satisfy Coding Requirements
+
+- **Random events**: Enemy spawning, pickups, and level elements are generated randomly each run  
+- **Data structures**: Arrays/vectors are used to store the map, enemies, pickups, and projectiles  
+- **Dynamic memory management**: Game entities and objects are created and managed during runtime  
+- **File input/output**: `bestiary.txt` is read to display enemy and entity information  
+- **Multiple files**: The program is split into multiple `.cpp` and `.h` files for modular design  
+- **Multiple difficulty levels**: The game becomes progressively harder as the player advances through levels and the player can choose difficulty in the menu
 
 ## Controls
 

@@ -5,7 +5,7 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
 LDLIBS := -lncurses
 else
-LDLIBS := -lncursesw
+LDLIBS := -lncurses
 endif
 
 main.o: main.cpp declar.h upgrades.h director.h enemies.h menu.h
@@ -23,21 +23,10 @@ director.o: director.cpp director.h declar.h
 enemies.o: enemies.cpp enemies.h declar.h
 	$(CXX) $(CXXFLAGS) -c enemies.cpp -o enemies.o
 
-main.exe: main.o menu.o upgrades.o director.o enemies.o
-	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o enemies.o -o main.exe $(LDLIBS)
-
-ifeq ($(UNAME_S),Darwin)
 main: main.o menu.o upgrades.o director.o enemies.o
 	$(CXX) $(CXXFLAGS) main.o menu.o upgrades.o director.o enemies.o -o main $(LDLIBS)
-else
-main: main.exe
-endif
 
 clean:
-ifeq ($(UNAME_S),Darwin)
 	rm -f main main.exe main.o menu.o upgrades.o director.o enemies.o
-else
-	-del /Q main.exe main.o menu.o upgrades.o director.o enemies.o 2>nul
-endif
 
 .PHONY: clean main
