@@ -400,7 +400,7 @@ void bShooter(
 // Dies when it hits a wall or leaves the map.
 
 void bSpawner(entity &e) {
-  if (e.t > 3) {
+  if (e.t > 4) {
     e.t--;
     return;
   } else {
@@ -713,7 +713,7 @@ bool isDamagingEnemy(entity e) {
 }
 int getPlayerHitIndex(vector<entity> e, player p) {
   for (int i = 0; i < (int)e.size(); i++) {
-    if (e[i].c == -1) {
+    if (e[i].c == -1 || e[i].c == 5) {
       continue;
     }
 

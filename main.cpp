@@ -16,6 +16,10 @@ mt19937 engine(seed);
 uniform_int_distribution<int> dist(0,7559); //7560 is divisible from 1-10, 15, and 27
 #define rand dist(engine) 
 
+//for updater
+int turns;
+pair<int,entity> targ;
+
 void initialize() {
     initscr(); //initialize ncurses
     cbreak(); //take in any input immediately without needing to press enter
@@ -28,34 +32,6 @@ void initialize() {
     timeout(framems);
 }
 
-void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
-    for (auto mushroom : e) {
-        if (mushroom.type != "mushroom" || mushroom.c == -1) {
-            continue;
-        }
-
-        for (int dx = -2; dx <= 2; dx++) {
-            for (int dy = -2; dy <= 2; dy++) {
-                if (dx * dx + dy * dy <= 4) {
-                    int tileX = mushroom.x + dx;
-                    int tileY = mushroom.y + dy;
-
-                    if (tileX < 0 || tileX >= n || tileY < 0 || tileY >= m) {
-                        continue;
-                    }
-
-                    if (isWall(w, tileX, tileY)) {
-                        continue;
-                    }
-
-                    mvaddch(3 + tileX + a, 2 * tileY + b, '.' | COLOR_PAIR(20));
-                    mvaddch(3 + tileX + a, 2 * tileY + b - 1, ' ' | COLOR_PAIR(20));
-                    mvaddch(3 + tileX + a, 2 * tileY + b + 1, ' ' | COLOR_PAIR(20));
-                }
-            }
-        }
-    }
-}
 void display(gamestate g, player p) {
     int a = 2, b = 4; //map displacement
     erase();
@@ -119,6 +95,8 @@ void genLevel(gamestate &g, player &p) {
     g.wlist.clear();
     open = 0;
     coin = 0;
+    turns = 0;
+    targ = g.epool[rand%3];
     director(g, p);
 }
 
@@ -210,8 +188,6 @@ string playGame() {
     player player{0,0,3,3};
 
     //initialization for updater, ill consider moving it to gamestate
-    int turns = 0;
-    pair<int,entity> targ = gmst.epool[rand%3];
 
     genLevel(gmst, player);
     while (gmst.state == "run") {
