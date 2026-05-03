@@ -111,7 +111,6 @@ void display(gamestate g, player p, int health, int maxHealth) {
     refresh();
 }
 
-
 //cleaned, dont touch for now
 void genLevel(gamestate &g, player &p) {
     g.elist.clear();
@@ -205,14 +204,9 @@ bool isPickup(entity e) {
     return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
 }
 
-
-void clampHealth(int &health) {
-    if (health < 0) health = 0;
-}
-
 bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
     onPlayerHit(upgrades, health, elist, enemyIndex);
-    clampHealth(health);
+    health = max(0, health);
     return health <= 0;
 }
 
