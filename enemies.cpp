@@ -144,17 +144,54 @@ void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
 }
 
 // MUSHROOM
-// Stationary enemy.
-// Damages player inside a radius 2 circle.
-bool bMushroom(entity mushroom, player p) {
-  if (mushroom.c == -1 || mushroom.type != "mushroom") {
-    return false;
-  }
+// Every 7 turns, creates harming tile entities in a radius-2 circle.
+// The harming tiles exist for exactly one turn.
+void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w) {
+    mushroom.t++;
 
-  int dx = mushroom.x - p.x;
-  int dy = mushroom.y - p.y;
+    if (mushroom.t < 7) {
+        return;
+    }
 
-  return dx * dx + dy * dy <= 4;
+    mushroom.t = 0;
+
+    for (int dx = -2; dx <= 2; dx++) {
+        for (int dy = -2; dy <= 2; dy++) {
+            if (dx * dx + dy * dy > 4) {
+                continue;
+            }
+
+            int tileX = mushroom.x + dx;
+            int tileY = mushroom.y + dy;
+
+            if (isBlocked(w, tileX, tileY)) {
+                continue;
+            }
+
+            entity harmTile;
+            harmTile.x = tileX;
+            harmTile.y = tileY;
+            harmTile.type = "harming tile";
+            harmTile.s = ' ';
+            harmTile.c = 20;
+            harmTile.ax = 0;
+            harmTile.ay = 0;
+            harmTile.t = 1;
+
+            elist.push_back(harmTile);
+        }
+    }
+}
+
+// HARMING TILE
+// Red mushroom attack tile.
+// Exists for one enemy update, then disappears.
+void bHarmingTile(entity &e) {
+    e.t--;
+
+    if (e.t <= 0) {
+        e.c = -1;
+    }
 }
 
 // TURRET
