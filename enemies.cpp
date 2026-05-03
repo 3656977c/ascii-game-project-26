@@ -769,6 +769,11 @@ int getPlayerHitIndex(vector<entity> &e, player p) {
                 e[i].t = -6;
             }
 
+            // Projectiles disappear after hitting the player.
+            if (e[i].type == "projectile") {
+                e[i].c = -1;
+            }
+
             return i;
         }
 
