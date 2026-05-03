@@ -267,8 +267,6 @@ bool isPickup(entity e) {
 bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
     for (int i = 0; i < (int)elist.size(); i++) {
         if (i != swapIndex && elist[i].type == "swap_pickup" && elist[i].c != -1) {
-            int oldPlayerX = p.x;
-            int oldPlayerY = p.y;
 
             p.x = elist[i].x;
             p.y = elist[i].y;
