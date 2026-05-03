@@ -3,7 +3,7 @@
 
 #include "declar.h"
 
-string showMainMenu();
+string showMainMenu(gamestate &settings);
 string showEndMenu(string result);
 void showBestiary();
 
