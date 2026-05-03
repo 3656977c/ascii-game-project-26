@@ -272,8 +272,8 @@ bool useSwapPickup(vector<entity> &elist, player &p, int swapIndex) {
 
             p.x = elist[i].x;
             p.y = elist[i].y;
-            elist[i].x = oldPlayerX;
-            elist[i].y = oldPlayerY;
+            elist[i].t = 0;
+            elist[i].c = -1;
             elist[swapIndex].t = 0;
             elist[swapIndex].c = -1;
             return true;
