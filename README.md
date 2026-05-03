@@ -3,7 +3,7 @@
 
 ASCII Knight is a terminal-based ASCII game made for the COMP2113 course project.
 
-The goal of the game is to survive each level by avoiding enemies, opening gates, collecting pickups, and choosing upgrades. The player has to clear 6 levels to win. The player goes to the next levell by opening all gates per level
+The goal of the game is to survive each level by avoiding enemies, opening gates, collecting pickups, and choosing upgrades. The player has to clear 6 levels to win. The player goes to the next level by opening all gates per level
 
 ## Game Description
 
