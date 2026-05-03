@@ -1,75 +1,66 @@
-# ascii-game-project-26
 # ASCII Knight
 
 ASCII Knight is a terminal-based ASCII game made for the COMP2113 course project.
 
-The goal of the game is to survive each level by avoiding enemies, opening gates, collecting pickups, and choosing upgrades. The player has to clear 6 levels to win. The player goes to the next level by opening all gates per level
+## Team Members
+- Ezekiel Meir Co
+- Carl Heinrich Ong
+- ChingKhei
 
-## Game Description
+## Application Description
 
-The player controls `@` and moves around the map using the keyboard. Each level has gates, enemies, pickups, coins, and projectiles.
+The goal of the game is to survive each level by avoiding enemies, opening gates, collecting pickups, and choosing upgrades. The player must clear 6 levels to win.
 
-To clear a level, the player must open 3 gates. After each level, the player can choose upgrades. Coins collected during the level give more upgrade choices.
+The player controls `@` and moves around a grid map. Each level contains enemies, gates, pickups, coins, and projectiles. To progress, the player needs to open all 3 gates in the level.
+
+After each level, the player can choose upgrades. Coins collected during the level increase the number of upgrade choices.
 
 ## Features
 
 - Random level elements and enemy spawning
-- Different enemy types with different movement and attacks
+- Different enemy types with unique movement and attacks
 - Pickups such as time stop, kill enemy, and swap
 - Upgrade system after each level
 - Multiple levels with increasing difficulty
-- Bestiary page that reads information from `bestiary.txt`
-- Menu system for starting the game and viewing information
+- Bestiary system using file input (bestiary.txt)
+- Menu system for navigation
 
 ## Controls
 
-### Game
+Game:
+W/A/S/D  Move  
+ESC      End run  
 
-text
-W/A/S/D  Move
-ESC      End run
+Menu:
+1-4  Choose option  
+ESC  Back or quit  
 
-### Menu
-
-text
-1-4  Choose option
-ESC  Back or quit
-
-
-### Bestiary
-
-text
-W/S  Scroll
-A/D  Page
-ESC  Back
-
+Bestiary:
+W/S  Scroll  
+A/D  Page  
+ESC  Back  
 
 ## Files
 
-text
-main.cpp       Main game loop
-menu.cpp       Menu and bestiary
-director.cpp   Level generation
-enemies.cpp    Enemy behavior
-upgrades.cpp   Upgrades and pickups
-bestiary.txt   Bestiary text
-Makefile       Compilation
+main.cpp       Main game loop  
+menu.cpp       Menu and bestiary  
+director.cpp   Level generation  
+enemies.cpp    Enemy behavior  
+upgrades.cpp   Upgrades and pickups  
+bestiary.txt   Bestiary text  
+Makefile       Compilation  
 
-## How to Compile and Run
+## Compilation & Execution
 
 Compile:
-
-bash
 make main
 
-
 Run:
-
-bash
 ./main
 
-
 Clean:
-
-bash
 make clean
+
+## Libraries Used
+
+No non-standard C/C++ libraries are used.
