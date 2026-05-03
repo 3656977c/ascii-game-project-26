@@ -187,14 +187,19 @@ void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
     }
 }
 
-string playGame() {
+string playGame(int diff) {
     resetDirector();
 
     //init gamestate
     gamestate gmst;
     gmst.state = "run";
     gmst.level = 1;
+<<<<<<< HEAD
+    gmst.diff = diff;
+
+=======
     //init upgrades
+>>>>>>> 10a879ab4f0acac089ade475e034ab08be118e63
     UpgradeState upgrades;
     uppick pickedUpgrades;
     //initplayer
@@ -270,19 +275,21 @@ string playGame() {
 signed main() {
     initialize();
     colorscale();
+    gamestate menuSettings;
+    menuSettings.diff = 1;
 
     while (true) {
-        string menuChoice = showMainMenu();
+        string menuChoice = showMainMenu(menuSettings);
 
         if (menuChoice == "quit") {
             break;
         }
 
-        string result = playGame();
+        string result = playGame(menuSettings.diff);
         string endChoice = showEndMenu(result);
 
         while (endChoice == "restart") {
-            result = playGame();
+            result = playGame(menuSettings.diff);
             endChoice = showEndMenu(result);
         }
 

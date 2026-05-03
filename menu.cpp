@@ -10,7 +10,23 @@ void drawMenuTitle() {
     mvprintw(2, 4, "----------");
 }
 
-string showMainMenu() {
+string difficultyName(int diff) {
+    if (diff == 0) return "Easy";
+    if (diff == 1) return "Normal";
+    if (diff == 2) return "Hard";
+
+    return "Unknown";
+}
+
+void changeDifficulty(gamestate &settings) {
+    settings.diff++;
+
+    if (settings.diff > 2) {
+        settings.diff = 0;
+    }
+}
+
+string showMainMenu(gamestate &settings) {
     timeout(-1);
 
     while (true) {
@@ -18,7 +34,8 @@ string showMainMenu() {
         drawMenuTitle();
         mvprintw(5, 4, "1. Start game");
         mvprintw(6, 4, "2. Bestiary");
-        mvprintw(7, 4, "3. Quit");
+        mvprintw(7, 4, "3. Difficulty: %s", difficultyName(settings.diff).c_str());
+        mvprintw(8, 4, "4. Quit");
         mvprintw(10, 4, "Choose an option.");
         refresh();
 
@@ -33,7 +50,11 @@ string showMainMenu() {
             showBestiary();
         }
 
-        if (c == '3' || c == 27) {
+        if (c == '3') {
+            changeDifficulty(settings);
+        }
+
+        if (c == '4' || c == 27) {
             return "quit";
         }
     }
