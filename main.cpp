@@ -28,34 +28,6 @@ void initialize() {
     timeout(framems);
 }
 
-void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
-    for (auto mushroom : e) {
-        if (mushroom.type != "mushroom" || mushroom.c == -1) {
-            continue;
-        }
-
-        for (int dx = -2; dx <= 2; dx++) {
-            for (int dy = -2; dy <= 2; dy++) {
-                if (dx * dx + dy * dy <= 4) {
-                    int tileX = mushroom.x + dx;
-                    int tileY = mushroom.y + dy;
-
-                    if (tileX < 0 || tileX >= n || tileY < 0 || tileY >= m) {
-                        continue;
-                    }
-
-                    if (isWall(w, tileX, tileY)) {
-                        continue;
-                    }
-
-                    mvaddch(3 + tileX + a, 2 * tileY + b, '.' | COLOR_PAIR(20));
-                    mvaddch(3 + tileX + a, 2 * tileY + b - 1, ' ' | COLOR_PAIR(20));
-                    mvaddch(3 + tileX + a, 2 * tileY + b + 1, ' ' | COLOR_PAIR(20));
-                }
-            }
-        }
-    }
-}
 void display(gamestate g, player p) {
     int a = 2, b = 4; //map displacement
     erase();
@@ -83,9 +55,15 @@ void display(gamestate g, player p) {
         mvaddch(3+i.first+a, 2*i.second+b-1, 'W' | COLOR_PAIR(10));
         mvaddch(3+i.first+a, 2*i.second+b + 1, 'W' | COLOR_PAIR(10));
     }
+    // draw harming tiles first so enemies/player appear above them
+    for (auto i: g.elist) {
+        if (i.type != "harming tile") continue;
+        if (i.c == -1) continue;
 
-    //maybe create a new func to help create "red" attack areas
-    drawMushroomAttackRadius(g.elist,g.wlist,a,b);
+        mvaddch(3+i.x+a, 2*i.y+b, ' ' | COLOR_PAIR(20));
+        mvaddch(3+i.x+a, 2*i.y+b-1, ' ' | COLOR_PAIR(20));
+        mvaddch(3+i.x+a, 2*i.y+b+1, ' ' | COLOR_PAIR(20));
+}
   
     //print coins and gates first
     for (auto i: g.elist) {
@@ -101,12 +79,17 @@ void display(gamestate g, player p) {
         mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
 
-    //print everything else
-    for (auto i: g.elist) {
-        if (i.type == "gate" || i.type == "coin" || i.type == "projectile") continue;
-        if (i.c == -1) continue;
-        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
-    }
+  for (auto i: g.elist) {
+    if (
+        i.type == "gate" ||
+        i.type == "coin" ||
+        i.type == "projectile" ||
+        i.type == "harming tile"
+    ) continue;
+
+    if (i.c == -1) continue;
+    mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
+}
 
     //print player and refresh
     mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
