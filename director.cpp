@@ -88,10 +88,11 @@ bool forcespawn(player p, gamestate &g, entity e, int bgx, int bgy) {
     int x = 0, y = 0;
     for (int i = 0; i < 100; i++) { //try a spawn 100 times
         x = rand%(n/3) + bgx;
-        y = rand%(n/3) + bgy;
+        y = rand%(m/3) + bgy;
         if (occupied(x, y, p, g)) {
             entity n = e;
             n.x = x; n.y = y;
+            if (e.t > 0) e.t = rand%3;
             g.elist.push_back(n);
             return true;
         }
@@ -175,13 +176,13 @@ void updater(int &val, pair<int, entity> &target, gamestate &g, player p) {
         for (int i = 0; i < 100; i++) {
             x = rand%n; y = rand%m;
             if (occupied(x, y, p, g)) {
-                g.elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 6,
+                g.elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 8,
                 {target.second.s, target.second.c}, target.second.type, {target.second.ax, target.second.ay, target.second.t}
                 });
                 break;
             }
         }
-        val = -4;
+        val = 0;
         target = g.epool[rand%g.epool.size()];
     } else val++;
 }
