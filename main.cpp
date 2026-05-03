@@ -57,7 +57,7 @@ void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, 
 void display(gamestate g, player p, int health, int maxHealth) {
     int a = 2, b = 4; //map displacement
     erase();
-    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
+    if (open < 3) mvprintw(0, 0, "WASD to move, ESC to quit");
     else mvprintw(0, 0, "You Beat This Level!");
     mvprintw(1, 0, "Level: %d/6  Health: %d/%d", g.level, health, maxHealth);
     
@@ -150,7 +150,7 @@ void showDeathScreen() {
     getch();
 }
 
-void updateplayer(player &p, UpgradeState &upgrades, gamestate g) {
+void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
     int c = tolower(getch());
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
     int oldX = p.x;
@@ -161,7 +161,7 @@ void updateplayer(player &p, UpgradeState &upgrades, gamestate g) {
         case 'a': if (p.y > 0 || canLoop) p.y--; break;
         case 's': if (p.x < n-1 || canLoop) p.x++; break;
         case 'd': if (p.y < m-1 || canLoop) p.y++; break;
-        case 'q': g.state = "quit"; break;
+        case 27: g.state = "dead"; break;
     }
 
     if (canLoop) {
