@@ -170,7 +170,7 @@ void director(gamestate& g, player& p) {
 }
 
 void updater(int &val, pair<int, entity> &target, gamestate &g, player p) {
-    if (val > 25 + 3*target.first) {
+    if (val > 35 + 4*target.first) {
         int x = 0, y = 0;
         for (int i = 0; i < 100; i++) {
             x = rand%n; y = rand%m;

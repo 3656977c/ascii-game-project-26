@@ -88,7 +88,7 @@ void bBouncer(entity &e, vector<pair<int,int>> &w) {
 // GHOST
 // Follows the player but ignores walls.
 void bGhost(entity &e, player p) {
-    if (e.t == 1) {
+    if (e.t >= 1) {
         if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
             if (rando%2 == 0) {
                 if (p.x > e.x) e.x++;
