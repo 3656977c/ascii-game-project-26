@@ -89,11 +89,11 @@ bool forcespawn(player p, gamestate &g, entity e, int bgx, int bgy) {
 void director(gamestate& g, player& p) {
     //if level is greater than one, add a new enemy to the loop
     int newen = rand%enemies.size();
-    if (g.level > 0) g.epool.push_back(enemies[newen]);
+    if (g.level > 1) g.epool.push_back(enemies[newen]);
     enemies.erase(enemies.begin() + newen);
 
     //generate list of enemies to spawn
-    vector<entity> enemylineup = listgen(difficulty[g.level], g.epool);
+    vector<entity> enemylineup = listgen(difficulty[g.level - 1], g.epool);
 
     //build a list of sections and a rand number
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};

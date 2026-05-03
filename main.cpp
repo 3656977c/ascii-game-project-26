@@ -20,8 +20,10 @@ void initialize() {
     noecho(); //dont show typed keys
     curs_set(0); //hide text cursor
     keypad(stdscr, TRUE); //allow arrowkeys
-    nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
-    timeout(-1); //how long getch() waits for input
+    //nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
+    //timeout(-1); //how long getch() waits for input
+    keypad(stdscr, FALSE);
+    timeout(200);
 }
 
 void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
@@ -54,7 +56,7 @@ void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, 
 }
 void display(gamestate g, player p, int health, int maxHealth) {
     int a = 2, b = 4; //map displacement
-
+    
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
     else mvprintw(0, 0, "You Beat This Level!");
@@ -109,6 +111,9 @@ void display(gamestate g, player p, int health, int maxHealth) {
     mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
     refresh();
 }
+
+
+//cleaned, dont touch for now
 void genLevel(gamestate &g, player &p) {
     g.elist.clear();
     g.wlist.clear();
@@ -201,13 +206,6 @@ bool isPickup(entity e) {
     return e.c != -1 && (e.type == "coin" || e.type == "time_stop" || e.type == "kill_pickup" || e.type == "swap_pickup");
 }
 
-void removeInactiveEntities(vector<entity> &elist) {
-    for (int i = (int)elist.size() - 1; i >= 0; i--) {
-        if (elist[i].c == -1) {
-            elist.erase(elist.begin() + i);
-        }
-    }
-}
 
 void clampHealth(int &health) {
     if (health < 0) health = 0;
@@ -283,7 +281,7 @@ void showDeathScreen() {
 }
 
 void updateplayer(player &p, UpgradeState &upgrades, gamestate g) {
-    int c = getch();
+    int c = tolower(getch());
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
     int oldX = p.x;
     int oldY = p.y;
@@ -331,7 +329,6 @@ signed main() {
     gmst.state = "run";
     gmst.level = 1;
 
-
     //move into player class maybe?
     int maxHealth = 3;
     int health = maxHealth;
@@ -355,7 +352,7 @@ signed main() {
         if (gmst.state != "run") break;
 
         collectPickups(upgrades, health, maxHealth, gmst.elist, player);
-        removeInactiveEntities(gmst.elist);
+  
 
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;

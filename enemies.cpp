@@ -84,36 +84,6 @@ void bBouncer(entity &e, vector<pair<int,int>> &w) {
     e.ax = dx;
     e.ay = dy;
 }
-// FOLLOWER
-// Moves one tile toward the player every other turn.
-// Cannot pass through walls.
-void bFollow(entity &e, player p, vector<pair<int,int>> &w) {
-  if (e.t == 0) {
-    e.t++;
-    return;
-  }
-
-  int dx = 0;
-  int dy = 0;
-
-  if (abs(e.x - p.x) > abs(e.y - p.y)) {
-    if (p.x > e.x) dx = 1;
-    else if (p.x < e.x) dx = -1;
-  } else {
-    if (p.y > e.y) dy = 1;
-    else if (p.y < e.y) dy = -1;
-  }
-
-  int nextX = e.x + dx;
-  int nextY = e.y + dy;
-
-  if (!isBlocked(w, nextX, nextY)) {
-    e.x = nextX;
-    e.y = nextY;
-  }
-
-  e.t = 0;
-}
 
 // GHOST
 // Follows the player but ignores walls.
@@ -264,6 +234,7 @@ bool canSpawnProjectile(vector<pair<int,int>> &w, int x, int y, int ax, int ay) 
 
     return true;
 }
+
 bool isShooterBlocked(vector<entity> &elist, vector<pair<int,int>> &w, int x, int y, int selfIndex) {
     if (isBlocked(w, x, y)) {
         return true;
@@ -667,13 +638,22 @@ void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrad
         elist.push_back(projectile);
     }
 }
+
+//Remove all inactive entities
+void removeInactiveEntities(vector<entity> &elist) {
+    for (int i = (int)elist.size() - 1; i >= 0; i--) {
+        if (elist[i].c == -1) {
+            elist.erase(elist.begin() + i);
+        }
+    }
+}
+
 // Updates all active entities.
 void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
   int originalSize = g.elist.size();
 
   for (int i = 0; i < originalSize; i++) {
     entity e = g.elist[i];
-    if (e.c == -1) continue;
 
     if (e.type == "bouncer") {
       bBouncer(g.elist[i], g.wlist);
@@ -714,6 +694,8 @@ void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
       bXTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
   }
+  //cull all non-active entities
+  removeInactiveEntities(g.elist);
 }
 
 bool isDamagingEnemy(entity e) {
