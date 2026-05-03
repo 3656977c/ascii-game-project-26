@@ -162,7 +162,7 @@ void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vec
 void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, player &p, vector<entity> &elist, vector<pair<int, int>> &wlist, int n, int m) {
     if (upgradeNumber == 1) {
         //more max hp and full heal
-        p.maxHealth += 1;
+        p.maxHealth += 2;
         p.health = p.maxHealth;
     }
     else if (upgradeNumber == 2) {
