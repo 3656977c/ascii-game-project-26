@@ -191,6 +191,8 @@ void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
 }
 
 string playGame() {
+    resetDirector();
+
     gamestate gmst;
     gmst.state = "run";
     gmst.level = 1;
@@ -258,14 +260,8 @@ string playGame() {
     }
 
     if (gmst.state == "dead") {
-<<<<<<< HEAD
-        display(gmst, player, health, maxHealth);
         pickedUpgrades.release();
         return "dead";
-=======
-        display(gmst, player);
-        showDeathScreen();
->>>>>>> 5a0a335e23071f1bd9fbc6ebecb1bb4691ee8074
     }
 
     if (gmst.state == "win") {

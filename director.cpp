@@ -43,6 +43,17 @@ vector<pair<int, entity>> enemies = {
     {3, xtur}
 };
 
+void resetDirector() {
+    enemies = {
+        {5, turret},
+        {4, leaper},
+        {5, mushroom},
+        {5, grappler},
+        {3, ttur},
+        {3, xtur}
+    };
+}
+
 
 //checks if an area is occupied by an entity, wall, or player
 bool occupied(int x, int y, player p, gamestate g) {
