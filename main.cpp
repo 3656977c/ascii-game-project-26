@@ -148,6 +148,7 @@ void showDeathScreen() {
 
 void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
     int c = tolower(getch());
+    napms(100);
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
     int oldX = p.x;
     int oldY = p.y;
