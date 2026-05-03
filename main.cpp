@@ -54,12 +54,12 @@ void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, 
         }
     }
 }
-void display(gamestate g, player p, int health, int maxHealth) {
+void display(gamestate g, player p) {
     int a = 2, b = 4; //map displacement
     erase();
     if (open < 3) mvprintw(0, 0, "WASD to move, ESC to quit");
     else mvprintw(0, 0, "You Beat This Level!");
-    mvprintw(1, 0, "Level: %d/6  Health: %d/%d", g.level, health, maxHealth);
+    mvprintw(1, 0, "Level: %d/6  Health: %d/%d", g.level, p.health, p.maxHealth);
     
     //print borders
     for (int i = 0; i < n+2; i++) {
@@ -130,14 +130,10 @@ void showWinScreen() {
     getch();
 }
 
-void clampHealth(int &health) {
-    if (health < 0) health = 0;
-}
-
-bool applyPlayerHit(UpgradeState &upgrades, int &health, vector<entity> &elist, int enemyIndex) {
-    onPlayerHit(upgrades, health, elist, enemyIndex);
-    health = max(0, health);
-    return health <= 0;
+bool applyPlayerHit(UpgradeState &upgrades, player &p, vector<entity> &elist, int enemyIndex) {
+    onPlayerHit(upgrades, p, elist, enemyIndex);
+    p.health = max(0, p.health);
+    return p.health <= 0;
 }
 
 void showDeathScreen() {
@@ -199,28 +195,21 @@ signed main() {
     gmst.state = "run";
     gmst.level = 1;
 
-    //move into player class maybe?
-    int maxHealth = 3;
-    int health = maxHealth;
-
-    //move into upgrades?
     UpgradeState upgrades;
-
     uppick pickedUpgrades;
-    player player{0,0};
+    player player{0,0,3,3};
 
     //initialization for updater, ill consider moving it to gamestate
     int turns = 0;
     pair<int,entity> targ = gmst.epool[rand%3];
 
-
     genLevel(gmst, player);
     while (gmst.state == "run") {
-        display(gmst, player, health, maxHealth);
+        display(gmst, player);
         updateplayer(player, upgrades, gmst);
         if (gmst.state != "run") break;
 
-        collectPickups(upgrades, health, maxHealth, gmst.elist, player);
+        collectPickups(upgrades, gmst.elist, player);
   
 
         if (upgrades.timeStopTurns > 0) {
@@ -230,12 +219,12 @@ signed main() {
         }
         removeInactiveEntities(gmst.elist);
 
-        collectPickups(upgrades, health, maxHealth, gmst.elist, player);
+        collectPickups(upgrades, gmst.elist, player);
         removeInactiveEntities(gmst.elist);
 
         int enemyIndex = getPlayerHitIndex(gmst.elist, player);
         if (enemyIndex != -1) {
-            if (applyPlayerHit(upgrades, health, gmst.elist, enemyIndex)) {
+            if (applyPlayerHit(upgrades, player, gmst.elist, enemyIndex)) {
                 gmst.state = "dead";
             }
             removeInactiveEntities(gmst.elist);
@@ -246,7 +235,7 @@ signed main() {
                 break;
             }
 
-            int selectedUpgrade = chooseUpgrade(gmst.level, health, maxHealth, pickedUpgrades);
+            int selectedUpgrade = chooseUpgrade(gmst.level, player, pickedUpgrades);
             pickedUpgrades.push_back(selectedUpgrade);
 
             if (selectedUpgrade == 3) {
@@ -256,12 +245,12 @@ signed main() {
                 upgrades.healHalfEndStage = true;
             }
 
-            onStageClear(upgrades, health, maxHealth);
+            onStageClear(upgrades, player);
 
             gmst.level++;
             genLevel(gmst, player);
             addCarriedUpgradePickups(upgrades, gmst.elist, gmst.wlist);
-            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, gmst.elist, gmst.wlist, n, m);
+            applyUpgrade(selectedUpgrade, upgrades, player, gmst.elist, gmst.wlist, n, m);
         }
 
         nextUpgradeTurn(upgrades);
@@ -269,7 +258,7 @@ signed main() {
     }
 
     if (gmst.state == "dead") {
-        display(gmst, player, health, maxHealth);
+        display(gmst, player);
         showDeathScreen();
     }
 
