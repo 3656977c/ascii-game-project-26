@@ -2,8 +2,7 @@
 #include "menu.h"
 #include <fstream>
 
-//menu is initially responsible for the start menu settings, which allows the player to start the game, change difficulties, look at the bestiary, and edit settings
-//menu also works when "state" is listed as pause or is anything else but "game"
+//basic menu screens
 
 void drawMenuTitle() {
     mvprintw(1, 4, "ASCII KNIGHT");
