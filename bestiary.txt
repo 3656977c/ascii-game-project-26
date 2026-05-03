@@ -37,3 +37,13 @@ Upgrades
 12 Block one projectile per floor
 13 Limit projectiles to 12
 14 Slow projectiles
+
+Hints
+Projectiles
+-Projectiles always move in deterministic patterns, and always damage the tile they are going into, not the tile they were previously in. If a projectile is moving toward you and about to hit you, you can dodge the projectile by moving counter to its current trajectory with good timing.
+
+Time
+-If you stay in a stage too long, enemies will start to spawn, significantly making the level much harder.
+
+Coins
+-If you're having trouble finding good upgrades, try collecting the 'c' coins scattered around the map. More coins collected at the end of each level means more options presented in the upgrades screen.
