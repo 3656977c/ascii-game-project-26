@@ -1,3 +1,4 @@
+Enemies
 O  Bouncer: bounces around the map
 %  Ghost: follows through walls
 &  Shooter: fires projectile volleys
@@ -7,3 +8,19 @@ O  Bouncer: bounces around the map
 $  Grappler: pulls you in lines
 +  Plus turret: moves and shoots straight
 x  X turret: moves and shoots diagonally
+
+Upgrades
+1  Increase max health and heal to full
+2  Kill the enemy that damages you
+3  Heal 1 HP after every stage
+4  Heal back to half HP after every stage
+5  Spawn 2 time stop pickups
+6  Spawn 2 kill enemy pickups
+7  Spawn 2 swap pickups
+8  Kill an enemy every 2 pickups
+9  Gain 1 HP every 2 pickups
+10 Loop around the map once
+11 Immune every fifth turn
+12 Block one projectile per floor
+13 Limit projectiles to 12
+14 Slow projectiles
