@@ -8,7 +8,7 @@ int n = 15; //enforced # of columns
 int m = 27; //enforced # of rows
 int open = 0; //global "open" val
 int coin = 0; //global "coin" val
-int framems = 300; //how long one frame is
+int framems = 200; //how long one frame is
 
 //initialize randomness
 unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
