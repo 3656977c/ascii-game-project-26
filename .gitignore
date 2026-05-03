@@ -1,2 +1,2 @@
-//ignore files to avoid confusion
+//ignore .o files to avoid confusion
 *.o
