@@ -14,7 +14,7 @@
 #ifdef __APPLE__
 #include <curses.h>
 #else
-#include <ncurses.h>
+#include <ncurses/ncurses.h>
 #endif
 
 using namespace std;
@@ -55,8 +55,9 @@ class gamestate {
 
         int wn = 1;
         vector<pair<int,int>> wlist;
-
-        vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
+        entity mushroom = {0, 0, "turret", '#', 2, -1, -1, 0};
+        vector<pair<int,entity>> epool = {{5, mushroom}, {5, mushroom}, {5, mushroom}};
+        //vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
         int level;
         int diff = 1;
         string state;

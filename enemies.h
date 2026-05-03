@@ -36,6 +36,6 @@ void removeInactiveEntities(vector<entity> &elist);
 void updateentities(gamestate &g, player &p, UpgradeState &upgrades);
 
 bool isDamagingEnemy(entity e);
-int getPlayerHitIndex(vector<entity> e, player p);
+int getPlayerHitIndex(vector<entity> &e, player p);
 
 #endif

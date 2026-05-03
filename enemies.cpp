@@ -88,9 +88,19 @@ void bBouncer(entity &e, vector<pair<int,int>> &w) {
 // GHOST
 // Follows the player but ignores walls.
 void bGhost(entity &e, player p) {
+    if (e.t < 0) {
+        e.t++;
+
+        if (e.t == 0) {
+            e.c = 2;
+        }
+
+        return;
+    }
+
     if (e.t >= 1) {
-        if (abs(e.x - p.x)!= 0 && abs(e.y - p.y)!=0) {
-            if (rando%2 == 0) {
+        if (abs(e.x - p.x) != 0 && abs(e.y - p.y) != 0) {
+            if (rando % 2 == 0) {
                 if (p.x > e.x) e.x++;
                 else e.x--;
             } else {
@@ -102,12 +112,15 @@ void bGhost(entity &e, player p) {
                 if (p.x > e.x) e.x++;
                 else e.x--;
             } else if (abs(e.y - p.y) > 0) {
-                if (p.y > e.y) e.y++;
-                else e.y--;
+                if (p.y > e.y) e.y--;
+                else e.y++;
             }
         }
+
         e.t = 0;
-    } else e.t++;
+    } else {
+        e.t++;
+    }
 }
 
 // // LEAPER
@@ -149,12 +162,13 @@ void bLeaper(entity &e, player p, vector<pair<int,int>> &w) {
 void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w) {
     mushroom.t++;
 
-    if (mushroom.t < 7) {
+    if (mushroom.t < 12) {
+        if (mushroom.t > 8) mushroom.c = 2;
         return;
     }
 
     mushroom.t = 0;
-
+    mushroom.c = 5;
     for (int dx = -2; dx <= 2; dx++) {
         for (int dy = -2; dy <= 2; dy++) {
             if (dx * dx + dy * dy > 4) {
@@ -168,16 +182,7 @@ void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w
                 continue;
             }
 
-            entity harmTile;
-            harmTile.x = tileX;
-            harmTile.y = tileY;
-            harmTile.type = "harming tile";
-            harmTile.s = ' ';
-            harmTile.c = 20;
-            harmTile.ax = 0;
-            harmTile.ay = 0;
-            harmTile.t = 2;
-
+            entity harmTile = {tileX, tileY, "harming tile", 'H', 1, 0, 0, 1};
             elist.push_back(harmTile);
         }
     }
@@ -188,7 +193,6 @@ void bMushroom(entity &mushroom, vector<entity> &elist, vector<pair<int,int>> &w
 // Exists for one enemy update, then disappears.
 void bHarmingTile(entity &e) {
     e.t--;
-
     if (e.t <= 0) {
         e.c = -1;
     }
@@ -200,7 +204,7 @@ void bHarmingTile(entity &e) {
 void bTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades) {
     e.t++;
 
-    if (e.t < 3) {
+    if (e.t < 7) {
         return;
     }
 
@@ -312,9 +316,11 @@ void bShooter(
     // Cooldown after shooting.
     // During cooldown, the shooter does not move or charge.
     if (e.t < 0) {
+        e.c = 5;
         e.t++;
         return;
     }
+    if (e.t == 0) e.c = 2;
 
     int dxToPlayer = p.x - e.x;
     int dyToPlayer = p.y - e.y;
@@ -325,7 +331,7 @@ void bShooter(
     int distSq = distanceSquared(e, p);
 
     // Shoot when fully charged.
-    if (e.t >= 4) {
+    if (e.t >= 10) {
         int ax = 0;
         int ay = 0;
 
@@ -366,7 +372,7 @@ void bShooter(
         }
         
         // Wait 3 turns after shooting.
-        e.t = -3;
+        e.t = -5;
 
         for (int i = 0; i < 3; i++) {
             int spawnX = e.x + ax + offsets[i][0];
@@ -751,20 +757,25 @@ bool isDamagingEnemy(entity e) {
         e.type == "projectile"
     );
 }
-int getPlayerHitIndex(vector<entity> e, player p) {
-  for (int i = 0; i < (int)e.size(); i++) {
-    if (e[i].c == -1 || e[i].c == 5) {
-      continue;
+int getPlayerHitIndex(vector<entity> &e, player p) {
+    for (int i = 0; i < (int)e.size(); i++) {
+        if (e[i].c == -1 || e[i].c == 5) {
+            continue;
+        }
+
+        if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
+            if (e[i].type == "ghost") {
+                e[i].c = 5;
+                e[i].t = -6;
+            }
+
+            return i;
+        }
+
+        if (e[i].type == "harming tile" && e[i].x == p.x && e[i].y == p.y) {
+            return i;
+        }
     }
 
-    if (isDamagingEnemy(e[i]) && e[i].x == p.x && e[i].y == p.y) {
-      return i;
-    }
-
-    if (e[i].type == "harming tile" && e[i].x == p.x && e[i].y == p.y) {
-      return i;
-    }
-  }
-
-  return -1;
+    return -1;
 }
