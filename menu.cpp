@@ -1,5 +1,6 @@
 #include "declar.h"
 #include "menu.h"
+#include <fstream>
 
 //menu is initially responsible for the start menu settings, which allows the player to start the game, change difficulties, look at the bestiary, and edit settings
 //menu also works when "state" is listed as pause or is anything else but "game"
@@ -41,15 +42,20 @@ string showMainMenu() {
 void showBestiary() {
     erase();
     drawMenuTitle();
-    mvprintw(5, 4, "O  Bouncer: bounces around the map");
-    mvprintw(6, 4, "%%  Ghost: follows through walls");
-    mvprintw(7, 4, "&  Shooter: fires projectile volleys");
-    mvprintw(8, 4, "#  Turret: shoots in all directions");
-    mvprintw(9, 4, "^  Leaper: jumps toward you");
-    mvprintw(10, 4, "!  Mushroom: hurts nearby tiles");
-    mvprintw(11, 4, "$  Grappler: pulls you in lines");
-    mvprintw(12, 4, "+  Plus turret: moves and shoots straight");
-    mvprintw(13, 4, "x  X turret: moves and shoots diagonally");
+
+    ifstream bestiaryFile("bestiary.txt");
+    string line;
+    int row = 5;
+
+    if (bestiaryFile.is_open()) {
+        while (getline(bestiaryFile, line) && row < 16) {
+            mvprintw(row, 4, "%s", line.c_str());
+            row++;
+        }
+    } else {
+        mvprintw(5, 4, "Could not open bestiary.txt");
+    }
+
     mvprintw(16, 4, "Press any key to go back.");
     refresh();
     getch();

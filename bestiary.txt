@@ -1,0 +1,9 @@
+O  Bouncer: bounces around the map
+%  Ghost: follows through walls
+&  Shooter: fires projectile volleys
+#  Turret: shoots in all directions
+^  Leaper: jumps toward you
+!  Mushroom: hurts nearby tiles
+$  Grappler: pulls you in lines
++  Plus turret: moves and shoots straight
+x  X turret: moves and shoots diagonally
