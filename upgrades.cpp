@@ -198,7 +198,7 @@ void applyUpgrade(int upgradeNumber, UpgradeState &upgrades, int &health, int &m
     else if (upgradeNumber == 13) {
         // Keep the projectile count capped.
         upgrades.limitProjectiles = true;
-        upgrades.projectileLimit = 5;
+        upgrades.projectileLimit = 12;
     }
     else if (upgradeNumber == 14) {
         // Make projectile movement skip every other turn.
@@ -325,7 +325,7 @@ string getUpgradeName(int upgradeNumber) {
     if (upgradeNumber == 10) return "Loop around the map once";
     if (upgradeNumber == 11) return "Immune every fifth turn";
     if (upgradeNumber == 12) return "Block one projectile per floor";
-    if (upgradeNumber == 13) return "Limit projectiles to 5";
+    if (upgradeNumber == 13) return "Limit projectiles to 12";
     if (upgradeNumber == 14) return "Slow projectiles";
 
     return "Unknown upgrade";
