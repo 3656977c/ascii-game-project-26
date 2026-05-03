@@ -34,7 +34,7 @@ void bCoin(entity &e, player p);
 void bGrappler(entity &e, player &p, vector<pair<int,int>> &w);
 void bPlusTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades);
 void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, UpgradeState &upgrades);
-void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades);
+void updateentities(gamestate &g, player &p, UpgradeState &upgrades);
 
 bool isDamagingEnemy(entity e);
 int getPlayerHitIndex(vector<entity> e, player p);

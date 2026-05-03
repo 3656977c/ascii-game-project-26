@@ -3,15 +3,16 @@
 #include "enemies.h"
 #include "director.h"
 #include <algorithm>
-int n = 15;
-int m = 27;
-int open = 0;
+int n = 15; //enforced # of columns
+int m = 27; //enforced # of rows
+int open = 0; //global "open" val
+int coin = 0; //global "coin" val
 
 //initialize randomness
-    unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
-    mt19937 engine(seed);
-    uniform_int_distribution<int> dist(0,7559);
-    #define rand dist(engine) 
+unsigned seed = chrono::system_clock::now().time_since_epoch().count();   
+mt19937 engine(seed);
+uniform_int_distribution<int> dist(0,7559); //7560 is divisible from 1-10, 15, and 27
+#define rand dist(engine) 
 
 void initialize() {
     initscr(); //initialize ncurses
@@ -22,6 +23,7 @@ void initialize() {
     nodelay(stdscr, FALSE); //makes getch() not wait for key to be pressed
     timeout(-1); //how long getch() waits for input
 }
+
 void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, int b) {
     for (auto mushroom : e) {
         if (mushroom.type != "mushroom" || mushroom.c == -1) {
@@ -50,14 +52,15 @@ void drawMushroomAttackRadius(vector<entity> e, vector<pair<int,int>> w, int a, 
         }
     }
 }
-void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, int health, int maxHealth, int level) {
-    char c = '.';
+void display(gamestate g, player p, int health, int maxHealth) {
     int a = 2, b = 4; //map displacement
-    erase();
-    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit %d, %d", p.x, p.y);
-    else mvprintw(0, 0, "You Beat This Level!");
-    mvprintw(1, 0, "Level: %d/6  Health: %d/%d", level, health, maxHealth);
 
+    erase();
+    if (open < 3) mvprintw(0, 0, "WASD to move, Q to quit");
+    else mvprintw(0, 0, "You Beat This Level!");
+    mvprintw(1, 0, "Level: %d/6  Health: %d/%d", g.level, health, maxHealth);
+    
+    //print borders
     for (int i = 0; i < n+2; i++) {
         mvaddch(3+i+a-1, 2*(-1)+b-1, '|' | COLOR_PAIR(10));
         mvaddch(3+i+a-1, 2*(-1)+b, '|' | COLOR_PAIR(10));
@@ -68,52 +71,50 @@ void display(int n, int m, vector<entity> e, vector<pair<int,int>> w, player p, 
         mvaddch(3+a-1, 2*i+b, '-' | COLOR_PAIR(10));
         mvaddch(3+a-1, 2*i+b - 1, '-' | COLOR_PAIR(10));
         mvaddch(3+n+a, 2*i+b, '-' | COLOR_PAIR(10));
-         mvaddch(3+n+a, 2*i+b - 1, '-' | COLOR_PAIR(10));
+        mvaddch(3+n+a, 2*i+b - 1, '-' | COLOR_PAIR(10));
     }
-    for (auto i: w) {
+
+    //draw walls
+    for (auto i: g.wlist) {
         mvaddch(3+i.first+a, 2*i.second+b, 'W' | COLOR_PAIR(10));
         mvaddch(3+i.first+a, 2*i.second+b-1, 'W' | COLOR_PAIR(10));
         mvaddch(3+i.first+a, 2*i.second+b + 1, 'W' | COLOR_PAIR(10));
     }
-    drawMushroomAttackRadius(e,w,a,b);
-  
 
-    for (auto i: e) {
+    //maybe create a new func to help create "red" attack areas
+    drawMushroomAttackRadius(g.elist,g.wlist,a,b);
+  
+    //print coins and gates first
+    for (auto i: g.elist) {
         if (i.type != "gate" && i.type != "coin") continue;
         if (i.c == -1) continue;
         mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
 
-    for (auto i: e) {
-        if (i.type == "gate" || i.type == "coin") continue;
+    //print projectiles
+    for (auto i: g.elist) {
         if (i.type != "projectile") continue;
         if (i.c == -1) continue;
         mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
 
-    for (auto i: e) {
-        if (i.type == "gate" || i.type == "coin") continue;
-        if (i.type == "projectile") continue;
+    //print everything else
+    for (auto i: g.elist) {
+        if (i.type == "gate" || i.type == "coin" || i.type == "projectile") continue;
         if (i.c == -1) continue;
         mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
+
+    //print player and refresh
     mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
     refresh();
 }
-
-void setupLevel(vector<entity> &elist, player &p, int level, vector<pair<int, entity>> epool) {
-    vector<pair<int, int>> ignoredWalls;
-    elist.clear();
+void genLevel(gamestate &g, player &p) {
+    g.elist.clear();
+    g.wlist.clear();
     open = 0;
-    director(elist, ignoredWalls, p, level - 1, epool);
-
-}
-
-void setupLevel(vector<entity> &elist, vector<pair<int, int>> &wlist, player &p, int level, vector<pair<int, entity>> epool) {
-    elist.clear();
-    wlist.clear();
-    open = 0;
-    director(elist, wlist, p, level - 1, epool);
+    coin = 0;
+    director(g, p);
 }
 
 void addCarriedUpgradePickups(UpgradeState &upgrades, vector<entity> &elist, vector<pair<int, int>> &wlist) {
@@ -146,7 +147,7 @@ bool hasUpgrade(vector<int> pickedUpgrades, int upgradeNumber) {
 vector<int> getUpgradeChoices(vector<int> pickedUpgrades) {
     vector<int> choices;
 
-    while ((int)choices.size() < 3) {
+    while ((int)choices.size() < 4) {
         int upgradeNumber = rand % 14 + 1;
         bool alreadyChosen = false;
 
@@ -171,7 +172,7 @@ int chooseUpgrade(int level, int health, int maxHealth, vector<int> pickedUpgrad
         mvprintw(1, 0, "Health: %d/%d", health, maxHealth);
         mvprintw(3, 0, "Choose an upgrade:");
 
-        for (int i = 0; i < (int)choices.size(); i++) {
+        for (int i = 0; i < coin + 2; i++) {
             string name = getUpgradeName(choices[i]);
             mvprintw(5 + i, 0, "%d. %s", i + 1, name.c_str());
         }
@@ -180,7 +181,7 @@ int chooseUpgrade(int level, int health, int maxHealth, vector<int> pickedUpgrad
         refresh();
 
         int c = getch();
-        if (c >= '1' && c <= '3') {
+        if (c >= '1' && c <= 48 + 2 + coin) {
             return choices[c - '1'];
         }
     }
@@ -257,6 +258,9 @@ void collectPickups(UpgradeState &upgrades, int &health, int maxHealth, vector<e
             if (elist[i].type == "swap_pickup") {
                 collected = useSwapPickup(elist, p, i);
             } else {
+                if (elist[i].type == "coin") {
+                    coin++;
+                }
                 elist[i].t = 0;
                 elist[i].c = -1;
             }
@@ -278,7 +282,7 @@ void showDeathScreen() {
     getch();
 }
 
-void updateplayer(player &p, string &state, UpgradeState &upgrades, vector<pair<int,int>> &w) {
+void updateplayer(player &p, UpgradeState &upgrades, gamestate g) {
     int c = getch();
     bool canLoop = upgrades.loopAroundMap && upgrades.loopCharges > 0;
     int oldX = p.x;
@@ -289,7 +293,7 @@ void updateplayer(player &p, string &state, UpgradeState &upgrades, vector<pair<
         case 'a': if (p.y > 0 || canLoop) p.y--; break;
         case 's': if (p.x < n-1 || canLoop) p.x++; break;
         case 'd': if (p.y < m-1 || canLoop) p.y++; break;
-        case 'q': state = "quit"; break;
+        case 'q': g.state = "quit"; break;
     }
 
     if (canLoop) {
@@ -314,88 +318,88 @@ void updateplayer(player &p, string &state, UpgradeState &upgrades, vector<pair<
         if (used) upgrades.loopCharges--;
     }
 
-    if (isWall(w, p.x, p.y)) {
+    if (isWall(g.wlist, p.x, p.y)) {
         p.x = oldX;
         p.y = oldY;
     }
 }
 
 signed main() {
-    //initialize size of map
-
     initialize();
     colorscale();
-    string state = "run";
-    int level = 1;
+    gamestate gmst;
+    gmst.state = "run";
+    gmst.level = 1;
+
+
+    //move into player class maybe?
     int maxHealth = 3;
     int health = maxHealth;
-    UpgradeState upgrades;
 
-    vector<entity> elist;
-    vector<pair<int, int>> wlist;
+    //move into upgrades?
+    UpgradeState upgrades;
     vector<int> pickedUpgrades;
 
-    //enemies with defaul start vals
-    entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
-    entity ghst = {0, 0, "ghost", '%', 2, -1, -1, 0};
-    entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
-    vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}}; //enemy pool
-    player player{0,0};
-    int turns = 0;
-    pair<int,entity> targ = epool[rand%3];
-    setupLevel(elist, wlist, player, level, epool);
-    
-    while (state == "run") {
-        display(n, m, elist, wlist, player, health, maxHealth, level);
-        updateplayer(player, state, upgrades, wlist);
-        if (state != "run") break;
 
-        collectPickups(upgrades, health, maxHealth, elist, player);
-        removeInactiveEntities(elist);
+    player player{0,0};
+
+    //initialization for updater, ill consider moving it to gamestate
+    int turns = 0;
+    pair<int,entity> targ = gmst.epool[rand%3];
+
+
+    genLevel(gmst, player);
+    while (gmst.state == "run") {
+        display(gmst, player, health, maxHealth);
+        updateplayer(player, upgrades, gmst);
+        if (gmst.state != "run") break;
+
+        collectPickups(upgrades, health, maxHealth, gmst.elist, player);
+        removeInactiveEntities(gmst.elist);
 
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
-            updateentities(elist, player, wlist, upgrades);
+            updateentities(gmst, player, upgrades);
         }
-        removeInactiveEntities(elist);
+        removeInactiveEntities(gmst.elist);
 
-        collectPickups(upgrades, health, maxHealth, elist, player);
-        removeInactiveEntities(elist);
+        collectPickups(upgrades, health, maxHealth, gmst.elist, player);
+        removeInactiveEntities(gmst.elist);
 
-        int enemyIndex = getPlayerHitIndex(elist, player);
+        int enemyIndex = getPlayerHitIndex(gmst.elist, player);
         if (enemyIndex != -1) {
-            if (applyPlayerHit(upgrades, health, elist, enemyIndex)) {
-                state = "dead";
+            if (applyPlayerHit(upgrades, health, gmst.elist, enemyIndex)) {
+                gmst.state = "dead";
             }
-            removeInactiveEntities(elist);
+            removeInactiveEntities(gmst.elist);
         }
         if (open >= 3) {
             onStageClear(upgrades, health, maxHealth);
 
-            if (level >= 6) {
-                state = "win";
+            if (gmst.level >= 6) {
+                gmst.state = "win";
                 break;
             }
 
-            int selectedUpgrade = chooseUpgrade(level, health, maxHealth, pickedUpgrades);
+            int selectedUpgrade = chooseUpgrade(gmst.level, health, maxHealth, pickedUpgrades);
             pickedUpgrades.push_back(selectedUpgrade);
-            level++;
-            setupLevel(elist, wlist, player, level, epool);
-            addCarriedUpgradePickups(upgrades, elist, wlist);
-            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, elist, wlist, n, m);
+            gmst.level++;
+            genLevel(gmst, player);
+            addCarriedUpgradePickups(upgrades, gmst.elist, gmst.wlist);
+            applyUpgrade(selectedUpgrade, upgrades, health, maxHealth, gmst.elist, gmst.wlist, n, m);
         }
 
         nextUpgradeTurn(upgrades);
-        updater(turns, targ, epool, player, elist, wlist);
+        updater(turns, targ, gmst, player);
     }
 
-    if (state == "dead") {
-        display(n, m, elist, wlist, player, health, maxHealth, level);
+    if (gmst.state == "dead") {
+        display(gmst, player, health, maxHealth);
         showDeathScreen();
     }
 
-    if (state == "win") {
+    if (gmst.state == "win") {
         showWinScreen();
     }
 

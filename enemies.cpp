@@ -488,13 +488,6 @@ void bGate(entity &e, player p) {
   }
 }
 
-// COIN
-void bCoin(entity &e, player p) {
-  if (e.x == p.x && e.y == p.y && e.c > -1) {
-    e.t = 0;
-    e.c = -1;
-  }
-}
 // GRAPPLER
 // If the player is in the same row or column, pulls the player one tile toward it.
 // It also moves slowly every 3 turns.
@@ -675,49 +668,47 @@ void bXTurret(entity &e, vector<entity> &elist, vector<pair<int,int>> &w, Upgrad
     }
 }
 // Updates all active entities.
-void updateentities(vector<entity> &e, player &p, vector<pair<int,int>> &w, UpgradeState &upgrades) {
-  int originalSize = e.size();
+void updateentities(gamestate &g, player &p, UpgradeState &upgrades) {
+  int originalSize = g.elist.size();
 
   for (int i = 0; i < originalSize; i++) {
-    if (e[i].c == -1) continue;
+    entity e = g.elist[i];
+    if (e.c == -1) continue;
 
-    if (e[i].type == "bouncer") {
-      bBouncer(e[i], w);
+    if (e.type == "bouncer") {
+      bBouncer(g.elist[i], g.wlist);
     }
-    else if (e[i].type == "ghost") {
-      bGhost(e[i], p);
+    else if (e.type == "ghost") {
+      bGhost(g.elist[i], p);
     }
-    else if (e[i].type == "leaper") {
-      bLeaper(e[i], p, w);
+    else if (e.type == "leaper") {
+      bLeaper(g.elist[i], p, g.wlist);
     }
-    else if (e[i].type == "spawner") {
-      bSpawner(e[i]);
+    else if (e.type == "spawner") {
+      bSpawner(g.elist[i]);
     }
-    else if (e[i].type == "turret") {
-      bTurret(e[i], e, w, upgrades);
+    else if (e.type == "turret") {
+      bTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
-    else if (e[i].type == "shooter") {
-      bShooter(e[i], p, e, w, i, upgrades);
+    else if (e.type == "shooter") {
+      bShooter(g.elist[i], p, g.elist, g.wlist, i, upgrades);
     }
-    else if (e[i].type == "projectile") {
+    else if (e.type == "projectile") {
       if (shouldProjectileMove(upgrades)) {
-        bProjectile(e[i], w);
+        bProjectile(g.elist[i], g.wlist);
       }
     }
-    else if (e[i].type == "gate") {
-      bGate(e[i], p);
+    else if (e.type == "gate") {
+      bGate(g.elist[i], p);
     }
-    else if (e[i].type == "coin") {
-      bCoin(e[i], p);
+    else if (e.type == "grappler") {
+      bGrappler(g.elist[i], p, g.wlist);
     }
-    else if (e[i].type == "grappler") {
-    bGrappler(e[i], p, w);
+    else if (e.type == "+tur") {
+      bPlusTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
-    else if (e[i].type == "+tur") {
-    bPlusTurret(e[i], e, w, upgrades);
-    }
-    else if (e[i].type == "xtur") {
-    bXTurret(e[i], e, w, upgrades);
+    else if (e.type == "xtur") {
+      bXTurret(g.elist[i], g.elist, g.wlist, upgrades);
     }
   }
 }

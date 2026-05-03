@@ -4,6 +4,8 @@
 //libraries used in project, namespace std declaration for easy access
 #include <cstdlib>
 #include <string>
+#include <random>
+#include <chrono>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -14,17 +16,14 @@
 #include <ncurses/ncurses.h>
 #endif
 
-//initialize randomness
-#include <random>
-#include <chrono>
 using namespace std;
 
+//player class
 class player {
     public:
         int x;
         int y;
 };
-
 
 //entity and projectile class
 class entity {
@@ -40,13 +39,27 @@ class entity {
         pair<char, int> spawnl; //spawn looks
         string spawntype; //spawn type
         int spawnval[3]; //spawn parameters
-
 };
 
-inline entity makeEntity(int x, int y, string type, char symbol, int color, int ax, int ay, int timer) {
-    entity item{x, y, type, symbol, color, ax, ay, timer};
-    return item;
-}
+//information on game
+class gamestate {
+    private:
+        entity bcer = {0, 0, "bouncer", 'O', 2, 1, 1, -1};
+        entity ghst = {0, 0, "ghost", '%', 2, -1, -1, 0};
+        entity shtr = {0, 0, "shooter",'&', 2, 0, 0, 1};
+    public:
+        //int ecap = 1;
+        //int * elist = (int *)malloc(ecap * sizeof(entity));
+        vector<entity> elist;
+        //int wcap = 1;
+        //int * wlist = (int *)malloc(wcap * sizeof(pair<int, int>));
+        vector<pair<int,int>> wlist;
+        vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
+        int level;
+        string state;
+};
+
+
 
 //initialize colors
 inline void colorscale() {
@@ -57,7 +70,7 @@ inline void colorscale() {
         init_pair(3, COLOR_YELLOW, COLOR_BLACK);
         init_pair(4, COLOR_WHITE, COLOR_BLACK);
         init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(10, COLOR_WHITE, COLOR_WHITE);
+        init_pair(10, COLOR_WHITE, COLOR_WHITE);  //wall
         init_pair(20, COLOR_WHITE, COLOR_RED);    //mushroom attack area
         
     }

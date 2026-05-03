@@ -34,12 +34,12 @@ vector<entity> listgen(int pts, vector<pair<int, entity>> epool) {
     return list;
 }
 
-void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int level, vector<pair<int, entity>> epool) {
+void director(gamestate& g, player& p) {
     //elist is the list of all entities, p is player, level is the danger value
     //vector<int> difficulty = {30, 40, 50, 60, 70, 80};
     vector<int> difficulty = {20, 25, 30, 35, 40, 45};
-    int pts = difficulty[level];
-    vector<entity> enemylineup = listgen(pts, epool);
+    int pts = difficulty[g.level];
+    vector<entity> enemylineup = listgen(pts, g.epool);
 
     vector<int> section = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int temp = rand%9;
@@ -78,7 +78,7 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         };
         temp = rand%3;
         for (auto &i : playout[temp]) {
-            wall.emplace_back(bpx + i.first, bpy + i.second);
+            g.wlist.emplace_back(bpx + i.first, bpy + i.second);
         }
     //GATE SECTION
     for (int i = 8; i > 5; i--) {
@@ -92,25 +92,25 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
         //choose layout
             temp = rand%12;
             for (auto &i : layout[temp]) {
-                wall.emplace_back(bgx + i.first, bgy + i.second);
+                g.wlist.emplace_back(bgx + i.first, bgy + i.second);
             }
         //spawn gate
             int x = 0, y = 0;
             for (int i = 0; i < 50; i++) {
                 x = rand%5 + bgx; y = rand%9 + bgy;
-                if (occupied(x, y, p, elist, wall)) break;
+                if (occupied(x, y, p, g.elist, g.wlist)) break;
                 x = 1; y = 2;
             }
             entity gate = {x, y, "gate", 'G', 3, -1, -1, -1};
-            elist.push_back(gate);
+            g.elist.push_back(gate);
         //spawn enemy
         int spawn = (enemylineup.size() + (i-1))/i;
         for (int i = 0; i < spawn; i++) {
             int x = 0, y = 0;
             for (int i = 0; i < 100; i++) {
                 x = rand%5 + bgx; y = rand%9 + bgy;
-                if (occupied(x, y, p, elist, wall)) {
-                    elist.push_back({x, y, enemylineup.back().type, 
+                if (occupied(x, y, p, g.elist, g.wlist)) {
+                    g.elist.push_back({x, y, enemylineup.back().type, 
                         enemylineup.back().s, enemylineup.back().c, 
                         enemylineup.back().ax, enemylineup.back().ay, 
                         enemylineup.back().t});
@@ -133,25 +133,25 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     //choose layout
         temp = rand%12;
         for (auto &i : layout[temp]) {
-            wall.emplace_back(bgx + i.first, bgy + i.second);
+            g.wlist.emplace_back(bgx + i.first, bgy + i.second);
         }
     //spawn coins
         int x = 0, y = 0;
         for (int i = 0; i < 50; i++) {
             x = rand%5 + bgx; y = rand%9 + bgy;
-            if (occupied(x, y, p, elist, wall)) break;
+            if (occupied(x, y, p, g.elist, g.wlist)) break;
             x = 1; y = 2;
         }
         entity coin = {x, y, "coin", 'c', 3, -1, -1, -1};
-        elist.push_back(coin);
+        g.elist.push_back(coin);
     //spawn enemy
         int spawn = (enemylineup.size() + (i-1))/i;
         for (int i = 0; i < spawn; i++) {
             int x = 0, y = 0;
             for (int i = 0; i < 100; i++) {
                 x = rand%5 + bgx; y = rand%9 + bgy;
-                if (occupied(x, y, p, elist, wall)) {
-                    elist.push_back({x, y, enemylineup.back().type, 
+                if (occupied(x, y, p, g.elist, g.wlist)) {
+                    g.elist.push_back({x, y, enemylineup.back().type, 
                         enemylineup.back().s, enemylineup.back().c, 
                         enemylineup.back().ax, enemylineup.back().ay, 
                         enemylineup.back().t});
@@ -174,7 +174,7 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     //choose layout
         temp = rand%12;
         for (auto &i : layout[temp]) {
-            wall.emplace_back(bgx + i.first, bgy + i.second);
+            g.wlist.emplace_back(bgx + i.first, bgy + i.second);
         }
     //spawn enemy
         int spawn = (enemylineup.size() + (i-1))/i;
@@ -182,8 +182,8 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
             int x = 0, y = 0;
             for (int i = 0; i < 100; i++) {
                 x = rand%5 + bgx; y = rand%9 + bgy;
-                if (occupied(x, y, p, elist, wall)) {
-                    elist.push_back({x, y, enemylineup.back().type, 
+                if (occupied(x, y, p, g.elist, g.wlist)) {
+                    g.elist.push_back({x, y, enemylineup.back().type, 
                         enemylineup.back().s, enemylineup.back().c, 
                         enemylineup.back().ax, enemylineup.back().ay, 
                         enemylineup.back().t});
@@ -195,19 +195,19 @@ void director(vector<entity> &elist, vector<pair<int,int>> &wall, player &p, int
     }
 }
 
-void updater(int &val, pair<int, entity> &target, vector<pair<int, entity>> epool, player p, vector<entity> &elist, vector<pair<int,int>> &wall) {
+void updater(int &val, pair<int, entity> &target, gamestate &g, player p) {
     if (val > 25 + 3*target.first) {
         int x = 0, y = 0;
         for (int i = 0; i < 100; i++) {
             x = rand%15; y = rand%27;
-            if (occupied(x, y, p, elist, wall)) {
-                elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 6,
+            if (occupied(x, y, p, g.elist, g.wlist)) {
+                g.elist.push_back({x, y, "spawner", 'X', 5, 0, 0, 6,
                 {target.second.s, target.second.c}, target.second.type, {target.second.ax, target.second.ay, target.second.t}
                 });
                 break;
             }
         }
         val = -4;
-        target = epool[rand%epool.size()];
+        target = g.epool[rand%g.epool.size()];
     } else val++;
 }
