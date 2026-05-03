@@ -293,7 +293,7 @@ void collectPickups(UpgradeState &upgrades, vector<entity> &elist, player &p) {
             if (elist[i].type == "time_stop") {
                 upgrades.timeStopPickupCount++;
                 if (upgrades.timeStopPickupCount >= 2) {
-                    upgrades.timeStopTurns = 2;
+                    upgrades.timeStopTurns = 3;
                     upgrades.timeStopPickupCount = 0;
                 }
             }

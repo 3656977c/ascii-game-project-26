@@ -3,7 +3,7 @@
 #include "enemies.h"
 #include "director.h"
 #include "menu.h"
-#include <algorithm>
+
 int n = 15; //enforced # of columns
 int m = 27; //enforced # of rows
 int open = 0; //global "open" val
@@ -190,52 +190,60 @@ void updateplayer(player &p, UpgradeState &upgrades, gamestate &g) {
 string playGame(int diff) {
     resetDirector();
 
+    //init gamestate
     gamestate gmst;
     gmst.state = "run";
     gmst.level = 1;
+<<<<<<< HEAD
     gmst.diff = diff;
 
+=======
+    //init upgrades
+>>>>>>> 10a879ab4f0acac089ade475e034ab08be118e63
     UpgradeState upgrades;
     uppick pickedUpgrades;
+    //initplayer
     player player{0,0,3,3};
 
-    //initialization for updater, ill consider moving it to gamestate
-
+    //generate a layout
     genLevel(gmst, player);
+
     while (gmst.state == "run") {
+        //show screen
         display(gmst, player);
+
+        //collect player input and update player position, pickups check
         updateplayer(player, upgrades, gmst);
         if (gmst.state != "run") break;
-
         collectPickups(upgrades, gmst.elist, player);
-  
 
+        //update entities (if time is stopped, all entities dont update)
         if (upgrades.timeStopTurns > 0) {
             upgrades.timeStopTurns--;
         } else {
             updateentities(gmst, player, upgrades);
         }
-        removeInactiveEntities(gmst.elist);
 
-        collectPickups(upgrades, gmst.elist, player);
-        removeInactiveEntities(gmst.elist);
-
+        //damage check
         int enemyIndex = getPlayerHitIndex(gmst.elist, player);
         if (enemyIndex != -1) {
             if (applyPlayerHit(upgrades, player, gmst.elist, enemyIndex)) {
                 gmst.state = "dead";
             }
-            removeInactiveEntities(gmst.elist);
         }
+
+        //win check
         if (open >= 3) {
             if (gmst.level >= 6) {
                 gmst.state = "win";
                 break;
             }
 
+            //select an upgrade
             int selectedUpgrade = chooseUpgrade(gmst.level, player, pickedUpgrades);
             pickedUpgrades.push_back(selectedUpgrade);
-
+            
+            //update values of certain upgrades
             if (selectedUpgrade == 3) {
                 upgrades.healOneEndStage = true;
             }
@@ -243,29 +251,24 @@ string playGame(int diff) {
                 upgrades.healHalfEndStage = true;
             }
 
+            //carry on and proceed to next stage
             onStageClear(upgrades, player);
-
             gmst.level++;
             genLevel(gmst, player);
             addCarriedUpgradePickups(upgrades, gmst.elist, gmst.wlist);
             applyUpgrade(selectedUpgrade, upgrades, player, gmst.elist, gmst.wlist, n, m);
         }
 
+        //progress upgrades with time-related abilities
         nextUpgradeTurn(upgrades);
+        //progress enemy time spawner
         updater(turns, targ, gmst, player);
     }
 
-    if (gmst.state == "dead") {
-        pickedUpgrades.release();
-        return "dead";
-    }
-
-    if (gmst.state == "win") {
-        pickedUpgrades.release();
-        return "win";
-    }
-
+    //free the dynamic array pickedUpgrades when the game ends
     pickedUpgrades.release();
+    if (gmst.state == "dead") return "dead";
+    if (gmst.state == "win") return "win";
     return "quit";
 }
 

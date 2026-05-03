@@ -6,7 +6,7 @@
 //menu also works when "state" is listed as pause or is anything else but "game"
 
 void drawMenuTitle() {
-    mvprintw(1, 4, "ASCII GAME");
+    mvprintw(1, 4, "ASCII KNIGHT");
     mvprintw(2, 4, "----------");
 }
 

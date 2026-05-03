@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <algorithm>
 #include <set>
 #ifdef __APPLE__
 #include <curses.h>
@@ -57,7 +58,7 @@ class gamestate {
 
         vector<pair<int, entity>> epool = {{2, bcer}, {3, ghst}, {5, shtr}};
         int level;
-        int diff = 0;
+        int diff = 1;
         string state;
 };
 
