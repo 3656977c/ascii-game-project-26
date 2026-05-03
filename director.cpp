@@ -32,9 +32,9 @@ vector<vector<pair<int,int>>> playout = {
     {{1, 2},{1, 6},{2, 1},{2, 2},{2, 6},{2, 7},{3, 2},{3, 6}},
     {{1, 1},{1, 2},{1, 7},{3, 1},{3, 6},{3, 7}}
 };
-entity turret = {0, 0, "turret", '#', 2, -1, -1, 0};
+entity turret = {0, 0, "turret", '#', 2, -1, -1, 1};
 entity leaper = {0, 0, "leaper", '^', 2, -1, -1, 0};
-entity mushroom = {0, 0, "mushroom", '!', 2, -1, -1, 0};
+entity mushroom = {0, 0, "mushroom", '!', 5, -1, -1, 0};
 entity grappler = {0, 0, "grappler", '$', 2, -1, -1, 0};
 entity ttur = {0, 0, "+tur", '+', 2, -1, -1, 0};
 entity xtur = {0, 0, "xtur", 'x', 2, -1, -1, 0};

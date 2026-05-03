@@ -59,6 +59,14 @@ void display(gamestate g, player p, uppick pickedUpgrades) {
         mvaddch(3+i.first+a, 2*i.second+b-1, 'W' | COLOR_PAIR(10));
         mvaddch(3+i.first+a, 2*i.second+b + 1, 'W' | COLOR_PAIR(10));
     }
+
+    //print coins and gates first
+    for (auto i: g.elist) {
+        if (i.type != "gate" && i.type != "coin") continue;
+        if (i.c == -1) continue;
+        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
+    }
+    
     // draw harming tiles first so enemies/player appear above them
     for (auto i: g.elist) {
         if (i.type != "harming tile") continue;
@@ -67,14 +75,8 @@ void display(gamestate g, player p, uppick pickedUpgrades) {
         mvaddch(3+i.x+a, 2*i.y+b, ' ' | COLOR_PAIR(20));
         mvaddch(3+i.x+a, 2*i.y+b-1, ' ' | COLOR_PAIR(20));
         mvaddch(3+i.x+a, 2*i.y+b+1, ' ' | COLOR_PAIR(20));
-}
-  
-    //print coins and gates first
-    for (auto i: g.elist) {
-        if (i.type != "gate" && i.type != "coin") continue;
-        if (i.c == -1) continue;
-        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
     }
+  
 
     //print projectiles
     for (auto i: g.elist) {
@@ -92,8 +94,8 @@ void display(gamestate g, player p, uppick pickedUpgrades) {
     ) continue;
 
     if (i.c == -1) continue;
-    mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
-}
+        mvaddch(3+i.x+a, 2*i.y+b, i.s | COLOR_PAIR(i.c));
+    }
 
     //print player and refresh
     mvaddch(3+p.x+a, 2*p.y+b, '@' | COLOR_PAIR(1));
