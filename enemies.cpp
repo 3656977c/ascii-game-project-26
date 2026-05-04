@@ -525,6 +525,17 @@ void bGate(entity &e, player p) {
 // If the player is in the same row or column, pulls the player one tile toward it.
 // It also moves slowly every 3 turns.
 void bGrappler(entity &e, player &p, vector<pair<int,int>> &w) {
+    if (e.t < 0) {
+        e.t++;
+
+        if (e.t == 0) {
+            e.c = 2;
+        }
+
+        return;
+    }
+
+  
     // Pull player if aligned.
     if (p.x == e.x) {
         int pullY = p.y + signNum(e.y - p.y);
@@ -797,6 +808,11 @@ int getPlayerHitIndex(vector<entity> &e, player p) {
                 e[i].c = 5;
                 e[i].t = -6;
             }
+            if (e[i].type == "grappler") {
+                e[i].c = 5;
+                e[i].t = -8;
+            }
+
 
             // Projectiles disappear after hitting the player.
             if (e[i].type == "projectile") {
